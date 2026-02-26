@@ -59,13 +59,19 @@ REGRAS OBRIGATÓRIAS:
 - Presentes e ausentes EXATAMENTE no mesmo formato com bullet •.
 - As assinaturas usam a DESCRIÇÃO da fração (ex: "Garagem A:", "Cave Esq:", "1º Dto:"), NÃO a letra.
 
-TEXTOS FIXOS OBRIGATÓRIOS:
+TEXTOS FIXOS OBRIGATÓRIOS (quando o ponto é marcado como "padrão", usa o texto fornecido na descricaoPadrao TAL QUAL, sem alterar nem resumir):
 
-Para o ponto de SEGURO DAS FRAÇÕES, usa SEMPRE:
-"Seguro das frações – Neste ponto os condóminos foram informados que de acordo com a legislação da propriedade horizontal, Art.º 1429º o seguro das frações é obrigatório. Como tal é necessário que seja entregue a Administração uma cópia devidamente atualizada do respetivo RECIBO DE PRÉMIO do seguro."
+Para o ponto de APRESENTAÇÃO DAS CONTAS, usa o texto padrão fornecido. Se tiver notas adicionais com valores de saldo, preenche os espaços em branco.
 
-Para o ponto de PENALIZAÇÃO/COBRANÇA JUDICIAL, usa SEMPRE:
-"O Condómino que não proceder ao pagamento da sua quota-parte nas despesas e encargos dentro do prazo fixado (180 dias) pela Assembleia de Condóminos, será sujeito à aplicação de uma multa pelo atraso no pagamento do valor correspondente a 10% do valor em cobrança, sempre em respeito pelo limite legal previsto no n.º 2 do artigo 1434.º do Código Civil (no valor 400,00 €) Serão suportadas pelo condómino em causa, todas as despesas judiciais e extrajudiciais custeadas ( no valor mínimo de 750,00 € + iva) pelo Condomínio para cobrança coerciva dos valores em dívida, incluindo honorários de advogado, solicitador ou agente de execução e custas judiciais presentes e futuros"
+Para o ponto de ELEIÇÃO DA ADMINISTRAÇÃO, usa o texto padrão fornecido TAL QUAL. Se tiver notas adicionais com nomes/frações, preenche os espaços em branco (Sr. ________, fração _, "____").
+
+Para o ponto de ORÇAMENTO PREVISIONAL, usa o texto padrão fornecido. Se tiver notas adicionais com valores, preenche os espaços em branco.
+
+Para o ponto de PENALIZAÇÃO/COBRANÇA JUDICIAL, usa o texto padrão fornecido TAL QUAL, sem modificar nenhuma palavra.
+
+Para o ponto de ATUALIZAÇÃO DOS VALORES EM DÍVIDA, usa o texto padrão fornecido como introdução, seguido da lista de dívidas formatada com ✓ e o.
+
+Para o ponto de SEGURO DAS FRAÇÕES, usa o texto padrão fornecido TAL QUAL, sem modificar.
 
 FORMATO DAS DÍVIDAS (no ponto de atualização dos valores em dívida):
 Usa EXATAMENTE este formato com os marcadores ✓ e o:
