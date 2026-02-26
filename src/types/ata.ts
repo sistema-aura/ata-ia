@@ -20,12 +20,24 @@ export interface PresencasData {
   totalPermilagem: string;
 }
 
+export interface DetalhesDivida {
+  quotizacao?: string;
+  fundoReserva?: string;
+  mesInicio?: string;
+  mesFim?: string;
+  ano?: string;
+  total?: string;
+  quotaExtra?: string;
+}
+
 export interface DividaCondomino {
   fracao: string;
   nome: string;
+  descricao?: string;
   valorDivida: string;
   mesesAtraso?: string;
   observacoes?: string;
+  detalhes?: DetalhesDivida[];
 }
 
 export interface DividasData {

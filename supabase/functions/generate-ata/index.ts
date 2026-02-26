@@ -111,6 +111,41 @@ function formatPresencas(presencasData: any): string {
   return result;
 }
 
+function parseObservacoesToPeriods(obs: string): string[] {
+  // Parse "Oct/2024-Feb/2026" or "Jan/2026-Fev/2026" into year-separated period lines
+  const monthMap: Record<string, string> = {
+    "jan": "janeiro", "fev": "fevereiro", "mar": "março", "abr": "abril",
+    "mai": "maio", "maio": "maio", "jun": "junho", "jul": "julho", "ago": "agosto",
+    "set": "setembro", "out": "outubro", "oct": "outubro", "nov": "novembro", "dez": "dezembro",
+    "dec": "dezembro", "feb": "fevereiro", "apr": "abril", "aug": "agosto", "sep": "setembro",
+  };
+  const toMonth = (s: string) => monthMap[s.toLowerCase()] || s.toLowerCase();
+  
+  const match = obs?.match(/([A-Za-zç]+)\/(\d{4})\s*-\s*([A-Za-zç]+)\/(\d{4})/);
+  if (!match) return [];
+  
+  const [, m1, y1, m2, y2] = match;
+  const startYear = parseInt(y1);
+  const endYear = parseInt(y2);
+  
+  const allMonths = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+  const startIdx = allMonths.indexOf(toMonth(m1));
+  const endIdx = allMonths.indexOf(toMonth(m2));
+  
+  if (startIdx === -1 || endIdx === -1) return [];
+  
+  const lines: string[] = [];
+  for (let year = startYear; year <= endYear; year++) {
+    const from = year === startYear ? allMonths[startIdx] : "janeiro";
+    const to = year === endYear ? allMonths[endIdx] : "dezembro";
+    const meses = from === to
+      ? `do mês de ${from} do ano ${year}`
+      : `do mês de ${from} até ao mês de ${to} do ano ${year}`;
+    lines.push(`o  a quotização (€ ____) e fundo de reserva (€ ____) ${meses} (€ ____);`);
+  }
+  return lines;
+}
+
 function formatDividas(dividasData: any): string {
   if (!dividasData?.dividas?.length) return "";
   
@@ -126,9 +161,16 @@ function formatDividas(dividasData: any): string {
 
   return `\n\nDÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):\n` +
     dividasData.dividas.map((d: any) => {
-      const header = `✓ Fração ${d.fracao} – ${d.descricao || d.nome} – ${d.valorDivida}€ correspondentes:`;
+      const header = `✓ Fração ${d.fracao} – ${d.descricao || d.fracao} – ${d.valorDivida}€ correspondentes:`;
       if (d.detalhes?.length) {
         return header + "\n" + d.detalhes.map(formatDetalhe).join("\n");
+      }
+      // Fallback: parse observacoes field for date ranges
+      if (d.observacoes) {
+        const periodLines = parseObservacoesToPeriods(d.observacoes);
+        if (periodLines.length) {
+          return header + "\n" + periodLines.join("\n");
+        }
       }
       return header;
     }).join("\n") +
