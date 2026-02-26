@@ -34,6 +34,7 @@ export interface DividasData {
 }
 
 export interface AtaFormData {
+  numeroAta: string;
   nomeCondominio: string;
   morada: string;
   nifCondominio: string;
@@ -108,6 +109,7 @@ export const PONTOS_PADRAO: PontoOrdemDia[] = [
 ];
 
 export const INITIAL_FORM_DATA: AtaFormData = {
+  numeroAta: "",
   nomeCondominio: "",
   morada: "",
   nifCondominio: "",
