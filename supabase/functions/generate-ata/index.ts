@@ -123,12 +123,26 @@ function formatPresencas(presencasData: any): string {
 
 function formatDividas(dividasData: any): string {
   if (!dividasData?.dividas?.length) return "";
+  
+  const formatDetalhe = (det: any): string => {
+    if (det.quotaExtra) {
+      return `o  Quota extra ${det.quotaExtra} (€ ${det.total});`;
+    }
+    const meses = det.mesInicio === det.mesFim
+      ? `do mês de ${det.mesInicio} do ano ${det.ano}`
+      : `do mês de ${det.mesInicio} até ao mês de ${det.mesFim} do ano ${det.ano}`;
+    return `o  a quotização (€ ${det.quotizacao}) e fundo de reserva (€ ${det.fundoReserva}) ${meses} (€ ${det.total});`;
+  };
+
   return `\nValores em Dívida ao Condomínio (por ordem de fração):\n` +
-    dividasData.dividas.map((d: any) =>
-      `✓ Fração ${d.fracao} – ${d.nome} – valor em dívida de ${d.valorDivida}€${d.mesesAtraso ? `, correspondente a ${d.mesesAtraso} meses em atraso` : ""}${d.observacoes ? `. Observações: ${d.observacoes}` : ""}`
-    ).join("\n") +
-    `\nTotal geral em dívida ao condomínio: ${dividasData.totalDivida}€` +
-    `\n\nIMPORTANTE: Formata as dívidas com o marcador ✓ para cada fração e o para os detalhes de quotização/fundo de reserva, conforme o formato obrigatório no system prompt.`;
+    dividasData.dividas.map((d: any) => {
+      const header = `✓ Fração ${d.fracao} – ${d.descricao || d.nome} – valor em dívida de ${d.valorDivida}€ correspondentes:`;
+      if (d.detalhes?.length) {
+        return header + "\n" + d.detalhes.map(formatDetalhe).join("\n");
+      }
+      return header;
+    }).join("\n") +
+    `\nTotal geral em dívida ao condomínio: ${dividasData.totalDivida}€`;
 }
 
 serve(async (req) => {

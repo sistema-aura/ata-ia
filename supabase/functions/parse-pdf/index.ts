@@ -48,19 +48,38 @@ Ordena SEMPRE por fração (andar e lado), nunca por ordem alfabética.
 Se houver condóminos representados, marca representado: true.`;
     } else if (parseType === "dividas") {
       prompt = `Analisa este documento de dívidas/valores em atraso de um condomínio.
-Extrai a informação de todos os condóminos com valores em dívida, organizados POR ORDEM DE FRAÇÃO (R/C primeiro, depois 1º, 2º, etc.).
+Extrai a informação de todos os condóminos com valores em dívida, organizados POR ORDEM DE FRAÇÃO.
 
 Devolve APENAS um JSON válido com esta estrutura (sem markdown, sem texto extra):
 {
   "dividas": [
-    {"fracao": "R/C Esq", "nome": "Nome do condómino", "valorDivida": "150.00", "mesesAtraso": "3", "observacoes": "Jan-Mar 2024"}
+    {
+      "fracao": "A",
+      "descricao": "Parq. Nº1",
+      "nome": "Nome do condómino",
+      "valorDivida": "150.00",
+      "detalhes": [
+        {"quotizacao": "38.63", "fundoReserva": "3.86", "mesInicio": "janeiro", "mesFim": "fevereiro", "ano": "2026", "total": "84.98"},
+        {"quotaExtra": "Reparação Danos", "total": "329.86"}
+      ]
+    }
   ],
   "totalDivida": "450.00"
 }
 
-Se algum campo não for legível, coloca "ilegível".
-Ordena SEMPRE por fração (andar e lado), nunca por ordem alfabética.
-Inclui o valor total de dívidas no campo totalDivida.`;
+REGRAS DE EXTRAÇÃO:
+- "fracao": a letra da fração (ex: "A", "B", "M", "R")
+- "descricao": a descrição da fração (ex: "Parq. Nº1", "2º Dto", "5º Recuado", "Garagem B")
+- "detalhes": array com cada período em dívida. Para cada período extrair:
+  - "quotizacao": valor mensal da quotização
+  - "fundoReserva": valor mensal do fundo de reserva
+  - "mesInicio" e "mesFim": se é um único mês, mesInicio = mesFim. Se são vários meses do mesmo ano, indica o primeiro e último.
+  - "ano": o ano do período
+  - "total": valor total desse período
+  - Para quotas extras: usa "quotaExtra" com a descrição e "total" com o valor
+- Se os meses são de anos diferentes, separa em entradas diferentes no array detalhes.
+- Ordena SEMPRE por fração.
+- Inclui o valor total de dívidas no campo totalDivida.`;
     } else {
       throw new Error("parseType inválido");
     }

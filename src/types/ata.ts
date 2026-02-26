@@ -62,7 +62,7 @@ export const PONTOS_PADRAO: PontoOrdemDia[] = [
     titulo: "Apresentação, debate e aprovação das contas referentes ao exercício",
     tipo: "padrao",
     descricaoPadrao:
-      "Foram apresentadas as contas relativamente aos exercícios e aprovadas por unanimidade dos votos presentes de acordo com os documentos apresentados e que se encontram anexos à ata, sendo o saldo a transitar de 20__ de ___€ e o saldo a transitar de 20__ de ___€ (ANEXO 2)",
+      "Foram apresentadas as contas relativamente aos exercícios e aprovadas por unanimidade dos votos presentes de acordo com os documentos apresentados e que se encontram anexos à ata.",
   },
   {
     id: "p2",
