@@ -63,7 +63,9 @@ TEXTOS FIXOS OBRIGATÓRIOS (quando o ponto é marcado como "padrão", usa o text
 
 Para o ponto de APRESENTAÇÃO DAS CONTAS, usa o texto padrão fornecido. Se tiver notas adicionais com valores de saldo, preenche os espaços em branco.
 
-Para o ponto de ELEIÇÃO DA ADMINISTRAÇÃO, usa o texto padrão fornecido TAL QUAL. Se tiver notas adicionais com nomes/frações, preenche os espaços em branco (Sr. ________, fração _, "____").
+Para o ponto de ELEIÇÃO DA ADMINISTRAÇÃO, usa SEMPRE este texto EXATO, palavra por palavra, sem alterar NADA:
+"Foi nomeada a Empresa Condomínio Dinâmico, Lda., com NIF 513 259 678, representada pela Sra. Dina Isabel Lopes Jordão Inverno, Foi deliberado pelos presentes na Assembleia eleger com elo de ligação e titulares da conta bancária, Sr. ________, representante da fração _ \"____\" e a gerente da empresa Condomínio Dinâmico, Lda. com o NIPC 513 259 678, representada pela Sra. Dina Isabel Lopes Jordão Inverno, com o número de contribuinte 198891962. Foi dada autorização por unanimidade dos presentes para alterar, bem como consultar ou requisitar qualquer tipo de serviço que a entidade bancaria disponibilize numa conta à ordem ou a prazo em nome do condomínio, para a movimentação da mesma será necessário a assinatura dos dois titulares. Foi também aprovado por unanimidade que para além das funções previstas no código civil pelo art.º 1436º, conferir poderes à gerência do condomínio dinâmico a representação perante organismos públicos e entidades oficiais pelo condomínio."
+Se houver notas adicionais com nome e fração do titular, preenche APENAS os espaços em branco (Sr. ________, fração _, "____").
 
 Para o ponto de ORÇAMENTO PREVISIONAL, usa o texto padrão fornecido. Se tiver notas adicionais com valores, preenche os espaços em branco.
 
@@ -77,7 +79,10 @@ FORMATO DAS DÍVIDAS (no ponto de atualização dos valores em dívida):
 Usa EXATAMENTE este formato com os marcadores ✓ e o:
 
 ✓ Fração [X] – [Descrição] – [Valor por extenso] (€ [valor total]) correspondentes:
-o  a quotização (€ [valor]) e fundo de reserva (€ [valor]) do mês de [mês início] até ao mês de [mês fim] do ano [ano] (€ [valor total desse período]);
+o  a quotização (€ [valor quotização]) e fundo de reserva (€ [valor fundo reserva]) do mês de [mês] do ano [ano] (€ [total desse período]);
+
+CADA LINHA "o" DEVE TER SEMPRE: "a quotização (€ X) e fundo de reserva (€ Y) do mês de [mês] do ano [ano] (€ total);"
+Nunca omitas a quotização ou o fundo de reserva. Nunca juntes valores sem discriminar.
 
 REGRAS DE AGRUPAMENTO:
 - Se os meses em dívida são do MESMO ANO, agrupa-os numa única linha "o": "do mês de janeiro até ao mês de fevereiro do ano 2026 (€ total);"
