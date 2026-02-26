@@ -47,30 +47,83 @@ serve(async (req) => {
 Escreve atas formais, completas e profissionais seguindo a legislação portuguesa (Código Civil, artigos 1430.º a 1438.º).
 A ata deve ser redigida em português europeu formal, com linguagem jurídica apropriada.
 
-ESTRUTURA OBRIGATÓRIA DA ATA (segue este formato exatamente):
+FORMATO OBRIGATÓRIO (segue este formato EXATAMENTE como um documento legal):
 
-1. TÍTULO: "ATA" centrado no topo.
+# ATA
 
-2. PARÁGRAFO INTRODUTÓRIO: Começa com "Aos [data por extenso], pelas [hora] horas e [minutos] minutos, reuniu no [local da reunião] em [convocatória] convocatória, a Assembleia [tipo] de Condóminos do condomínio sito na [morada], freguesia [freguesia], Concelho de [concelho], com o NIF [NIF] para deliberar sobre os assuntos seguintes:"
+Aos [data por extenso], pelas [hora] horas e [minutos] minutos, reuniu no [local da reunião], em [convocatória] convocatória, a Assembleia [Ordinária/Extraordinária] de Condóminos do condomínio sito na [morada], freguesia de [freguesia], Concelho de [concelho], com o NIF [NIF], para deliberar sobre os seguintes assuntos constantes da Ordem de Trabalhos:
 
-3. LISTA DA ORDEM DO DIA: Lista numerada com todos os pontos.
+**ORDEM DE TRABALHOS:**
 
-4. PARÁGRAFO SOBRE CONVOCAÇÃO: "A assembleia foi regularmente convocada por carta registada."
+1. [Ponto 1]
+2. [Ponto 2]
+(etc.)
 
-5. LISTA DE PRESENÇAS: Mencionar que estiveram presentes e representados X condóminos representando Y% do capital total, nos termos do art.º 1432.º do CC, o que permite deliberar sobre os assuntos constantes da ordem de trabalhos.
+---
 
-6. CADA PONTO DESENVOLVIDO: Com título "Ponto [número por extenso]:" seguido do desenvolvimento da deliberação. Usar linguagem como "Foi deliberado por unanimidade dos condóminos presentes...", "Foram apresentadas as contas...", etc.
+A assembleia foi regularmente convocada por carta registada com aviso de receção enviada a todos os condóminos.
 
-7. ENCERRAMENTO: "Nada mais havendo a acrescentar, deu-se por encerrada a Assembleia cerca das [hora] horas e [minutos] minutos, sendo lavrada a presente ata que depois de lida e aprovada vai ser assinada por todos os condóminos presentes."
+---
 
-8. TABELA DE ASSINATURAS: Presidente e condóminos presentes.
+**PRESENÇAS:**
 
-REGRAS:
-- Usa português europeu formal e jurídico.
-- Não inventes dados - usa apenas a informação fornecida.
-- Escreve os números por extenso quando apropriado.
-- Referencia artigos do Código Civil quando relevante (art.º 1429.º para seguros, art.º 1432.º para quórum, art.º 1436.º para funções do administrador).
-- Para pontos personalizados, desenvolve o texto com base nas notas fornecidas.`;
+Verificou-se estarem presentes e/ou representados os seguintes condóminos, por ordem de fração:
+
+**Presentes:**
+- Fração [X] – [Nome], NIF [NIF], representando [permilagem]‰ do capital total
+(listar todos por ordem de fração)
+
+**Representados:**
+- Fração [X] – [Nome], NIF [NIF], representando [permilagem]‰ do capital total (representado por [representante])
+(se existirem)
+
+**Ausentes:**
+- Fração [X] – [Nome], NIF [NIF], representando [permilagem]‰ do capital total
+(listar todos por ordem de fração)
+
+Estiveram assim presentes e representados condóminos representando [percentagem]% do capital investido, nos termos do art.º 1432.º do Código Civil, o que permite deliberar validamente sobre os assuntos constantes da ordem de trabalhos.
+
+O Presidente da Mesa da Assembleia foi [nome do presidente].
+
+---
+
+**DELIBERAÇÕES:**
+
+**Ponto Um – [Título do ponto]**
+
+[Desenvolvimento completo da deliberação. Usar "Foi deliberado por unanimidade dos condóminos presentes...", "Foram apresentadas e aprovadas...", etc.]
+
+**Ponto Dois – [Título do ponto]**
+
+[Desenvolvimento...]
+
+(continuar para todos os pontos, usando números por extenso: Um, Dois, Três, Quatro, Cinco, Seis, Sete...)
+
+---
+
+**ENCERRAMENTO**
+
+Nada mais havendo a tratar, deu-se por encerrada a Assembleia cerca das [hora] horas e [minutos] minutos, sendo lavrada a presente ata que, depois de lida e aprovada, vai ser assinada pelo Presidente da Mesa e pelos condóminos presentes.
+
+---
+
+**ASSINATURAS**
+
+| Fração | Nome | Assinatura |
+|--------|------|------------|
+| | Presidente da Mesa: [nome] | _________________ |
+| [Fração] | [Nome] | _________________ |
+(listar todos os presentes por ordem de fração)
+
+REGRAS IMPORTANTES:
+- Usa SEMPRE português europeu formal e jurídico.
+- NÃO inventes dados — usa apenas a informação fornecida.
+- Escreve os números dos pontos POR EXTENSO (Ponto Um, Ponto Dois, etc.).
+- Referencia artigos do Código Civil: art.º 1429.º (seguros), art.º 1432.º (quórum), art.º 1436.º (administrador).
+- Para pontos padrão, usa a descrição fornecida como base.
+- Para pontos personalizados, desenvolve o texto com base nas notas fornecidas.
+- Ordena SEMPRE os condóminos por fração (R/C, 1º, 2º, 3º, etc.), NUNCA por ordem alfabética.
+- Usa formatação markdown com cabeçalhos, negrito, linhas horizontais e tabelas.`;
 
     // Format presencas if available
     let presencasFormatadas = "";
