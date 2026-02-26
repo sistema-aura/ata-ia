@@ -71,28 +71,27 @@ Para o ponto de ORÇAMENTO PREVISIONAL, usa o texto padrão fornecido. Se tiver 
 
 Para o ponto de PENALIZAÇÃO/COBRANÇA JUDICIAL, usa o texto padrão fornecido TAL QUAL, sem modificar nenhuma palavra.
 
-Para o ponto de ATUALIZAÇÃO DOS VALORES EM DÍVIDA, usa o texto padrão fornecido como introdução, seguido da lista de dívidas EXATAMENTE como fornecida nos dados. NÃO modifiques os valores numéricos. NÃO substituas valores por "__" ou placeholders.
+Para o ponto de ATUALIZAÇÃO DOS VALORES EM DÍVIDA, usa o texto padrão fornecido como introdução, seguido da lista de dívidas EXATAMENTE como fornecida nos dados. COPIA TAL QUAL, incluindo os "____" nos valores. O utilizador preencherá os valores depois.
 
 Para o ponto de SEGURO DAS FRAÇÕES, usa o texto padrão fornecido TAL QUAL, sem modificar.
 
 FORMATO DAS DÍVIDAS (no ponto de atualização dos valores em dívida):
-COPIA A SECÇÃO DE DÍVIDAS TAL QUAL COMO É FORNECIDA NOS DADOS DO UTILIZADOR. Os valores de quotização, fundo de reserva e totais já estão calculados e formatados. NÃO os alteres. Apenas adiciona o valor total por extenso no cabeçalho ✓.
+COPIA A SECÇÃO DE DÍVIDAS TAL QUAL COMO É FORNECIDA NOS DADOS DO UTILIZADOR. NÃO alteres NADA. Mantém os "____" nos campos de quotização, fundo de reserva e totais.
 
 Formato de cada fração:
 ✓ Fração [X] – [Descrição] – [Valor por extenso] (€ [valor total]) correspondentes:
-o  a quotização (€ [valor REAL]) e fundo de reserva (€ [valor REAL]) do mês de [mês] até ao mês de [mês] do ano [ano] (€ [total REAL]);
-o  a quotização (€ [valor REAL]) e fundo de reserva (€ [valor REAL]) do mês de [mês] até ao mês de [mês] do ano [ano] (€ [total REAL]);
+o  a quotização (€ ____) e fundo de reserva (€ ____) do mês de [mês] até ao mês de [mês] do ano [ano] (€ ____);
 
 Cada ano DIFERENTE fica numa linha "o" SEPARADA.
 Cada quota extra fica numa linha "o" separada.
 NUNCA juntes anos diferentes na mesma linha.
-NUNCA uses "__" ou placeholders — os valores REAIS são fornecidos nos dados.
+Mantém SEMPRE os "____" — o utilizador preenche depois.
 
 Exemplo CORRETO:
 ✓ Fração R/ch Esq. – R/ch Esq. – Quinhentos e trinta euros e vinte e quatro cêntimos (€ 530,24) correspondentes:
-o  a quotização (€ 28,05) e fundo de reserva (€ 2,81) do mês de outubro até ao mês de dezembro do ano 2024 (€ 92,58);
-o  a quotização (€ 28,05) e fundo de reserva (€ 2,81) do mês de janeiro até ao mês de dezembro do ano 2025 (€ 370,32);
-o  a quotização (€ 30,61) e fundo de reserva (€ 3,06) do mês de janeiro até ao mês de fevereiro do ano 2026 (€ 67,34);
+o  a quotização (€ ____) e fundo de reserva (€ ____) do mês de outubro até ao mês de dezembro do ano 2024 (€ ____);
+o  a quotização (€ ____) e fundo de reserva (€ ____) do mês de janeiro até ao mês de dezembro do ano 2025 (€ ____);
+o  a quotização (€ ____) e fundo de reserva (€ ____) do mês de janeiro até ao mês de fevereiro do ano 2026 (€ ____);
 
 NÃO uses tabelas. NÃO uses markdown. Texto corrido com marcadores ✓ e o.`;
 }
@@ -117,15 +116,15 @@ function formatDividas(dividasData: any): string {
   
   const formatDetalhe = (det: any): string => {
     if (det.quotaExtra) {
-      return `o  Quota extra ${det.quotaExtra} (€ ${det.total});`;
+      return `o  Quota extra ${det.quotaExtra} (€ ____);`;
     }
     const meses = det.mesInicio === det.mesFim
       ? `do mês de ${det.mesInicio} do ano ${det.ano}`
       : `do mês de ${det.mesInicio} até ao mês de ${det.mesFim} do ano ${det.ano}`;
-    return `o  a quotização (€ ${det.quotizacao}) e fundo de reserva (€ ${det.fundoReserva}) ${meses} (€ ${det.total});`;
+    return `o  a quotização (€ ____) e fundo de reserva (€ ____) ${meses} (€ ____);`;
   };
 
-  return `\n\nDÍVIDAS AO CONDOMÍNIO (DADOS REAIS EXTRAÍDOS - COPIAR TAL QUAL PARA A ATA, NÃO ALTERAR VALORES):\n` +
+  return `\n\nDÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):\n` +
     dividasData.dividas.map((d: any) => {
       const header = `✓ Fração ${d.fracao} – ${d.descricao || d.nome} – ${d.valorDivida}€ correspondentes:`;
       if (d.detalhes?.length) {
