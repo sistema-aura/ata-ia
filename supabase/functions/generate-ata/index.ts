@@ -79,8 +79,8 @@ Verificou-se estarem presentes e/ou representados os seguintes condóminos, por 
 (se existirem)
 
 **Ausentes:**
-- [Nome completo], proprietário(a) da fração [X], com o NIF nº [NIF], representando [permilagem]% do capital total do edifício;
-(listar todos por ordem de fração)
+- [Nome completo], proprietário(a) da fração [X], com o NIF nº [NIF] correspondente ao [descrição da fração se disponível], representando [permilagem]% do capital total do edifício;
+(listar todos por ordem de fração, EXATAMENTE NO MESMO FORMATO dos presentes, com nome primeiro, fração, NIF, descrição e permilagem)
 
 Estiveram assim presentes e representados condóminos representando [percentagem]% do capital investido, nos termos do art.º 1432.º do Código Civil, o que permite deliberar validamente sobre os assuntos constantes da ordem de trabalhos.
 
@@ -92,7 +92,7 @@ O Presidente da Mesa da Assembleia foi [nome do presidente].
 
 **Ponto Um – [Título do ponto]**
 
-[Desenvolvimento completo da deliberação. Usar "Foi deliberado por unanimidade dos condóminos presentes...", "Foram apresentadas e aprovadas...", etc.]
+[Desenvolvimento completo da deliberação.]
 
 **Ponto Dois – [Título do ponto]**
 
@@ -110,22 +110,33 @@ Nada mais havendo a tratar, deu-se por encerrada a Assembleia cerca das [hora] h
 
 **ASSINATURAS**
 
-| Fração | Nome | Assinatura |
-|--------|------|------------|
-| | Presidente da Mesa: [nome] | _________________ |
-| [Fração] | [Nome] | _________________ |
-(listar todos os presentes por ordem de fração)
+Presidente: _____________________________________________________________
+
+1º Dto: ________________________________________________________________
+
+2º Dto: ________________________________________________________________
+
+(Listar todas as frações presentes por ordem, no formato "[Fração]: ________________________________________________________________")
 
 REGRAS IMPORTANTES:
 - Usa SEMPRE português europeu formal e jurídico.
 - NÃO inventes dados — usa apenas a informação fornecida.
 - Escreve os números dos pontos POR EXTENSO (Ponto Um, Ponto Dois, etc.).
 - Referencia artigos do Código Civil: art.º 1429.º (seguros), art.º 1432.º (quórum), art.º 1436.º (administrador).
-- Para pontos padrão, usa a descrição fornecida como base E incorpora as notas adicionais do utilizador (ex: quem foi eleito administrador, valores aprovados, etc.).
+- Para pontos padrão, usa a descrição fornecida como base E incorpora as notas adicionais do utilizador.
 - Para pontos personalizados, desenvolve o texto com base nas notas fornecidas.
 - Ordena SEMPRE os condóminos por fração (R/C, 1º, 2º, 3º, etc.), NUNCA por ordem alfabética.
-- As dívidas devem ser descritas em TEXTO CORRIDO NARRATIVO, fração a fração, por ordem de fração. NÃO uses tabela para dívidas. Exemplo: "A Administração informou que a Fração R/C Esquerdo, propriedade de João Silva, apresenta um valor em dívida de 500€, correspondente a 3 meses de quotas em atraso."
-- Usa formatação markdown com cabeçalhos, negrito, linhas horizontais e tabelas (apenas para assinaturas).`;
+- Os AUSENTES devem ter EXATAMENTE o mesmo formato dos presentes (nome, fração, NIF, descrição, permilagem).
+- NÃO uses tabela para assinaturas. Usa o formato de linhas: "Fração: _______________"
+- Para o ponto de SEGURO DAS FRAÇÕES, usa SEMPRE este texto exato:
+  "Neste ponto os condóminos foram informados que de acordo com a legislação da propriedade horizontal, Art.º 1429º o seguro das frações é obrigatório. Como tal é necessário que seja entregue a Administração uma cópia devidamente atualizada do respetivo RECIBO DE PRÉMIO do seguro."
+- Para o ponto de PENALIZAÇÃO/COBRANÇA JUDICIAL de quotas em atraso, usa SEMPRE este texto exato:
+  "O Condómino que não proceder ao pagamento da sua quota-parte nas despesas e encargos dentro do prazo fixado pela Assembleia de Condóminos (180 dias), será sujeito à aplicação de uma multa pelo atraso no pagamento do valor correspondente a 10% do valor em cobrança, sempre em respeito pelo limite legal previsto no n.º 2 do artigo 1434.º do Código Civil (no valor 400,00 €) Serão suportadas pelo condómino em causa, todas as despesas judiciais e extrajudiciais custeadas ( no valor mínimo de 750,00 € + IVA) pelo Condomínio para cobrança coerciva dos valores em dívida, incluindo honorários de advogado, solicitador ou agente de execução e custas judiciais presentes e futuros."
+- As DÍVIDAS devem ser apresentadas fração a fração, com o valor por extenso, no seguinte formato OBRIGATÓRIO:
+  "ü Fração [X] – [Descrição] – [Valor por extenso] (€ [valor]) correspondentes:
+   o a quotização (€ [valor]) e fundo de reserva (€ [valor]) do mês de [mês início] do ano [ano] até ao mês de [mês fim] do ano [ano] (€ [valor total]);"
+  NÃO uses tabela para dívidas. Segue este formato de lista com detalhes de quotização e fundo de reserva.
+- Usa formatação markdown com cabeçalhos, negrito e linhas horizontais.`;
 
     // Format presencas if available
     let presencasFormatadas = "";
