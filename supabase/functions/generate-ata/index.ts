@@ -152,12 +152,16 @@ function formatDividas(dividasData: any): string {
   
   const formatDetalhe = (det: any): string => {
     if (det.quotaExtra) {
-      return `o  Quota extra ${det.quotaExtra} (€ ____);`;
+      const totalVal = det.total || "____";
+      return `o  Quota extra ${det.quotaExtra} (€ ${totalVal});`;
     }
     const meses = det.mesInicio === det.mesFim
       ? `do mês de ${det.mesInicio} do ano ${det.ano}`
       : `do mês de ${det.mesInicio} até ao mês de ${det.mesFim} do ano ${det.ano}`;
-    return `o  a quotização (€ ____) e fundo de reserva (€ ____) ${meses} (€ ____);`;
+    const quotVal = det.quotizacao || "____";
+    const frVal = det.fundoReserva && det.fundoReserva !== "__" ? det.fundoReserva : "____";
+    const totalVal = det.total || "____";
+    return `o  a quotização (€ ${quotVal}) e fundo de reserva (€ ${frVal}) ${meses} (€ ${totalVal});`;
   };
 
   return `\n\nDÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):\n` +
