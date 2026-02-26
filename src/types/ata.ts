@@ -20,6 +20,19 @@ export interface PresencasData {
   totalPermilagem: string;
 }
 
+export interface DividaCondomino {
+  fracao: string;
+  nome: string;
+  valorDivida: string;
+  mesesAtraso?: string;
+  observacoes?: string;
+}
+
+export interface DividasData {
+  dividas: DividaCondomino[];
+  totalDivida: string;
+}
+
 export interface AtaFormData {
   nomeCondominio: string;
   morada: string;
@@ -38,6 +51,7 @@ export interface AtaFormData {
   percentagemPresente: string;
   pontosOrdemDia: PontoOrdemDia[];
   presencasData: PresencasData | null;
+  dividasData: DividasData | null;
   observacoesAdicionais: string;
 }
 
@@ -111,5 +125,6 @@ export const INITIAL_FORM_DATA: AtaFormData = {
   percentagemPresente: "",
   pontosOrdemDia: PONTOS_PADRAO.map((p) => ({ ...p })),
   presencasData: null,
+  dividasData: null,
   observacoesAdicionais: "",
 };

@@ -46,6 +46,21 @@ Devolve APENAS um JSON válido com esta estrutura (sem markdown, sem texto extra
 Se algum campo não for legível, coloca "ilegível". 
 Ordena SEMPRE por fração (andar e lado), nunca por ordem alfabética.
 Se houver condóminos representados, marca representado: true.`;
+    } else if (parseType === "dividas") {
+      prompt = `Analisa este documento de dívidas/valores em atraso de um condomínio.
+Extrai a informação de todos os condóminos com valores em dívida, organizados POR ORDEM DE FRAÇÃO (R/C primeiro, depois 1º, 2º, etc.).
+
+Devolve APENAS um JSON válido com esta estrutura (sem markdown, sem texto extra):
+{
+  "dividas": [
+    {"fracao": "R/C Esq", "nome": "Nome do condómino", "valorDivida": "150.00", "mesesAtraso": "3", "observacoes": "Jan-Mar 2024"}
+  ],
+  "totalDivida": "450.00"
+}
+
+Se algum campo não for legível, coloca "ilegível".
+Ordena SEMPRE por fração (andar e lado), nunca por ordem alfabética.
+Inclui o valor total de dívidas no campo totalDivida.`;
     } else {
       throw new Error("parseType inválido");
     }

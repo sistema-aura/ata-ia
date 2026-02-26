@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AtaFormData, INITIAL_FORM_DATA, PONTOS_PADRAO, PontoOrdemDia, PresencasData } from "@/types/ata";
+import { AtaFormData, INITIAL_FORM_DATA, PONTOS_PADRAO, PontoOrdemDia, PresencasData, DividasData } from "@/types/ata";
 import { AssemblyInfoForm } from "@/components/AssemblyInfoForm";
 import { PontosOrdemDiaForm } from "@/components/PontosOrdemDiaForm";
 import { AtaPreview } from "@/components/AtaPreview";
@@ -16,6 +16,7 @@ const Index = () => {
   const [activeStep, setActiveStep] = useState<"form" | "preview">("form");
   const [ordemDiaParsed, setOrdemDiaParsed] = useState(false);
   const [presencasParsed, setPresencasParsed] = useState(false);
+  const [dividasParsed, setDividasParsed] = useState(false);
 
   const updateField = (field: keyof AtaFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -75,6 +76,11 @@ const Index = () => {
       percentagemPresente: data.totalPermilagem || "",
     }));
     setPresencasParsed(true);
+  };
+
+  const handleDividasParsed = (data: DividasData) => {
+    setFormData((prev) => ({ ...prev, dividasData: data }));
+    setDividasParsed(true);
   };
 
   const generateAta = async () => {
@@ -220,7 +226,7 @@ const Index = () => {
               <h2 className="mb-4 font-heading text-lg font-semibold text-foreground">
                 Documentos PDF
               </h2>
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-3">
                 <PdfUpload
                   label="Ordem do Dia"
                   description="PDF com os pontos da ordem do dia"
@@ -237,7 +243,7 @@ const Index = () => {
                 />
                 <PdfUpload
                   label="Folha de Presenças"
-                  description="PDF ou foto da folha de presenças assinada"
+                  description="PDF ou foto da folha de presenças"
                   parseType="presencas"
                   onParsed={handlePresencasParsed}
                   isParsed={presencasParsed}
@@ -250,6 +256,17 @@ const Index = () => {
                       fracoesRepresentadas: "",
                       percentagemPresente: "",
                     }));
+                  }}
+                />
+                <PdfUpload
+                  label="Mapa de Dívidas"
+                  description="PDF com os valores em dívida"
+                  parseType="dividas"
+                  onParsed={handleDividasParsed}
+                  isParsed={dividasParsed}
+                  onClear={() => {
+                    setDividasParsed(false);
+                    setFormData((prev) => ({ ...prev, dividasData: null }));
                   }}
                 />
               </div>
@@ -322,6 +339,38 @@ const Index = () => {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Dividas preview */}
+            {formData.dividasData && formData.dividasData.dividas.length > 0 && (
+              <div className="rounded-lg border border-border bg-card p-6 shadow-document">
+                <div className="mb-4 flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-accent" />
+                  <h2 className="font-heading text-lg font-semibold text-foreground">
+                    Dívidas Extraídas
+                  </h2>
+                </div>
+                <div className="space-y-1">
+                  {formData.dividasData.dividas.map((d, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 rounded-md bg-muted/50 px-3 py-1.5 text-sm"
+                    >
+                      <span className="font-medium text-foreground">{d.fracao}</span>
+                      <span className="text-muted-foreground">{d.nome}</span>
+                      {d.mesesAtraso && (
+                        <span className="text-xs text-muted-foreground">({d.mesesAtraso} meses)</span>
+                      )}
+                      <span className="ml-auto font-medium text-destructive">{d.valorDivida}€</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 flex justify-end border-t border-border pt-2">
+                  <span className="text-sm font-semibold text-foreground">
+                    Total: {formData.dividasData.totalDivida}€
+                  </span>
+                </div>
               </div>
             )}
 
