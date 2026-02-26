@@ -4,9 +4,10 @@ import { AssemblyInfoForm } from "@/components/AssemblyInfoForm";
 import { PontosOrdemDiaForm } from "@/components/PontosOrdemDiaForm";
 import { AtaPreview } from "@/components/AtaPreview";
 import { PdfUpload } from "@/components/PdfUpload";
-import { FileText, Sparkles, ListOrdered, Users } from "lucide-react";
+import { FileText, Sparkles, ListOrdered, Users, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const [formData, setFormData] = useState<AtaFormData>(INITIAL_FORM_DATA);
@@ -156,18 +157,26 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container max-w-5xl py-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <FileText className="h-5 w-5 text-primary-foreground" />
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                <FileText className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="font-heading text-2xl font-bold text-foreground">
+                  Atas<span className="text-gradient-gold">IA</span>
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Gerador inteligente de atas de assembleia
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="font-heading text-2xl font-bold text-foreground">
-                Atas<span className="text-gradient-gold">IA</span>
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Gerador inteligente de atas de assembleia
-              </p>
-            </div>
+            <Link to="/historico">
+              <Button variant="outline" className="gap-2">
+                <History className="h-4 w-4" />
+                Histórico
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -334,6 +343,9 @@ const Index = () => {
               ata={ataGerada}
               isGenerating={isGenerating}
               onBack={() => setActiveStep("form")}
+              nomeCondominio={formData.nomeCondominio}
+              dataAssembleia={formData.dataAssembleia}
+              formData={formData}
             />
           </div>
         )}

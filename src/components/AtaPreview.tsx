@@ -1,33 +1,73 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Copy, Loader2 } from "lucide-react";
+import { ArrowLeft, Copy, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 interface Props {
   ata: string;
   isGenerating: boolean;
   onBack: () => void;
+  nomeCondominio?: string;
+  dataAssembleia?: string;
+  formData?: any;
 }
 
-export const AtaPreview = ({ ata, isGenerating, onBack }: Props) => {
+export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAssembleia, formData }: Props) => {
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(ata);
     toast.success("Ata copiada para a área de transferência!");
   };
 
+  const saveAta = async () => {
+    if (!ata) return;
+    setSaving(true);
+    const { error } = await supabase.from("atas").insert({
+      nome_condominio: nomeCondominio || "Sem nome",
+      data_assembleia: dataAssembleia || "",
+      conteudo: ata,
+      form_data: formData || null,
+    });
+
+    if (error) {
+      toast.error("Erro ao guardar a ata");
+      console.error(error);
+    } else {
+      toast.success("Ata guardada com sucesso!");
+      setSaved(true);
+    }
+    setSaving(false);
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="h-4 w-4" />
           Voltar ao formulário
         </Button>
-        {ata && !isGenerating && (
-          <Button onClick={copyToClipboard} variant="outline" className="gap-2">
-            <Copy className="h-4 w-4" />
-            Copiar Ata
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {ata && !isGenerating && (
+            <>
+              <Button onClick={copyToClipboard} variant="outline" className="gap-2">
+                <Copy className="h-4 w-4" />
+                Copiar
+              </Button>
+              <Button
+                onClick={saveAta}
+                disabled={saving || saved}
+                className="gap-2"
+              >
+                <Save className="h-4 w-4" />
+                {saved ? "Guardada" : saving ? "A guardar..." : "Guardar Ata"}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="ata-document min-h-[400px]">

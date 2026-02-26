@@ -14,7 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      atas: {
+        Row: {
+          conteudo: string
+          created_at: string
+          data_assembleia: string
+          form_data: Json | null
+          id: string
+          nome_condominio: string
+          updated_at: string
+        }
+        Insert: {
+          conteudo: string
+          created_at?: string
+          data_assembleia: string
+          form_data?: Json | null
+          id?: string
+          nome_condominio: string
+          updated_at?: string
+        }
+        Update: {
+          conteudo?: string
+          created_at?: string
+          data_assembleia?: string
+          form_data?: Json | null
+          id?: string
+          nome_condominio?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
