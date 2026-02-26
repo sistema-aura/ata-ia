@@ -25,11 +25,11 @@ serve(async (req) => {
       tipoAssembleia,
       convocatoria,
       presidenteMesa,
-      secretario,
       totalFracoes,
       fracoesPresentes,
       fracoesRepresentadas,
       percentagemPresente,
+      presencasData,
       pontosOrdemDia,
       observacoesAdicionais,
     } = formData;
@@ -72,6 +72,20 @@ REGRAS:
 - Referencia artigos do Código Civil quando relevante (art.º 1429.º para seguros, art.º 1432.º para quórum, art.º 1436.º para funções do administrador).
 - Para pontos personalizados, desenvolve o texto com base nas notas fornecidas.`;
 
+    // Format presencas if available
+    let presencasFormatadas = "";
+    if (presencasData) {
+      const formatCondomino = (c: any) =>
+        `${c.nome}, proprietário(a) da Fração ${c.fracao}, com o NIF ${c.nif} representando ${c.permilagem}‰ do capital total do edifício${c.representado ? " (representado)" : ""}`;
+
+      if (presencasData.presentes?.length) {
+        presencasFormatadas += `\n**Condóminos Presentes (por ordem de fração):**\n${presencasData.presentes.map(formatCondomino).join("\n")}`;
+      }
+      if (presencasData.ausentes?.length) {
+        presencasFormatadas += `\n\n**Condóminos Ausentes:**\n${presencasData.ausentes.map(formatCondomino).join("\n")}`;
+      }
+    }
+
     const userPrompt = `Gera uma ata de assembleia de condomínio com os seguintes dados:
 
 **Condomínio:** ${nomeCondominio}
@@ -85,18 +99,18 @@ REGRAS:
 **Tipo de Assembleia:** ${tipoAssembleia === "ordinaria" ? "Ordinária" : "Extraordinária"}
 **Convocatória:** ${convocatoria === "primeira" ? "1ª" : "2ª"}
 **Presidente da Mesa:** ${presidenteMesa}
-**Secretário:** ${secretario}
 **Total de Frações:** ${totalFracoes}
 **Frações Presentes:** ${fracoesPresentes}
 **Frações Representadas:** ${fracoesRepresentadas}
 **Percentagem de Capital Presente:** ${percentagemPresente}%
+${presencasFormatadas}
 
 **Pontos da Ordem do Dia:**
 ${pontosFormatados}
 
 ${observacoesAdicionais ? `**Observações Adicionais:** ${observacoesAdicionais}` : ""}
 
-Redige a ata completa e formal seguindo exatamente a estrutura indicada.`;
+Redige a ata completa e formal seguindo exatamente a estrutura indicada. Lista os condóminos presentes e ausentes por ordem de fração.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { AtaFormData, INITIAL_FORM_DATA, PontoOrdemDia } from "@/types/ata";
+import { AtaFormData, INITIAL_FORM_DATA, PONTOS_PADRAO, PontoOrdemDia, PresencasData } from "@/types/ata";
 import { AssemblyInfoForm } from "@/components/AssemblyInfoForm";
 import { PontosOrdemDiaForm } from "@/components/PontosOrdemDiaForm";
 import { AtaPreview } from "@/components/AtaPreview";
-import { FileText, Sparkles } from "lucide-react";
+import { PdfUpload } from "@/components/PdfUpload";
+import { FileText, Sparkles, ListOrdered, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -12,6 +13,8 @@ const Index = () => {
   const [ataGerada, setAtaGerada] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeStep, setActiveStep] = useState<"form" | "preview">("form");
+  const [ordemDiaParsed, setOrdemDiaParsed] = useState(false);
+  const [presencasParsed, setPresencasParsed] = useState(false);
 
   const updateField = (field: keyof AtaFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -46,6 +49,31 @@ const Index = () => {
       ...prev,
       pontosOrdemDia: prev.pontosOrdemDia.filter((_, i) => i !== index),
     }));
+  };
+
+  const handleOrdemDiaParsed = (data: { titulo: string }[]) => {
+    if (!Array.isArray(data)) return;
+    const pontos: PontoOrdemDia[] = data.map((p, i) => ({
+      id: `pdf-${i}`,
+      titulo: p.titulo,
+      tipo: "personalizado" as const,
+      notas: "",
+    }));
+    setFormData((prev) => ({ ...prev, pontosOrdemDia: pontos }));
+    setOrdemDiaParsed(true);
+  };
+
+  const handlePresencasParsed = (data: PresencasData) => {
+    setFormData((prev) => ({
+      ...prev,
+      presencasData: data,
+      fracoesPresentes: String(data.presentes?.length || ""),
+      fracoesRepresentadas: String(
+        data.presentes?.filter((c) => c.representado).length || "0"
+      ),
+      percentagemPresente: data.totalPermilagem || "",
+    }));
+    setPresencasParsed(true);
   };
 
   const generateAta = async () => {
@@ -178,6 +206,46 @@ const Index = () => {
           <div className="space-y-8 animate-fade-in">
             <AssemblyInfoForm formData={formData} updateField={updateField} />
 
+            {/* PDF Uploads */}
+            <div className="rounded-lg border border-border bg-card p-6 shadow-document">
+              <h2 className="mb-4 font-heading text-lg font-semibold text-foreground">
+                Documentos PDF
+              </h2>
+              <div className="grid gap-4 md:grid-cols-2">
+                <PdfUpload
+                  label="Ordem do Dia"
+                  description="PDF com os pontos da ordem do dia"
+                  parseType="ordem_dia"
+                  onParsed={handleOrdemDiaParsed}
+                  isParsed={ordemDiaParsed}
+                  onClear={() => {
+                    setOrdemDiaParsed(false);
+                    setFormData((prev) => ({
+                      ...prev,
+                      pontosOrdemDia: PONTOS_PADRAO.map((p) => ({ ...p })),
+                    }));
+                  }}
+                />
+                <PdfUpload
+                  label="Folha de Presenças"
+                  description="PDF ou foto da folha de presenças assinada"
+                  parseType="presencas"
+                  onParsed={handlePresencasParsed}
+                  isParsed={presencasParsed}
+                  onClear={() => {
+                    setPresencasParsed(false);
+                    setFormData((prev) => ({
+                      ...prev,
+                      presencasData: null,
+                      fracoesPresentes: "",
+                      fracoesRepresentadas: "",
+                      percentagemPresente: "",
+                    }));
+                  }}
+                />
+              </div>
+            </div>
+
             <PontosOrdemDiaForm
               pontos={formData.pontosOrdemDia}
               updatePonto={updatePonto}
@@ -186,6 +254,67 @@ const Index = () => {
               observacoes={formData.observacoesAdicionais}
               onObservacoesChange={(v) => updateField("observacoesAdicionais", v)}
             />
+
+            {/* Presences preview */}
+            {formData.presencasData && (
+              <div className="rounded-lg border border-border bg-card p-6 shadow-document">
+                <div className="mb-4 flex items-center gap-2">
+                  <Users className="h-5 w-5 text-accent" />
+                  <h2 className="font-heading text-lg font-semibold text-foreground">
+                    Presenças Extraídas
+                  </h2>
+                </div>
+                {formData.presencasData.presentes.length > 0 && (
+                  <div className="mb-4">
+                    <h3 className="mb-2 text-sm font-medium text-foreground">
+                      Presentes ({formData.presencasData.presentes.length})
+                    </h3>
+                    <div className="space-y-1">
+                      {formData.presencasData.presentes.map((c, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center gap-3 rounded-md bg-muted/50 px-3 py-1.5 text-sm"
+                        >
+                          <span className="font-medium text-foreground">
+                            {c.fracao}
+                          </span>
+                          <span className="text-muted-foreground">{c.nome}</span>
+                          {c.representado && (
+                            <span className="text-xs text-accent">(representado)</span>
+                          )}
+                          <span className="ml-auto text-xs text-muted-foreground">
+                            {c.permilagem}‰
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {formData.presencasData.ausentes.length > 0 && (
+                  <div>
+                    <h3 className="mb-2 text-sm font-medium text-foreground">
+                      Ausentes ({formData.presencasData.ausentes.length})
+                    </h3>
+                    <div className="space-y-1">
+                      {formData.presencasData.ausentes.map((c, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center gap-3 rounded-md bg-muted/50 px-3 py-1.5 text-sm opacity-60"
+                        >
+                          <span className="font-medium text-foreground">
+                            {c.fracao}
+                          </span>
+                          <span className="text-muted-foreground">{c.nome}</span>
+                          <span className="ml-auto text-xs text-muted-foreground">
+                            {c.permilagem}‰
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex justify-end">
               <Button
