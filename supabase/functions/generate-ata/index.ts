@@ -68,9 +68,9 @@ Para o ponto de PENALIZAÇÃO/COBRANÇA JUDICIAL, usa SEMPRE:
 "O Condómino que não proceder ao pagamento da sua quota-parte nas despesas e encargos dentro do prazo fixado (180 dias) pela Assembleia de Condóminos, será sujeito à aplicação de uma multa pelo atraso no pagamento do valor correspondente a 10% do valor em cobrança, sempre em respeito pelo limite legal previsto no n.º 2 do artigo 1434.º do Código Civil (no valor 400,00 €) Serão suportadas pelo condómino em causa, todas as despesas judiciais e extrajudiciais custeadas ( no valor mínimo de 750,00 € + iva) pelo Condomínio para cobrança coerciva dos valores em dívida, incluindo honorários de advogado, solicitador ou agente de execução e custas judiciais presentes e futuros"
 
 FORMATO DAS DÍVIDAS (no ponto de atualização dos valores em dívida):
-Usa EXATAMENTE este formato com os marcadores ü e o:
+Usa EXATAMENTE este formato com os marcadores ✓ e o:
 
-ü Fração [X] – [Descrição] – [Valor por extenso] (€ [valor total]) correspondentes:
+✓ Fração [X] – [Descrição] – [Valor por extenso] (€ [valor total]) correspondentes:
 o  a quotização (€ [valor]) e fundo de reserva (€ [valor]) do mês de [mês início] até ao mês de [mês fim] do ano [ano] (€ [valor total desse período]);
 
 REGRAS DE AGRUPAMENTO:
@@ -79,20 +79,20 @@ REGRAS DE AGRUPAMENTO:
 - Cada quota extra fica numa linha "o" separada.
 
 Exemplo com mesmo ano:
-ü Fração A – Parq. Nº1 – Sete euros e quatro cêntimos (€ 7,04) correspondentes:
+✓ Fração A – Parq. Nº1 – Sete euros e quatro cêntimos (€ 7,04) correspondentes:
 o  a quotização (€ 0,73) e fundo de reserva (€ 2,79) do mês de janeiro até ao mês de fevereiro do ano 2026 (€ 7,04);
 
 Exemplo com anos diferentes e quota extra:
-ü Fração M – 2º Dto – Oitenta e quatro euros e oitenta e seis cêntimos (€ 84,86) correspondentes:
+✓ Fração M – 2º Dto – Oitenta e quatro euros e oitenta e seis cêntimos (€ 84,86) correspondentes:
 o  a quotização (€ 38,63) e fundo de reserva (€ 3,86) do mês de dezembro do ano 2025 (€ 42,49);
 o  a quotização (€ 38,63) e fundo de reserva (€ 3,86) do mês de janeiro do ano 2026 (€ 42,49);
 
 Exemplo com quota extra:
-ü Fração B – Garagem B – Trezentos e trinta e nove euros e oitenta e quatro cêntimos (€ 339,84) correspondentes:
+✓ Fração B – Garagem B – Trezentos e trinta e nove euros e oitenta e quatro cêntimos (€ 339,84) correspondentes:
 o  Quota extra Reparação Danos 5º Recuado (€ 329,86);
 o  a quotização (€ 9,07) e fundo de reserva (€ 0,91) do mês de janeiro do ano 2026 (€ 9,98);
 
-NÃO uses tabelas. NÃO uses markdown. Texto corrido com marcadores ü e o.`;
+NÃO uses tabelas. NÃO uses markdown. Texto corrido com marcadores ✓ e o.`;
 }
 
 function formatPresencas(presencasData: any): string {
@@ -114,10 +114,10 @@ function formatDividas(dividasData: any): string {
   if (!dividasData?.dividas?.length) return "";
   return `\nValores em Dívida ao Condomínio (por ordem de fração):\n` +
     dividasData.dividas.map((d: any) =>
-      `ü Fração ${d.fracao} – ${d.nome} – valor em dívida de ${d.valorDivida}€${d.mesesAtraso ? `, correspondente a ${d.mesesAtraso} meses em atraso` : ""}${d.observacoes ? `. Observações: ${d.observacoes}` : ""}`
+      `✓ Fração ${d.fracao} – ${d.nome} – valor em dívida de ${d.valorDivida}€${d.mesesAtraso ? `, correspondente a ${d.mesesAtraso} meses em atraso` : ""}${d.observacoes ? `. Observações: ${d.observacoes}` : ""}`
     ).join("\n") +
     `\nTotal geral em dívida ao condomínio: ${dividasData.totalDivida}€` +
-    `\n\nIMPORTANTE: Formata as dívidas com o marcador ü para cada fração e o para os detalhes de quotização/fundo de reserva, conforme o formato obrigatório no system prompt.`;
+    `\n\nIMPORTANTE: Formata as dívidas com o marcador ✓ para cada fração e o para os detalhes de quotização/fundo de reserva, conforme o formato obrigatório no system prompt.`;
 }
 
 serve(async (req) => {
