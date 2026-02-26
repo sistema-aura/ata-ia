@@ -9,6 +9,10 @@ export interface PontoOrdemDia {
 export interface AtaFormData {
   nomeCondominio: string;
   morada: string;
+  nifCondominio: string;
+  freguesia: string;
+  concelho: string;
+  localReuniao: string;
   dataAssembleia: string;
   horaInicio: string;
   tipoAssembleia: string;
@@ -26,45 +30,62 @@ export interface AtaFormData {
 export const PONTOS_PADRAO: PontoOrdemDia[] = [
   {
     id: "p1",
-    titulo: "Verificação de presenças e quórum",
+    titulo: "Apresentação e aprovação das contas do exercício",
     tipo: "padrao",
-    descricaoPadrao: "Procedeu-se à verificação das presenças, tendo-se constatado a existência de quórum para deliberação.",
+    descricaoPadrao:
+      "Foram apresentadas as contas relativamente ao exercício e aprovadas por unanimidade dos votos presentes de acordo com os documentos apresentados e que se encontram anexos à ata.",
   },
   {
     id: "p2",
-    titulo: "Eleição da mesa da assembleia",
+    titulo: "Eleição da administração",
     tipo: "padrao",
-    descricaoPadrao: "Foi proposta e aprovada por unanimidade a constituição da mesa da assembleia.",
+    descricaoPadrao:
+      "Foi deliberado por unanimidade dos condóminos presentes que a Administração do Condomínio continuará a ser desempenhada pela administração atual, que aceita a nomeação.",
   },
   {
     id: "p3",
-    titulo: "Leitura e aprovação da ata da assembleia anterior",
+    titulo: "Apresentação, debate e aprovação do orçamento previsional",
     tipo: "padrao",
-    descricaoPadrao: "Foi lida a ata da assembleia anterior, a qual foi aprovada por unanimidade dos presentes.",
+    descricaoPadrao:
+      "Foi apresentado, debatido e aprovado o orçamento previsional para o próximo exercício.",
   },
   {
     id: "p4",
-    titulo: "Apresentação e aprovação das contas do exercício",
+    titulo:
+      "Deliberação sobre penalização para quotas em atraso (cobrança judicial)",
     tipo: "padrao",
-    descricaoPadrao: "Foram apresentadas as contas do exercício pela administração, incluindo receitas, despesas e saldo.",
+    descricaoPadrao:
+      "Foi deliberado por unanimidade dos presentes a criação de uma penalização a aplicar às frações com quotas por liquidar em caso de cobrança pela via judicial.",
   },
   {
     id: "p5",
-    titulo: "Aprovação do orçamento para o próximo exercício",
+    titulo: "Atualização dos valores em dívida ao condomínio",
     tipo: "padrao",
-    descricaoPadrao: "Foi apresentado e discutido o orçamento previsto para o próximo exercício.",
+    descricaoPadrao:
+      "Foi deliberado por unanimidade dos presentes aprovar a informação prestada pela Administração sobre os valores em dívida ao condomínio.",
   },
   {
     id: "p6",
-    titulo: "Eleição do administrador",
+    titulo: "Seguro das frações",
     tipo: "padrao",
-    descricaoPadrao: "Procedeu-se à eleição do administrador do condomínio para o próximo mandato.",
+    descricaoPadrao:
+      "Os condóminos foram informados que, de acordo com a legislação da propriedade horizontal (Art.º 1429.º do CC), o seguro das frações é obrigatório. É necessário que seja entregue à Administração uma cópia atualizada do respetivo recibo de prémio do seguro.",
+  },
+  {
+    id: "p7",
+    titulo: "Outros assuntos de interesse geral para o condomínio",
+    tipo: "padrao",
+    descricaoPadrao: "",
   },
 ];
 
 export const INITIAL_FORM_DATA: AtaFormData = {
   nomeCondominio: "",
   morada: "",
+  nifCondominio: "",
+  freguesia: "",
+  concelho: "",
+  localReuniao: "Hall de entrada",
   dataAssembleia: "",
   horaInicio: "",
   tipoAssembleia: "ordinaria",
