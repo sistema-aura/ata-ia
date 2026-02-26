@@ -6,7 +6,7 @@ import { toast } from "sonner";
 interface Props {
   label: string;
   description: string;
-  parseType: "ordem_dia" | "presencas";
+  parseType: "ordem_dia" | "presencas" | "dividas";
   onParsed: (data: any) => void;
   isParsed: boolean;
   onClear: () => void;

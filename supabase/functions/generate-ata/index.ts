@@ -32,6 +32,7 @@ serve(async (req) => {
       presencasData,
       pontosOrdemDia,
       observacoesAdicionais,
+      dividasData,
     } = formData;
 
     const pontosFormatados = pontosOrdemDia
@@ -139,6 +140,16 @@ REGRAS IMPORTANTES:
       }
     }
 
+    // Format dividas if available
+    let dividasFormatadas = "";
+    if (dividasData?.dividas?.length) {
+      dividasFormatadas = `\n**Valores em Dívida ao Condomínio (por ordem de fração):**\n` +
+        dividasData.dividas.map((d: any) =>
+          `- Fração ${d.fracao} (${d.nome}): ${d.valorDivida}€${d.mesesAtraso ? ` — ${d.mesesAtraso} meses em atraso` : ""}${d.observacoes ? ` (${d.observacoes})` : ""}`
+        ).join("\n") +
+        `\n**Total em dívida:** ${dividasData.totalDivida}€`;
+    }
+
     const userPrompt = `Gera uma ata de assembleia de condomínio com os seguintes dados:
 
 **Condomínio:** ${nomeCondominio}
@@ -160,10 +171,11 @@ ${presencasFormatadas}
 
 **Pontos da Ordem do Dia:**
 ${pontosFormatados}
+${dividasFormatadas}
 
 ${observacoesAdicionais ? `**Observações Adicionais:** ${observacoesAdicionais}` : ""}
 
-Redige a ata completa e formal seguindo exatamente a estrutura indicada. Lista os condóminos presentes e ausentes por ordem de fração.`;
+Redige a ata completa e formal seguindo exatamente a estrutura indicada. Lista os condóminos presentes e ausentes por ordem de fração. No ponto sobre dívidas, inclui a tabela detalhada de valores em dívida por fração.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
