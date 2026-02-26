@@ -79,7 +79,8 @@ FORMATO DAS DÍVIDAS (no ponto de atualização dos valores em dívida):
 COPIA A SECÇÃO DE DÍVIDAS TAL QUAL COMO É FORNECIDA NOS DADOS DO UTILIZADOR. NÃO alteres NADA. Mantém os "____" nos campos de quotização, fundo de reserva e totais.
 
 Formato de cada fração:
-✓ Fração [X] – [Descrição] – [Valor por extenso] (€ [valor total]) correspondentes:
+✓ Fração [X] – [Descrição] – [Valor por extenso em português, ex: Quinhentos e trinta euros e vinte e quatro cêntimos] (€ [valor numérico com vírgula decimal, ex: 530,24]) correspondentes:
+IMPORTANTE: Converte SEMPRE o valor numérico para texto por extenso em português europeu. Usa vírgula como separador decimal no valor numérico entre parênteses.
 o  a quotização (€ ____) e fundo de reserva (€ ____) do mês de [mês] até ao mês de [mês] do ano [ano] (€ ____);
 
 Cada ano DIFERENTE fica numa linha "o" SEPARADA.
@@ -161,7 +162,7 @@ function formatDividas(dividasData: any): string {
 
   return `\n\nDÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):\n` +
     dividasData.dividas.map((d: any) => {
-      const header = `✓ Fração ${d.fracao} – ${d.descricao || d.fracao} – ${d.valorDivida}€ correspondentes:`;
+      const header = `✓ Fração ${d.fracao} – ${d.descricao || d.fracao} – [VALOR POR EXTENSO de ${d.valorDivida}€] (€ ${d.valorDivida}) correspondentes:`;
       if (d.detalhes?.length) {
         return header + "\n" + d.detalhes.map(formatDetalhe).join("\n");
       }
