@@ -50,36 +50,41 @@ Se houver condóminos representados, marca representado: true.`;
       prompt = `Analisa este documento de dívidas/valores em atraso de um condomínio.
 Extrai a informação de todos os condóminos com valores em dívida, organizados POR ORDEM DE FRAÇÃO.
 
+IMPORTANTE: Tens de extrair os valores REAIS de quotização e fundo de reserva que constam no documento. NÃO deixes em branco. Se o documento mostra o valor mensal de quota e fundo de reserva, usa esses valores. Se mostra apenas o total de um período, calcula o valor mensal dividindo pelo número de meses.
+
 Devolve APENAS um JSON válido com esta estrutura (sem markdown, sem texto extra):
 {
   "dividas": [
     {
       "fracao": "A",
-      "descricao": "Parq. Nº1",
+      "descricao": "R/ch Esq.",
       "nome": "Nome do condómino",
-      "valorDivida": "150.00",
+      "valorDivida": "530.24",
       "detalhes": [
-        {"quotizacao": "38.63", "fundoReserva": "3.86", "mesInicio": "janeiro", "mesFim": "fevereiro", "ano": "2026", "total": "84.98"},
-        {"quotaExtra": "Reparação Danos", "total": "329.86"}
+        {"quotizacao": "28.05", "fundoReserva": "2.81", "mesInicio": "outubro", "mesFim": "dezembro", "ano": "2024", "total": "92.58"},
+        {"quotizacao": "28.05", "fundoReserva": "2.81", "mesInicio": "janeiro", "mesFim": "dezembro", "ano": "2025", "total": "370.32"},
+        {"quotizacao": "30.61", "fundoReserva": "3.06", "mesInicio": "janeiro", "mesFim": "fevereiro", "ano": "2026", "total": "67.34"},
+        {"quotaExtra": "Reparação Danos 5º Recuado", "total": "329.86"}
       ]
     }
   ],
-  "totalDivida": "450.00"
+  "totalDivida": "530.24"
 }
 
 REGRAS DE EXTRAÇÃO:
-- "fracao": a letra da fração (ex: "A", "B", "M", "R")
-- "descricao": a descrição da fração (ex: "Parq. Nº1", "2º Dto", "5º Recuado", "Garagem B")
-- "detalhes": array com cada período em dívida. Para cada período extrair:
-  - "quotizacao": valor mensal da quotização
-  - "fundoReserva": valor mensal do fundo de reserva
-  - "mesInicio" e "mesFim": se é um único mês, mesInicio = mesFim. Se são vários meses do mesmo ano, indica o primeiro e último.
+- "fracao": a letra ou descrição curta da fração (ex: "A", "B", "M", "R")
+- "descricao": a descrição da fração (ex: "Parq. Nº1", "2º Dto", "5º Recuado", "R/ch Esq.")
+- "detalhes": array com cada período em dívida, SEPARADO POR ANO. Cada entrada deve ter:
+  - "quotizacao": valor MENSAL da quotização (valor REAL do documento, NUNCA em branco)
+  - "fundoReserva": valor MENSAL do fundo de reserva (valor REAL do documento, NUNCA em branco)
+  - "mesInicio" e "mesFim": primeiro e último mês do período. Se é um único mês, mesInicio = mesFim.
   - "ano": o ano do período
-  - "total": valor total desse período
+  - "total": valor total desse período (quotização + fundo de reserva multiplicados pelo nº de meses)
   - Para quotas extras: usa "quotaExtra" com a descrição e "total" com o valor
-- Se os meses são de anos diferentes, separa em entradas diferentes no array detalhes.
+- OBRIGATÓRIO: Separar SEMPRE por ano diferente. Meses de 2024, 2025 e 2026 ficam em linhas separadas.
 - Ordena SEMPRE por fração.
-- Inclui o valor total de dívidas no campo totalDivida.`;
+- Inclui o valor total de dívidas no campo totalDivida.
+- NUNCA deixes quotizacao ou fundoReserva vazios ou com "__". Extrai os valores do documento.`;
     } else {
       throw new Error("parseType inválido");
     }
