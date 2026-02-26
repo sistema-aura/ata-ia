@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Copy, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Copy, Download, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { exportAtaToWord } from "@/lib/exportWord";
 
 interface Props {
   ata: string;
@@ -56,6 +57,14 @@ export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAsse
               <Button onClick={copyToClipboard} variant="outline" className="gap-2">
                 <Copy className="h-4 w-4" />
                 Copiar
+              </Button>
+              <Button
+                onClick={() => exportAtaToWord(ata, nomeCondominio)}
+                variant="outline"
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Exportar Word
               </Button>
               <Button
                 onClick={saveAta}
