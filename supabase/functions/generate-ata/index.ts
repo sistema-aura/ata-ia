@@ -38,7 +38,7 @@ serve(async (req) => {
     const pontosFormatados = pontosOrdemDia
       .map((p: any, i: number) => {
         if (p.tipo === "padrao") {
-          return `Ponto ${i + 1} (padrão): ${p.titulo} - ${p.descricaoPadrao}`;
+          return `Ponto ${i + 1} (padrão): ${p.titulo} - ${p.descricaoPadrao}${p.notas ? ` | Notas adicionais do utilizador: ${p.notas}` : ""}`;
         }
         return `Ponto ${i + 1} (personalizado): ${p.titulo} - Notas do utilizador: ${p.notas || "Sem notas adicionais"}`;
       })
@@ -121,10 +121,11 @@ REGRAS IMPORTANTES:
 - NÃO inventes dados — usa apenas a informação fornecida.
 - Escreve os números dos pontos POR EXTENSO (Ponto Um, Ponto Dois, etc.).
 - Referencia artigos do Código Civil: art.º 1429.º (seguros), art.º 1432.º (quórum), art.º 1436.º (administrador).
-- Para pontos padrão, usa a descrição fornecida como base.
+- Para pontos padrão, usa a descrição fornecida como base E incorpora as notas adicionais do utilizador (ex: quem foi eleito administrador, valores aprovados, etc.).
 - Para pontos personalizados, desenvolve o texto com base nas notas fornecidas.
 - Ordena SEMPRE os condóminos por fração (R/C, 1º, 2º, 3º, etc.), NUNCA por ordem alfabética.
-- Usa formatação markdown com cabeçalhos, negrito, linhas horizontais e tabelas.`;
+- As dívidas devem ser descritas em TEXTO CORRIDO NARRATIVO, fração a fração, por ordem de fração. NÃO uses tabela para dívidas. Exemplo: "A Administração informou que a Fração R/C Esquerdo, propriedade de João Silva, apresenta um valor em dívida de 500€, correspondente a 3 meses de quotas em atraso."
+- Usa formatação markdown com cabeçalhos, negrito, linhas horizontais e tabelas (apenas para assinaturas).`;
 
     // Format presencas if available
     let presencasFormatadas = "";
@@ -145,9 +146,10 @@ REGRAS IMPORTANTES:
     if (dividasData?.dividas?.length) {
       dividasFormatadas = `\n**Valores em Dívida ao Condomínio (por ordem de fração):**\n` +
         dividasData.dividas.map((d: any) =>
-          `- Fração ${d.fracao} (${d.nome}): ${d.valorDivida}€${d.mesesAtraso ? ` — ${d.mesesAtraso} meses em atraso` : ""}${d.observacoes ? ` (${d.observacoes})` : ""}`
+          `- Fração ${d.fracao} – proprietário(a) ${d.nome}, com o valor em dívida de ${d.valorDivida}€${d.mesesAtraso ? `, correspondente a ${d.mesesAtraso} meses em atraso` : ""}${d.observacoes ? `. Observações: ${d.observacoes}` : ""}`
         ).join("\n") +
-        `\n**Total em dívida:** ${dividasData.totalDivida}€`;
+        `\n**Total geral em dívida ao condomínio:** ${dividasData.totalDivida}€` +
+        `\n\nIMPORTANTE: Na ata, descreve as dívidas de forma narrativa e detalhada, fração a fração, por ordem de fração. Exemplo: "A Administração informou que a Fração R/C Esquerdo, propriedade de [Nome], apresenta um valor em dívida de [X]€, correspondente a [Y] meses de quotas em atraso." Depois apresenta o total. NÃO uses tabela para as dívidas, usa texto corrido descritivo.`;
     }
 
     const userPrompt = `Gera uma ata de assembleia de condomínio com os seguintes dados:

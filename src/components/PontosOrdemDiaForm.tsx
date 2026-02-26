@@ -85,10 +85,20 @@ export const PontosOrdemDiaForm = ({
                   )}
                 </div>
 
-                {ponto.tipo === "padrao" ? (
-                  <p className="text-sm text-muted-foreground">
-                    {ponto.descricaoPadrao}
-                  </p>
+              {ponto.tipo === "padrao" ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      {ponto.descricaoPadrao}
+                    </p>
+                    <Textarea
+                      placeholder="Notas adicionais (ex: quem foi eleito, valores aprovados, etc.)"
+                      value={ponto.notas || ""}
+                      onChange={(e) =>
+                        updatePonto(index, { notas: e.target.value })
+                      }
+                      className="min-h-[50px] text-sm"
+                    />
+                  </div>
                 ) : (
                   <Textarea
                     placeholder="Notas e detalhes para este ponto (deliberações, votações, etc.)"
