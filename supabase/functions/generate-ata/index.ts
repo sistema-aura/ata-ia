@@ -71,15 +71,15 @@ A assembleia foi regularmente convocada por carta registada com aviso de receç�
 Verificou-se estarem presentes e/ou representados os seguintes condóminos, por ordem de fração:
 
 **Presentes:**
-- Fração [X] – [Nome], NIF [NIF], representando [permilagem]‰ do capital total
-(listar todos por ordem de fração)
+- [Nome completo], proprietário(a) da fração [X], com o NIF nº [NIF] correspondente ao [descrição da fração se disponível], representando [permilagem]% do capital total do edifício;
+(listar todos por ordem de fração, com o NOME PRIMEIRO, seguido da fração, NIF e permilagem)
 
 **Representados:**
-- Fração [X] – [Nome], NIF [NIF], representando [permilagem]‰ do capital total (representado por [representante])
+- [Nome completo], proprietário(a) da fração [X], com o NIF nº [NIF], representando [permilagem]% do capital total do edifício (representado por [nome do representante]);
 (se existirem)
 
 **Ausentes:**
-- Fração [X] – [Nome], NIF [NIF], representando [permilagem]‰ do capital total
+- [Nome completo], proprietário(a) da fração [X], com o NIF nº [NIF], representando [permilagem]% do capital total do edifício;
 (listar todos por ordem de fração)
 
 Estiveram assim presentes e representados condóminos representando [percentagem]% do capital investido, nos termos do art.º 1432.º do Código Civil, o que permite deliberar validamente sobre os assuntos constantes da ordem de trabalhos.
