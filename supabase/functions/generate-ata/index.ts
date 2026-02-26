@@ -30,7 +30,8 @@ Estiveram ausentes os seguintes condóminos:
 • [Nome completo], proprietário da fração [X], correspondente ao [descrição], representando [permilagem] % do capital total do edifício;
 (MESMO formato que os presentes, com bullet point •)
 
-Os condóminos presentes representam [permilagem total]‰ da permilagem total do imóvel, correspondentes a [percentagem] % do Capital Total do Edifício, nos termos do art.º 1432.º, do CC, o que permite deliberar sobre os assuntos constantes da ordem de trabalhos. Exerceu as funções de presidente o Sr. [nome presidente].
+Os condóminos presentes representam [SOMA das permilagens dos presentes]‰ da permilagem total do imóvel, correspondentes a [percentagem] % do Capital Total do Edifício, nos termos do art.º 1432.º, do CC, o que permite deliberar sobre os assuntos constantes da ordem de trabalhos. Exerceu as funções de presidente o Sr. [nome presidente].
+IMPORTANTE: O valor em ‰ (permilagem) DEVE ser a SOMA ARITMÉTICA das permilagens individuais de todos os condóminos presentes listados acima. Calcula a soma e usa esse valor.
 
 Ponto Um: [Título do ponto]- [Texto da deliberação]
 
@@ -70,11 +71,17 @@ FORMATO DAS DÍVIDAS (no ponto de atualização dos valores em dívida):
 Usa EXATAMENTE este formato com os marcadores ü e o:
 
 ü Fração [X] – [Descrição] – [Valor por extenso] (€ [valor]) correspondentes:
-o a quotização (€ [valor]) e fundo de reserva (€ [valor]) do mês de [mês] do ano [ano] até ao mês de [mês] do ano [ano] (€ [valor total]);
+o  a quotização (€ [valor]) e fundo de reserva (€ [valor]) do mês de [mês] do ano [ano] (€ [valor total do período]);
 
-Se houver múltiplas linhas de detalhe para a mesma fração, adiciona mais linhas com o:
-o Quota extra [descrição] (€ [valor]);
-o a quotização (€ [valor]) e fundo de reserva (€ [valor]) do mês de [mês] do ano [ano] (€ [valor]);
+CADA PERÍODO/MÊS deve ter a sua PRÓPRIA LINHA com o marcador "o". NÃO agrupa meses com "até ao mês de". Cada mês ou período separado fica numa linha "o" independente.
+
+Exemplo correto com múltiplos períodos:
+ü Fração R – 5º Recuado – Trinta e dois euros e dois cêntimos (€ 32,02) correspondentes:
+o  a quotização (€ 14,55) e fundo de reserva (€ 1,46) do mês de dezembro do ano 2025 (€ 16,01);
+o  a quotização (€ 14,55) e fundo de reserva (€ 1,46) do mês de janeiro do ano 2026 (€ 16,01);
+
+Para quotas extras, usa também uma linha "o" separada:
+o  Quota extra [descrição] (€ [valor]);
 
 NÃO uses tabelas. NÃO uses markdown. Texto corrido com marcadores ü e o.`;
 }
@@ -113,7 +120,7 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const {
-      nomeCondominio, morada, nifCondominio, freguesia, concelho,
+      numeroAta, nomeCondominio, morada, nifCondominio, freguesia, concelho,
       localReuniao, dataAssembleia, horaInicio, tipoAssembleia,
       convocatoria, presidenteMesa, totalFracoes, fracoesPresentes,
       fracoesRepresentadas, percentagemPresente, presencasData,
@@ -131,6 +138,7 @@ serve(async (req) => {
 
     const userPrompt = `Gera uma ata de assembleia de condomínio com os seguintes dados:
 
+Número da Ata: ${numeroAta || ""}
 Condomínio: ${nomeCondominio}
 Morada: ${morada}
 NIF: ${nifCondominio}

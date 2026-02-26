@@ -29,6 +29,15 @@ export const AssemblyInfoForm = ({ formData, updateField }: Props) => {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
+            <Label htmlFor="numeroAta">Número da Ata</Label>
+            <Input
+              id="numeroAta"
+              placeholder="Ex: 5"
+              value={formData.numeroAta}
+              onChange={(e) => updateField("numeroAta", e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="nomeCondominio">Nome / Morada do Condomínio</Label>
             <Input
               id="nomeCondominio"
