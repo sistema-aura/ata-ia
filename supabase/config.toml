@@ -1,0 +1,4 @@
+project_id = "sxbglrteawrknmmopuyk"
+
+[functions.generate-ata]
+verify_jwt = false
