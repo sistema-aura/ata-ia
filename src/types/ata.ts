@@ -6,6 +6,20 @@ export interface PontoOrdemDia {
   notas?: string;
 }
 
+export interface Condomino {
+  nome: string;
+  fracao: string;
+  nif: string;
+  permilagem: string;
+  representado?: boolean;
+}
+
+export interface PresencasData {
+  presentes: Condomino[];
+  ausentes: Condomino[];
+  totalPermilagem: string;
+}
+
 export interface AtaFormData {
   nomeCondominio: string;
   morada: string;
@@ -18,12 +32,12 @@ export interface AtaFormData {
   tipoAssembleia: string;
   convocatoria: string;
   presidenteMesa: string;
-  secretario: string;
   totalFracoes: string;
   fracoesPresentes: string;
   fracoesRepresentadas: string;
   percentagemPresente: string;
   pontosOrdemDia: PontoOrdemDia[];
+  presencasData: PresencasData | null;
   observacoesAdicionais: string;
 }
 
@@ -91,11 +105,11 @@ export const INITIAL_FORM_DATA: AtaFormData = {
   tipoAssembleia: "ordinaria",
   convocatoria: "primeira",
   presidenteMesa: "",
-  secretario: "",
   totalFracoes: "",
   fracoesPresentes: "",
   fracoesRepresentadas: "",
   percentagemPresente: "",
   pontosOrdemDia: PONTOS_PADRAO.map((p) => ({ ...p })),
+  presencasData: null,
   observacoesAdicionais: "",
 };

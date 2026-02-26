@@ -2,3 +2,6 @@ project_id = "sxbglrteawrknmmopuyk"
 
 [functions.generate-ata]
 verify_jwt = false
+
+[functions.parse-pdf]
+verify_jwt = false
