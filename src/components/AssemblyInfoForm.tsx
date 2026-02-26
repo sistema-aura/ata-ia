@@ -29,7 +29,7 @@ export const AssemblyInfoForm = ({ formData, updateField }: Props) => {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="nomeCondominio">Nome do Condomínio</Label>
+            <Label htmlFor="nomeCondominio">Nome / Morada do Condomínio</Label>
             <Input
               id="nomeCondominio"
               placeholder="Ex: Edifício Sol Nascente"
@@ -38,12 +38,48 @@ export const AssemblyInfoForm = ({ formData, updateField }: Props) => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="morada">Morada</Label>
+            <Label htmlFor="nifCondominio">NIF do Condomínio</Label>
+            <Input
+              id="nifCondominio"
+              placeholder="Ex: 123456789"
+              value={formData.nifCondominio}
+              onChange={(e) => updateField("nifCondominio", e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="morada">Morada Completa</Label>
             <Input
               id="morada"
-              placeholder="Rua, número, código postal, cidade"
+              placeholder="Rua, número, código postal"
               value={formData.morada}
               onChange={(e) => updateField("morada", e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="freguesia">Freguesia</Label>
+            <Input
+              id="freguesia"
+              placeholder="Ex: São Domingos de Benfica"
+              value={formData.freguesia}
+              onChange={(e) => updateField("freguesia", e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="concelho">Concelho</Label>
+            <Input
+              id="concelho"
+              placeholder="Ex: Lisboa"
+              value={formData.concelho}
+              onChange={(e) => updateField("concelho", e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="localReuniao">Local da Reunião</Label>
+            <Input
+              id="localReuniao"
+              placeholder="Ex: Hall de entrada"
+              value={formData.localReuniao}
+              onChange={(e) => updateField("localReuniao", e.target.value)}
             />
           </div>
         </div>
@@ -168,7 +204,9 @@ export const AssemblyInfoForm = ({ formData, updateField }: Props) => {
               type="number"
               placeholder="Ex: 3"
               value={formData.fracoesRepresentadas}
-              onChange={(e) => updateField("fracoesRepresentadas", e.target.value)}
+              onChange={(e) =>
+                updateField("fracoesRepresentadas", e.target.value)
+              }
             />
           </div>
           <div className="space-y-2">
@@ -178,7 +216,9 @@ export const AssemblyInfoForm = ({ formData, updateField }: Props) => {
               type="number"
               placeholder="Ex: 67.5"
               value={formData.percentagemPresente}
-              onChange={(e) => updateField("percentagemPresente", e.target.value)}
+              onChange={(e) =>
+                updateField("percentagemPresente", e.target.value)
+              }
             />
           </div>
         </div>
