@@ -21,7 +21,7 @@ serve(async (req) => {
 
     let prompt = "";
     if (parseType === "ordem_dia") {
-      prompt = `Analisa este documento e extrai todos os pontos da ordem do dia.
+      prompt = `Analisa este documento e extrai todos os pontos da ordem de trabalhos.
 Devolve APENAS um JSON válido com esta estrutura (sem markdown, sem texto extra):
 [
   {"titulo": "Título do ponto 1"},

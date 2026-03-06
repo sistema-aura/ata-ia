@@ -29,7 +29,7 @@ export const PontosOrdemDiaForm = ({
         <div className="flex items-center gap-2">
           <ListOrdered className="h-5 w-5 text-accent" />
           <h2 className="font-heading text-lg font-semibold text-foreground">
-            Ordem do Dia
+            Ordem de Trabalhos
           </h2>
         </div>
         <Button

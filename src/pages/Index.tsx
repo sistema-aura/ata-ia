@@ -228,8 +228,8 @@ const Index = () => {
               </h2>
               <div className="grid gap-4 md:grid-cols-3">
                 <PdfUpload
-                  label="Ordem do Dia"
-                  description="PDF com os pontos da ordem do dia"
+                  label="Ordem de Trabalhos"
+                  description="PDF com os pontos da ordem de trabalhos"
                   parseType="ordem_dia"
                   onParsed={handleOrdemDiaParsed}
                   isParsed={ordemDiaParsed}
