@@ -227,7 +227,7 @@ Frações Representadas: ${fracoesRepresentadas}
 Percentagem de Capital Presente: ${percentagemPresente}%
 ${formatPresencas(presencasData)}
 
-Pontos da Ordem do Dia:
+Pontos da Ordem de Trabalhos:
 ${pontosFormatados}
 ${formatDividas(dividasData)}
 
