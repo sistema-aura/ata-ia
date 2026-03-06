@@ -93,7 +93,7 @@ export const PONTOS_PADRAO: PontoOrdemDia[] = [
   {
     id: "p4",
     titulo:
-      "Deliberação sobre penalização para quotas em atraso (cobrança judicial)",
+      "Deliberação sobre a criação de uma penalização a aplicar às frações com quotas por liquidar em caso de cobrança pela via judicial",
     tipo: "padrao",
     descricaoPadrao:
       "O Condómino que não proceder ao pagamento da sua quota-parte nas despesas e encargos dentro do prazo fixado (180 dias) pela Assembleia de Condóminos, será sujeito à aplicação de uma multa pelo atraso no pagamento do valor correspondente a 10% do valor em cobrança, sempre em respeito pelo limite legal previsto no n.º 2 do artigo 1434.º do Código Civil (no valor 400,00 €) Serão suportadas pelo condómino em causa, todas as despesas judiciais e extrajudiciais custeadas ( no valor mínimo de 750,00 € + iva) pelo Condomínio para cobrança coerciva dos valores em dívida, incluindo honorários de advogado, solicitador ou agente de execução e custas judiciais presentes e futuros",
