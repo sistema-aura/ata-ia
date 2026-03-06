@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Building2, Calendar, Users, Info } from "lucide-react";
 
 interface Props {
@@ -175,18 +175,16 @@ export const AssemblyInfoForm = ({ formData, updateField }: Props) => {
           <h2 className="font-heading text-lg font-semibold text-foreground">
             Presenças
           </h2>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button type="button" className="ml-1 rounded-full text-muted-foreground hover:text-foreground transition-colors">
-                  <Info className="h-4 w-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-xs text-sm">
-                Se tiver a folha de presenças em PDF, não precisa de preencher estes campos. Basta inserir o documento na secção "Documentos PDF" e os dados serão extraídos automaticamente.
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button type="button" className="ml-1 rounded-full text-muted-foreground hover:text-foreground transition-colors">
+                <Info className="h-4 w-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side="top" className="max-w-xs text-sm">
+              Se tiver a folha de presenças em PDF, não precisa de preencher estes campos. Basta inserir o documento na secção "Documentos PDF" e os dados serão extraídos automaticamente.
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
