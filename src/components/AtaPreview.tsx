@@ -59,7 +59,7 @@ export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAsse
                 Copiar
               </Button>
               <Button
-                onClick={() => exportAtaToWord(ata, nomeCondominio)}
+                onClick={() => exportAtaToWord(ata, nomeCondominio, formData?.numeroAta)}
                 variant="outline"
                 className="gap-2"
               >

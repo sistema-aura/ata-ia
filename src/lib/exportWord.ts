@@ -1,7 +1,7 @@
 import { Document, Packer, Paragraph, TextRun, AlignmentType } from "docx";
 import { saveAs } from "file-saver";
 
-export async function exportAtaToWord(ataText: string, nomeCondominio?: string) {
+export async function exportAtaToWord(ataText: string, nomeCondominio?: string, numeroAta?: string) {
   const lines = ataText.split("\n");
   const paragraphs: Paragraph[] = [];
 
@@ -131,8 +131,10 @@ export async function exportAtaToWord(ataText: string, nomeCondominio?: string) 
   });
 
   const blob = await Packer.toBlob(doc);
-  const filename = nomeCondominio
-    ? `Ata_${nomeCondominio.replace(/\s+/g, "_")}.docx`
-    : "Ata_Assembleia.docx";
+  const filename = numeroAta
+    ? `Ata nº ${numeroAta}.docx`
+    : nomeCondominio
+      ? `Ata_${nomeCondominio.replace(/\s+/g, "_")}.docx`
+      : "Ata_Assembleia.docx";
   saveAs(blob, filename);
 }
