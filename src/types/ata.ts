@@ -71,7 +71,7 @@ export interface AtaFormData {
 export const PONTOS_PADRAO: PontoOrdemDia[] = [
   {
     id: "p1",
-    titulo: "Apresentação, debate e aprovação das contas referentes ao exercício",
+    titulo: "Apresentação, debate e aprovação das contas referentes ao exercício 20__",
     tipo: "padrao",
     descricaoPadrao:
       "Foram apresentadas as contas relativamente aos exercícios e aprovadas por unanimidade dos votos presentes de acordo com os documentos apresentados e que se encontram anexos à ata.",
@@ -85,7 +85,7 @@ export const PONTOS_PADRAO: PontoOrdemDia[] = [
   },
   {
     id: "p3",
-    titulo: "Apresentação, debate e aprovação do orçamento previsional para 20__",
+    titulo: "Apresentação, debate e aprovação do orçamento previsional",
     tipo: "padrao",
     descricaoPadrao:
       "Foi aprovado o orçamento cuja despesa total ascende a € ___ (___ euros e ___ cêntimos), acrescido da verba legal destinada ao fundo de reserva no montante de € ____ (___ euros e ___ cêntimos).",
