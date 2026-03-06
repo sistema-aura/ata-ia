@@ -32,7 +32,7 @@ export const AssemblyInfoForm = ({ formData, updateField }: Props) => {
             <Label htmlFor="numeroAta">Número da Ata</Label>
             <Input
               id="numeroAta"
-              placeholder="Ex: 5"
+              placeholder="Ex: CINCO"
               value={formData.numeroAta}
               onChange={(e) => updateField("numeroAta", e.target.value)}
             />
