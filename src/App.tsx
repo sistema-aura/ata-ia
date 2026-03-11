@@ -36,8 +36,8 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/nova-ata" element={<ProtectedRoute><NovaAta /></ProtectedRoute>} />
-            <Route path="/historico" element={<ProtectedRoute><Historico /></ProtectedRoute>} />
+            <Route path="/nova-ata" element={<ProtectedRoute requireActive><NovaAta /></ProtectedRoute>} />
+            <Route path="/historico" element={<ProtectedRoute requireActive><Historico /></ProtectedRoute>} />
             <Route path="/suporte" element={<ProtectedRoute><Suporte /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/empresas" element={<ProtectedRoute requireAdmin><AdminEmpresas /></ProtectedRoute>} />
