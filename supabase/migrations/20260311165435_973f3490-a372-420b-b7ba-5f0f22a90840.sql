@@ -1,0 +1,1 @@
+ALTER TABLE public.company_templates ADD COLUMN presidente_mesa_padrao text DEFAULT '';
