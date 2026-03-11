@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FileText, History, LifeBuoy, LogOut, LayoutDashboard, Building2, Users, Shield, CreditCard, HelpCircle, Wallet } from "lucide-react";
+import { FileText, History, LifeBuoy, LogOut, LayoutDashboard, Building2, Users, Shield, CreditCard, HelpCircle, Wallet, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const AppSidebar = () => {
@@ -32,6 +32,7 @@ export const AppSidebar = () => {
     { title: "Utilizadores", icon: Users, path: "/admin/utilizadores" },
     { title: "Tickets", icon: HelpCircle, path: "/admin/tickets" },
     { title: "Templates", icon: FileText, path: "/admin/templates" },
+    { title: "Preços", icon: Tag, path: "/admin/precos" },
     { title: "Pagamentos", icon: Wallet, path: "/admin/pagamentos" },
   ];
 
