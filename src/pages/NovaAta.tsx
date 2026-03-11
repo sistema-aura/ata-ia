@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AtaFormData, INITIAL_FORM_DATA, PONTOS_PADRAO, PontoOrdemDia, PresencasData, DividasData } from "@/types/ata";
+import { AtaFormData, getInitialFormData, getInitialPontos, PontoOrdemDia, PresencasData, DividasData } from "@/types/ata";
 import { AssemblyInfoForm } from "@/components/AssemblyInfoForm";
 import { PontosOrdemDiaForm } from "@/components/PontosOrdemDiaForm";
 import { AtaPreview } from "@/components/AtaPreview";
@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const NovaAta = () => {
   const { company } = useAuth();
-  const [formData, setFormData] = useState<AtaFormData>(INITIAL_FORM_DATA);
+  const [formData, setFormData] = useState<AtaFormData>(getInitialFormData(company?.slug));
   const [ataGerada, setAtaGerada] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeStep, setActiveStep] = useState<"form" | "preview">("form");
@@ -213,7 +213,7 @@ const NovaAta = () => {
                     setOrdemDiaParsed(false);
                     setFormData((prev) => ({
                       ...prev,
-                      pontosOrdemDia: PONTOS_PADRAO.map((p) => ({ ...p })),
+                      pontosOrdemDia: getInitialPontos(company?.slug),
                     }));
                   }}
                 />

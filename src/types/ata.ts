@@ -68,7 +68,8 @@ export interface AtaFormData {
   observacoesAdicionais: string;
 }
 
-export const PONTOS_PADRAO: PontoOrdemDia[] = [
+// Presets exclusivos da Condominio Dinamico
+export const PONTOS_PADRAO_CD: PontoOrdemDia[] = [
   {
     id: "p1",
     titulo: "Apresentação, debate e aprovação das contas referentes ao exercício 20__",
@@ -120,14 +121,28 @@ export const PONTOS_PADRAO: PontoOrdemDia[] = [
   },
 ];
 
-export const INITIAL_FORM_DATA: AtaFormData = {
+// Pontos genéricos para outras empresas (mesma estrutura, sem textos pré-preenchidos)
+export const PONTOS_PADRAO_GENERICO: PontoOrdemDia[] = [
+  { id: "p1", titulo: "", tipo: "personalizado", notas: "" },
+];
+
+export const CD_COMPANY_SLUG = "condominio-dinamico";
+
+export const getInitialPontos = (companySlug?: string): PontoOrdemDia[] => {
+  if (companySlug === CD_COMPANY_SLUG) {
+    return PONTOS_PADRAO_CD.map((p) => ({ ...p }));
+  }
+  return PONTOS_PADRAO_GENERICO.map((p) => ({ ...p }));
+};
+
+export const getInitialFormData = (companySlug?: string): AtaFormData => ({
   numeroAta: "",
   nomeCondominio: "",
   morada: "",
   nifCondominio: "",
   freguesia: "",
   concelho: "",
-  localReuniao: "Hall de entrada",
+  localReuniao: companySlug === CD_COMPANY_SLUG ? "Hall de entrada" : "",
   dataAssembleia: "",
   horaInicio: "",
   tipoAssembleia: "ordinaria",
@@ -137,8 +152,8 @@ export const INITIAL_FORM_DATA: AtaFormData = {
   fracoesPresentes: "",
   fracoesRepresentadas: "",
   percentagemPresente: "",
-  pontosOrdemDia: PONTOS_PADRAO.map((p) => ({ ...p })),
+  pontosOrdemDia: getInitialPontos(companySlug),
   presencasData: null,
   dividasData: null,
   observacoesAdicionais: "",
-};
+});
