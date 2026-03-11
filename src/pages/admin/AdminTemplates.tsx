@@ -103,6 +103,7 @@ const AdminTemplates = () => {
       company_id: selectedCompanyId,
       pontos_padrao: JSON.parse(JSON.stringify(pontos)),
       local_reuniao_padrao: localReuniao,
+      presidente_mesa_padrao: presidenteMesa,
     };
 
     let error;
