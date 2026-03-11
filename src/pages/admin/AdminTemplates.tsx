@@ -65,10 +65,12 @@ const AdminTemplates = () => {
     if (data) {
       setPontos((data.pontos_padrao as unknown as PontoOrdemDia[]) || []);
       setLocalReuniao(data.local_reuniao_padrao || "");
+      setPresidenteMesa(data.presidente_mesa_padrao || "");
       setTemplateExists(true);
     } else {
       setPontos([]);
       setLocalReuniao("");
+      setPresidenteMesa("");
       setTemplateExists(false);
     }
   };
