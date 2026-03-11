@@ -375,8 +375,8 @@ const NovaAta = () => {
           </div>
         )}
       </main>
-    </div>
+    </AppLayout>
   );
 };
 
-export default Index;
+export default NovaAta;
