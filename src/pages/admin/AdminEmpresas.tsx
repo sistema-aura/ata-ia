@@ -29,6 +29,7 @@ const AdminEmpresas = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  const [newPrice, setNewPrice] = useState("");
   const [creating, setCreating] = useState(false);
   const [blockReason, setBlockReason] = useState("");
   const [blockingId, setBlockingId] = useState<string | null>(null);
