@@ -12,7 +12,14 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2, KeyRound, Eye, EyeOff, Copy, Check } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Loader2, KeyRound, Eye, EyeOff, Copy, Check, Building2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Profile {
@@ -31,26 +38,37 @@ interface AuthUser {
   email_confirmed_at: string | null;
 }
 
+interface Company {
+  id: string;
+  name: string;
+}
+
 const AdminUtilizadores = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [authUsers, setAuthUsers] = useState<AuthUser[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [resetDialog, setResetDialog] = useState<{ open: boolean; userId: string; email: string }>({
-    open: false,
-    userId: "",
-    email: "",
+    open: false, userId: "", email: "",
   });
+  const [companyDialog, setCompanyDialog] = useState<{ open: boolean; userId: string; email: string; currentCompanyId: string | null }>({
+    open: false, userId: "", email: "", currentCompanyId: null,
+  });
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [assigning, setAssigning] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const fetchData = async () => {
-    const [profilesRes, authRes] = await Promise.all([
+    const [profilesRes, companiesRes, authRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+      supabase.from("companies").select("id, name").order("name"),
       supabase.functions.invoke("admin-users", { body: { action: "list_users" } }),
     ]);
     setProfiles((profilesRes.data as Profile[]) || []);
+    setCompanies((companiesRes.data as Company[]) || []);
     if (authRes.data?.users) {
       setAuthUsers(authRes.data.users);
     }
@@ -80,6 +98,25 @@ const AdminUtilizadores = () => {
     setResetting(false);
   };
 
+  const handleAssignCompany = async () => {
+    setAssigning(true);
+    const companyId = selectedCompanyId === "none" ? null : selectedCompanyId;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ company_id: companyId })
+      .eq("id", companyDialog.userId);
+
+    if (error) {
+      toast.error("Erro ao associar empresa");
+    } else {
+      toast.success(companyId ? "Empresa associada com sucesso" : "Empresa removida do utilizador");
+      setCompanyDialog({ open: false, userId: "", email: "", currentCompanyId: null });
+      setSelectedCompanyId("");
+      fetchData();
+    }
+    setAssigning(false);
+  };
+
   const copyEmail = (email: string) => {
     navigator.clipboard.writeText(email);
     setCopied(true);
@@ -88,6 +125,10 @@ const AdminUtilizadores = () => {
   };
 
   const getAuthUser = (id: string) => authUsers.find((u) => u.id === id);
+  const getCompanyName = (companyId: string | null) => {
+    if (!companyId) return null;
+    return companies.find((c) => c.id === companyId)?.name || null;
+  };
 
   return (
     <AppLayout>
@@ -101,6 +142,7 @@ const AdminUtilizadores = () => {
           <div className="space-y-3">
             {profiles.map((p) => {
               const auth = getAuthUser(p.id);
+              const companyName = getCompanyName(p.company_id);
               return (
                 <div
                   key={p.id}
@@ -114,6 +156,12 @@ const AdminUtilizadores = () => {
                         {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                       </button>
                     </div>
+                    {companyName && (
+                      <p className="text-xs text-accent mt-1 flex items-center gap-1">
+                        <Building2 className="h-3 w-3" />
+                        {companyName}
+                      </p>
+                    )}
                     {auth?.last_sign_in_at && (
                       <p className="text-xs text-muted-foreground mt-1">
                         Último login: {new Date(auth.last_sign_in_at).toLocaleString("pt-PT")}
@@ -130,9 +178,18 @@ const AdminUtilizadores = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() =>
-                        setResetDialog({ open: true, userId: p.id, email: p.email })
-                      }
+                      onClick={() => {
+                        setCompanyDialog({ open: true, userId: p.id, email: p.email, currentCompanyId: p.company_id });
+                        setSelectedCompanyId(p.company_id || "none");
+                      }}
+                    >
+                      <Building2 className="h-3.5 w-3.5 mr-1" />
+                      Empresa
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setResetDialog({ open: true, userId: p.id, email: p.email })}
                     >
                       <KeyRound className="h-3.5 w-3.5 mr-1" />
                       Password
@@ -145,6 +202,7 @@ const AdminUtilizadores = () => {
         )}
       </div>
 
+      {/* Password Dialog */}
       <Dialog open={resetDialog.open} onOpenChange={(open) => {
         setResetDialog((prev) => ({ ...prev, open }));
         if (!open) setNewPassword("");
@@ -183,6 +241,46 @@ const AdminUtilizadores = () => {
             <Button onClick={handleResetPassword} disabled={resetting}>
               {resetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Alterar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Company Assignment Dialog */}
+      <Dialog open={companyDialog.open} onOpenChange={(open) => {
+        setCompanyDialog((prev) => ({ ...prev, open }));
+        if (!open) setSelectedCompanyId("");
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Associar Empresa</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Associar empresa ao utilizador <strong>{companyDialog.email}</strong>
+          </p>
+          <div className="space-y-2">
+            <Label>Empresa</Label>
+            <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione uma empresa" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem empresa</SelectItem>
+                {companies.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCompanyDialog({ open: false, userId: "", email: "", currentCompanyId: null })}>
+              Cancelar
+            </Button>
+            <Button onClick={handleAssignCompany} disabled={assigning}>
+              {assigning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Guardar
             </Button>
           </DialogFooter>
         </DialogContent>
