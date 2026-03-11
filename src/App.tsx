@@ -18,6 +18,7 @@ import AdminUtilizadores from "./pages/admin/AdminUtilizadores";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminTemplates from "./pages/admin/AdminTemplates";
 import AdminPagamentos from "./pages/admin/AdminPagamentos";
+import AdminPrecos from "./pages/admin/AdminPrecos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
