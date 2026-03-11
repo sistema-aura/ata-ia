@@ -94,6 +94,41 @@ export type Database = {
         }
         Relationships: []
       }
+      company_templates: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          local_reuniao_padrao: string | null
+          pontos_padrao: Json
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          local_reuniao_padrao?: string | null
+          pontos_padrao?: Json
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          local_reuniao_padrao?: string | null
+          pontos_padrao?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_templates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
