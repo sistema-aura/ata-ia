@@ -19,10 +19,14 @@ export const AppSidebar = () => {
   const { isAdmin, company, profile, signOut } = useAuth();
   const location = useLocation();
 
+  const isBlocked = !isAdmin && company && !company.is_active;
+
   const companyMenuItems = [
     { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-    { title: "Nova Ata", icon: FileText, path: "/nova-ata" },
-    { title: "Histórico", icon: History, path: "/historico" },
+    ...(!isBlocked ? [
+      { title: "Nova Ata", icon: FileText, path: "/nova-ata" },
+      { title: "Histórico", icon: History, path: "/historico" },
+    ] : []),
     { title: "Suporte", icon: LifeBuoy, path: "/suporte" },
   ];
 
