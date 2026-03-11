@@ -1,0 +1,1 @@
+ALTER TABLE public.companies ADD COLUMN monthly_price numeric NOT NULL DEFAULT 0;

@@ -18,6 +18,7 @@ interface Company {
   is_active: boolean;
   blocked_reason: string | null;
   subscription_status: string | null;
+  monthly_price: number;
   created_at: string;
 }
 
@@ -28,6 +29,7 @@ const AdminEmpresas = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  const [newPrice, setNewPrice] = useState("");
   const [creating, setCreating] = useState(false);
   const [blockReason, setBlockReason] = useState("");
   const [blockingId, setBlockingId] = useState<string | null>(null);
@@ -45,7 +47,7 @@ const AdminEmpresas = () => {
     setCreating(true);
     const slug = newName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     
-    const { data, error } = await supabase.from("companies").insert({ name: newName, slug }).select().single();
+    const { data, error } = await supabase.from("companies").insert({ name: newName, slug, monthly_price: parseFloat(newPrice) || 0 }).select().single();
     if (error) {
       toast.error("Erro ao criar empresa: " + error.message);
       setCreating(false);
@@ -64,6 +66,7 @@ const AdminEmpresas = () => {
     toast.success("Empresa criada com sucesso!");
     setNewName("");
     setNewEmail("");
+    setNewPrice("");
     setDialogOpen(false);
     setCreating(false);
     fetchCompanies();
@@ -111,6 +114,11 @@ const AdminEmpresas = () => {
                   <Input value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="email@empresa.com" type="email" />
                   <p className="text-xs text-muted-foreground">Se o utilizador já tiver conta, será associado à empresa.</p>
                 </div>
+                <div className="space-y-2">
+                  <Label>Preço Mensal (€)</Label>
+                  <Input type="number" step="0.01" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} placeholder="0.00" />
+                  <p className="text-xs text-muted-foreground">Valor usado na geração automática de pagamentos.</p>
+                </div>
                 <Button onClick={createCompany} disabled={creating} className="w-full">
                   {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Criar Empresa
@@ -149,6 +157,9 @@ const AdminEmpresas = () => {
                     <Badge variant={company.is_active ? "default" : "destructive"}>
                       {company.is_active ? "Ativo" : "Bloqueado"}
                     </Badge>
+                    {company.monthly_price > 0 && (
+                      <span className="text-xs font-medium text-foreground">€{company.monthly_price}/mês</span>
+                    )}
                     <span className="text-xs text-muted-foreground">
                       Criada em {new Date(company.created_at).toLocaleDateString("pt-PT")}
                     </span>
