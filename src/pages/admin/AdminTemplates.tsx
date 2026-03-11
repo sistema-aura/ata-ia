@@ -48,6 +48,7 @@ const AdminTemplates = () => {
     if (!selectedCompanyId) {
       setPontos([]);
       setLocalReuniao("");
+      setPresidenteMesa("");
       setTemplateExists(false);
       return;
     }
