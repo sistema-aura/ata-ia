@@ -157,9 +157,14 @@ const AdminEmpresas = () => {
                     <p className="text-xs text-destructive mt-1">{company.blocked_reason}</p>
                   )}
                 </div>
-                <Button variant={company.is_active ? "destructive" : "default"} size="sm" className="gap-2" onClick={() => toggleBlock(company)}>
-                  {company.is_active ? <><Ban className="h-3 w-3" /> Bloquear</> : <><CheckCircle className="h-3 w-3" /> Desbloquear</>}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" className="gap-1" onClick={() => navigate(`/admin/templates?company=${company.id}`)}>
+                    <FileText className="h-3 w-3" /> Templates
+                  </Button>
+                  <Button variant={company.is_active ? "destructive" : "default"} size="sm" className="gap-2" onClick={() => toggleBlock(company)}>
+                    {company.is_active ? <><Ban className="h-3 w-3" /> Bloquear</> : <><CheckCircle className="h-3 w-3" /> Desbloquear</>}
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
