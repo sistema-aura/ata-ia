@@ -7,6 +7,16 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -34,18 +44,19 @@ import {
   Loader2,
   CheckCircle,
   Clock,
-  XCircle,
+  AlertTriangle,
   Euro,
   TrendingUp,
-  AlertTriangle,
   Edit2,
   Trash2,
+  CalendarPlus,
 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Company {
   id: string;
   name: string;
+  monthly_price: number;
 }
 
 interface Payment {
@@ -76,6 +87,8 @@ const AdminPagamentos = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
 
   // Filter
   const [filterCompany, setFilterCompany] = useState("all");
@@ -94,16 +107,26 @@ const AdminPagamentos = () => {
         .from("payments")
         .select("*, companies(name)")
         .order("reference_month", { ascending: false }),
-      supabase.from("companies").select("id, name").order("name"),
+      supabase.from("companies").select("id, name, monthly_price").order("name"),
     ]);
     setPayments((paymentsRes.data as unknown as Payment[]) || []);
-    setCompanies((companiesRes.data as Company[]) || []);
+    setCompanies((companiesRes.data as unknown as Company[]) || []);
     setLoading(false);
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Auto-fill amount when company changes
+  useEffect(() => {
+    if (formCompanyId && !editingPayment) {
+      const company = companies.find((c) => c.id === formCompanyId);
+      if (company && company.monthly_price > 0) {
+        setFormAmount(String(company.monthly_price));
+      }
+    }
+  }, [formCompanyId, companies, editingPayment]);
 
   const openCreate = () => {
     setEditingPayment(null);
@@ -152,15 +175,51 @@ const AdminPagamentos = () => {
     setSaving(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Tem a certeza que quer eliminar este pagamento?")) return;
-    const { error } = await supabase.from("payments").delete().eq("id", id);
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    const { error } = await supabase.from("payments").delete().eq("id", deletingId);
     if (error) {
       toast.error("Erro ao eliminar pagamento");
     } else {
       toast.success("Pagamento eliminado");
       fetchData();
     }
+    setDeletingId(null);
+  };
+
+  const generateMonthlyPayments = async () => {
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+    // Find companies that don't have a payment for this month yet
+    const existingForMonth = payments.filter((p) => p.reference_month === currentMonth);
+    const existingCompanyIds = new Set(existingForMonth.map((p) => p.company_id));
+    const toGenerate = companies.filter(
+      (c) => !existingCompanyIds.has(c.id) && c.monthly_price > 0
+    );
+
+    if (toGenerate.length === 0) {
+      toast.info("Todos os pagamentos deste mês já estão registados ou não há empresas com preço definido.");
+      return;
+    }
+
+    setGenerating(true);
+    const rows = toGenerate.map((c) => ({
+      company_id: c.id,
+      amount: c.monthly_price,
+      reference_month: currentMonth,
+      status: "pending",
+      notes: "Gerado automaticamente",
+    }));
+
+    const { error } = await supabase.from("payments").insert(rows);
+    if (error) {
+      toast.error("Erro ao gerar pagamentos");
+    } else {
+      toast.success(`${toGenerate.length} pagamento(s) gerado(s) para ${formatMonth(currentMonth)}`);
+      fetchData();
+    }
+    setGenerating(false);
   };
 
   const toggleStatus = async (payment: Payment) => {
@@ -209,7 +268,6 @@ const AdminPagamentos = () => {
   const totalOverdue = payments
     .filter((p) => p.status === "overdue")
     .reduce((sum, p) => sum + Number(p.amount), 0);
-  const overdueCount = payments.filter((p) => p.status === "overdue").length;
 
   const formatMonth = (ref: string) => {
     const [y, m] = ref.split("-");
@@ -218,7 +276,6 @@ const AdminPagamentos = () => {
     return label.charAt(0).toUpperCase() + label.slice(1);
   };
 
-  // Generate month options (current + 11 past months)
   const monthOptions = Array.from({ length: 12 }, (_, i) => {
     const d = new Date();
     d.setMonth(d.getMonth() - i);
@@ -238,9 +295,24 @@ const AdminPagamentos = () => {
               Gestão e controlo de faturação por empresa
             </p>
           </div>
-          <Button onClick={openCreate} className="gap-2">
-            <Plus className="h-4 w-4" /> Registar Pagamento
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={generateMonthlyPayments}
+              disabled={generating}
+              className="gap-2"
+            >
+              {generating ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <CalendarPlus className="h-4 w-4" />
+              )}
+              Gerar Mês Atual
+            </Button>
+            <Button onClick={openCreate} className="gap-2">
+              <Plus className="h-4 w-4" /> Registar Pagamento
+            </Button>
+          </div>
         </div>
 
         {/* Summary Cards */}
@@ -310,9 +382,7 @@ const AdminPagamentos = () => {
                 <SelectContent>
                   <SelectItem value="all">Todas as empresas</SelectItem>
                   {companies.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -332,10 +402,7 @@ const AdminPagamentos = () => {
                   variant="ghost"
                   size="sm"
                   className="text-muted-foreground"
-                  onClick={() => {
-                    setFilterCompany("all");
-                    setFilterStatus("all");
-                  }}
+                  onClick={() => { setFilterCompany("all"); setFilterStatus("all"); }}
                 >
                   Limpar filtros
                 </Button>
@@ -355,7 +422,7 @@ const AdminPagamentos = () => {
               <Euro className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
               <p className="text-muted-foreground font-medium">Nenhum pagamento encontrado</p>
               <p className="text-sm text-muted-foreground/70 mt-1">
-                Registe o primeiro pagamento clicando no botão acima.
+                Registe o primeiro pagamento ou use "Gerar Mês Atual".
               </p>
             </CardContent>
           </Card>
@@ -366,7 +433,7 @@ const AdminPagamentos = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Empresa</TableHead>
-                    <TableHead>Mês de Referência</TableHead>
+                    <TableHead>Mês</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
                     <TableHead>Estado</TableHead>
                     <TableHead>Data Pagamento</TableHead>
@@ -380,9 +447,7 @@ const AdminPagamentos = () => {
                     const StatusIcon = statusInfo.icon;
                     return (
                       <TableRow key={p.id}>
-                        <TableCell className="font-medium">
-                          {p.companies?.name || "—"}
-                        </TableCell>
+                        <TableCell className="font-medium">{p.companies?.name || "—"}</TableCell>
                         <TableCell>{formatMonth(p.reference_month)}</TableCell>
                         <TableCell className="text-right font-semibold tabular-nums">
                           €{Number(p.amount).toFixed(2)}
@@ -398,28 +463,21 @@ const AdminPagamentos = () => {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm">
-                          {p.paid_at
-                            ? new Date(p.paid_at).toLocaleDateString("pt-PT")
-                            : "—"}
+                          {p.paid_at ? new Date(p.paid_at).toLocaleDateString("pt-PT") : "—"}
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm max-w-[200px] truncate">
                           {p.notes || "—"}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => openEdit(p)}
-                            >
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(p)}>
                               <Edit2 className="h-3.5 w-3.5" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-destructive hover:text-destructive"
-                              onClick={() => handleDelete(p.id)}
+                              onClick={() => setDeletingId(p.id)}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
@@ -435,13 +493,32 @@ const AdminPagamentos = () => {
         )}
       </div>
 
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar pagamento</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem a certeza que deseja eliminar este registo de pagamento? Esta ação não pode ser revertida.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Create/Edit Payment Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editingPayment ? "Editar Pagamento" : "Registar Pagamento"}
-            </DialogTitle>
+            <DialogTitle>{editingPayment ? "Editar Pagamento" : "Registar Pagamento"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -453,7 +530,7 @@ const AdminPagamentos = () => {
                 <SelectContent>
                   {companies.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
-                      {c.name}
+                      {c.name} {c.monthly_price > 0 && `(€${c.monthly_price})`}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -468,9 +545,7 @@ const AdminPagamentos = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {monthOptions.map((m) => (
-                      <SelectItem key={m.val} value={m.val}>
-                        {m.label}
-                      </SelectItem>
+                      <SelectItem key={m.val} value={m.val}>{m.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -489,9 +564,7 @@ const AdminPagamentos = () => {
             <div className="space-y-2">
               <Label>Estado</Label>
               <Select value={formStatus} onValueChange={setFormStatus}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="pending">Pendente</SelectItem>
                   <SelectItem value="paid">Pago</SelectItem>
@@ -509,9 +582,7 @@ const AdminPagamentos = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancelar
-            </Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {editingPayment ? "Guardar" : "Registar"}
