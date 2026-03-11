@@ -47,7 +47,7 @@ const AdminEmpresas = () => {
     setCreating(true);
     const slug = newName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     
-    const { data, error } = await supabase.from("companies").insert({ name: newName, slug }).select().single();
+    const { data, error } = await supabase.from("companies").insert({ name: newName, slug, monthly_price: parseFloat(newPrice) || 0 }).select().single();
     if (error) {
       toast.error("Erro ao criar empresa: " + error.message);
       setCreating(false);
