@@ -157,6 +157,9 @@ const AdminEmpresas = () => {
                     <Badge variant={company.is_active ? "default" : "destructive"}>
                       {company.is_active ? "Ativo" : "Bloqueado"}
                     </Badge>
+                    {company.monthly_price > 0 && (
+                      <span className="text-xs font-medium text-foreground">€{company.monthly_price}/mês</span>
+                    )}
                     <span className="text-xs text-muted-foreground">
                       Criada em {new Date(company.created_at).toLocaleDateString("pt-PT")}
                     </span>
