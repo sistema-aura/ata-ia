@@ -66,6 +66,7 @@ const AdminEmpresas = () => {
     toast.success("Empresa criada com sucesso!");
     setNewName("");
     setNewEmail("");
+    setNewPrice("");
     setDialogOpen(false);
     setCreating(false);
     fetchCompanies();
