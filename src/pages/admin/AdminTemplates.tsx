@@ -32,6 +32,7 @@ const AdminTemplates = () => {
   const [selectedCompanyId, setSelectedCompanyId] = useState(companyIdParam || "");
   const [pontos, setPontos] = useState<PontoOrdemDia[]>([]);
   const [localReuniao, setLocalReuniao] = useState("");
+  const [presidenteMesa, setPresidenteMesa] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [templateExists, setTemplateExists] = useState(false);
