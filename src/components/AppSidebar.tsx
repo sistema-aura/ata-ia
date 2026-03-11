@@ -32,6 +32,7 @@ export const AppSidebar = () => {
     { title: "Utilizadores", icon: Users, path: "/admin/utilizadores" },
     { title: "Tickets", icon: HelpCircle, path: "/admin/tickets" },
     { title: "Templates", icon: FileText, path: "/admin/templates" },
+    { title: "Preços", icon: Tag, path: "/admin/precos" },
     { title: "Pagamentos", icon: Wallet, path: "/admin/pagamentos" },
   ];
 
