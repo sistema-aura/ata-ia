@@ -97,7 +97,7 @@ const AdminTemplates = () => {
 
     const payload = {
       company_id: selectedCompanyId,
-      pontos_padrao: pontos,
+      pontos_padrao: JSON.parse(JSON.stringify(pontos)),
       local_reuniao_padrao: localReuniao,
     };
 
@@ -110,7 +110,7 @@ const AdminTemplates = () => {
     } else {
       ({ error } = await supabase
         .from("company_templates")
-        .insert(payload));
+        .insert([payload]));
     }
 
     if (error) {
