@@ -38,6 +38,7 @@ const NovaAta = () => {
           company_id: data.company_id,
           pontos_padrao: (data.pontos_padrao as unknown as PontoOrdemDia[]) || [],
           local_reuniao_padrao: data.local_reuniao_padrao || "",
+          presidente_mesa_padrao: data.presidente_mesa_padrao || "",
         };
         setTemplate(t);
         setFormData(getDefaultFormData(t));
