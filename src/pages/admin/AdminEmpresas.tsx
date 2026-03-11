@@ -22,6 +22,7 @@ interface Company {
 }
 
 const AdminEmpresas = () => {
+  const navigate = useNavigate();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
