@@ -98,7 +98,7 @@ export const getDefaultFormData = (
   horaInicio: "",
   tipoAssembleia: "ordinaria",
   convocatoria: "primeira",
-  presidenteMesa: "",
+  presidenteMesa: template?.presidente_mesa_padrao || "",
   totalFracoes: "",
   fracoesPresentes: "",
   fracoesRepresentadas: "",
