@@ -31,6 +31,7 @@ export const AppSidebar = () => {
     { title: "Empresas", icon: Building2, path: "/admin/empresas" },
     { title: "Utilizadores", icon: Users, path: "/admin/utilizadores" },
     { title: "Tickets", icon: HelpCircle, path: "/admin/tickets" },
+    { title: "Templates", icon: FileText, path: "/admin/templates" },
   ];
 
   const menuItems = isAdmin ? adminMenuItems : companyMenuItems;

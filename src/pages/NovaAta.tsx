@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { AtaFormData, getInitialFormData, getInitialPontos, PontoOrdemDia, PresencasData, DividasData } from "@/types/ata";
+import { useState, useEffect } from "react";
+import { AtaFormData, getDefaultFormData, PontoOrdemDia, PresencasData, DividasData, CompanyTemplate, PONTO_VAZIO } from "@/types/ata";
 import { AssemblyInfoForm } from "@/components/AssemblyInfoForm";
 import { PontosOrdemDiaForm } from "@/components/PontosOrdemDiaForm";
 import { AtaPreview } from "@/components/AtaPreview";
@@ -9,16 +9,42 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AppLayout } from "@/components/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const NovaAta = () => {
   const { company } = useAuth();
-  const [formData, setFormData] = useState<AtaFormData>(getInitialFormData(company?.slug));
+  const [formData, setFormData] = useState<AtaFormData>(getDefaultFormData());
   const [ataGerada, setAtaGerada] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeStep, setActiveStep] = useState<"form" | "preview">("form");
   const [ordemDiaParsed, setOrdemDiaParsed] = useState(false);
   const [presencasParsed, setPresencasParsed] = useState(false);
   const [dividasParsed, setDividasParsed] = useState(false);
+  const [template, setTemplate] = useState<CompanyTemplate | null>(null);
+
+  // Load company template from DB
+  useEffect(() => {
+    const loadTemplate = async () => {
+      if (!company?.id) return;
+      const { data } = await supabase
+        .from("company_templates")
+        .select("*")
+        .eq("company_id", company.id)
+        .single();
+
+      if (data) {
+        const t: CompanyTemplate = {
+          id: data.id,
+          company_id: data.company_id,
+          pontos_padrao: (data.pontos_padrao as unknown as PontoOrdemDia[]) || [],
+          local_reuniao_padrao: data.local_reuniao_padrao || "",
+        };
+        setTemplate(t);
+        setFormData(getDefaultFormData(t));
+      }
+    };
+    loadTemplate();
+  }, [company?.id]);
 
   const updateField = (field: keyof AtaFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -83,6 +109,13 @@ const NovaAta = () => {
   const handleDividasParsed = (data: DividasData) => {
     setFormData((prev) => ({ ...prev, dividasData: data }));
     setDividasParsed(true);
+  };
+
+  const getResetPontos = () => {
+    if (template?.pontos_padrao && template.pontos_padrao.length > 0) {
+      return template.pontos_padrao.map((p) => ({ ...p }));
+    }
+    return [{ ...PONTO_VAZIO }];
   };
 
   const generateAta = async () => {
@@ -162,7 +195,6 @@ const NovaAta = () => {
 
   return (
     <AppLayout>
-
       {/* Step Tabs */}
       <div className="border-b border-border bg-card/50">
         <div className="container max-w-5xl">
@@ -213,7 +245,7 @@ const NovaAta = () => {
                     setOrdemDiaParsed(false);
                     setFormData((prev) => ({
                       ...prev,
-                      pontosOrdemDia: getInitialPontos(company?.slug),
+                      pontosOrdemDia: getResetPontos(),
                     }));
                   }}
                 />
@@ -277,16 +309,12 @@ const NovaAta = () => {
                           key={i}
                           className="flex items-center gap-3 rounded-md bg-muted/50 px-3 py-1.5 text-sm"
                         >
-                          <span className="font-medium text-foreground">
-                            {c.fracao}
-                          </span>
+                          <span className="font-medium text-foreground">{c.fracao}</span>
                           <span className="text-muted-foreground">{c.nome}</span>
                           {c.representado && (
                             <span className="text-xs text-accent">(representado)</span>
                           )}
-                          <span className="ml-auto text-xs text-muted-foreground">
-                            {c.permilagem}‰
-                          </span>
+                          <span className="ml-auto text-xs text-muted-foreground">{c.permilagem}‰</span>
                         </div>
                       ))}
                     </div>
@@ -303,13 +331,9 @@ const NovaAta = () => {
                           key={i}
                           className="flex items-center gap-3 rounded-md bg-muted/50 px-3 py-1.5 text-sm opacity-60"
                         >
-                          <span className="font-medium text-foreground">
-                            {c.fracao}
-                          </span>
+                          <span className="font-medium text-foreground">{c.fracao}</span>
                           <span className="text-muted-foreground">{c.nome}</span>
-                          <span className="ml-auto text-xs text-muted-foreground">
-                            {c.permilagem}‰
-                          </span>
+                          <span className="ml-auto text-xs text-muted-foreground">{c.permilagem}‰</span>
                         </div>
                       ))}
                     </div>
