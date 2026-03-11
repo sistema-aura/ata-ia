@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +16,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -35,6 +45,8 @@ import {
   AlertTriangle,
   Euro,
   TrendingUp,
+  RefreshCw,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -59,15 +71,17 @@ const STATUS_MAP: Record<
   overdue: { label: "Em atraso", variant: "destructive", icon: AlertTriangle },
 };
 
-interface Company {
+interface CompanyWithPrice {
   id: string;
   name: string;
+  monthly_price: number;
 }
 
 const AdminPagamentos = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [companies, setCompanies] = useState<CompanyWithPrice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
 
   // Filter
   const [filterCompany, setFilterCompany] = useState("all");
@@ -77,22 +91,83 @@ const AdminPagamentos = () => {
   const [confirmPayment, setConfirmPayment] = useState<Payment | null>(null);
   const [confirmNextStatus, setConfirmNextStatus] = useState<string>("");
 
+  // Manual add dialog
+  const [showManual, setShowManual] = useState(false);
+  const [manualCompany, setManualCompany] = useState("");
+  const [manualMonth, setManualMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  });
+  const [manualAmount, setManualAmount] = useState("");
+  const [manualNotes, setManualNotes] = useState("");
+  const [manualSaving, setManualSaving] = useState(false);
+
   const fetchData = async () => {
     const [paymentsRes, companiesRes] = await Promise.all([
       supabase
         .from("payments")
         .select("*, companies(name)")
         .order("reference_month", { ascending: false }),
-      supabase.from("companies").select("id, name").order("name"),
+      supabase.from("companies").select("id, name, monthly_price").order("name"),
     ]);
     setPayments((paymentsRes.data as unknown as Payment[]) || []);
-    setCompanies((companiesRes.data as Company[]) || []);
+    setCompanies((companiesRes.data as CompanyWithPrice[]) || []);
     setLoading(false);
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Auto-fill amount when company selected in manual dialog
+  useEffect(() => {
+    if (manualCompany) {
+      const c = companies.find((co) => co.id === manualCompany);
+      if (c && c.monthly_price > 0) {
+        setManualAmount(String(c.monthly_price));
+      }
+    }
+  }, [manualCompany, companies]);
+
+  const generateCurrentMonth = async () => {
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-monthly-payments");
+      if (error) throw error;
+      toast.success(data?.message || "Pagamentos gerados com sucesso");
+      await fetchData();
+    } catch {
+      toast.error("Erro ao gerar pagamentos");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleManualSave = async () => {
+    if (!manualCompany || !manualMonth || !manualAmount) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+    setManualSaving(true);
+    const { error } = await supabase.from("payments").insert({
+      company_id: manualCompany,
+      reference_month: manualMonth,
+      amount: parseFloat(manualAmount),
+      status: "pending",
+      notes: manualNotes || "Registado manualmente",
+    });
+    if (error) {
+      toast.error("Erro ao registar pagamento");
+    } else {
+      toast.success("Pagamento registado com sucesso");
+      setShowManual(false);
+      setManualCompany("");
+      setManualAmount("");
+      setManualNotes("");
+      await fetchData();
+    }
+    setManualSaving(false);
+  };
 
   const requestStatusChange = (payment: Payment) => {
     const order = ["pending", "paid", "overdue"];
@@ -126,16 +201,9 @@ const AdminPagamentos = () => {
     return true;
   });
 
-  // Summary stats
-  const totalReceived = payments
-    .filter((p) => p.status === "paid")
-    .reduce((sum, p) => sum + Number(p.amount), 0);
-  const totalPending = payments
-    .filter((p) => p.status === "pending")
-    .reduce((sum, p) => sum + Number(p.amount), 0);
-  const totalOverdue = payments
-    .filter((p) => p.status === "overdue")
-    .reduce((sum, p) => sum + Number(p.amount), 0);
+  const totalReceived = payments.filter((p) => p.status === "paid").reduce((sum, p) => sum + Number(p.amount), 0);
+  const totalPending = payments.filter((p) => p.status === "pending").reduce((sum, p) => sum + Number(p.amount), 0);
+  const totalOverdue = payments.filter((p) => p.status === "overdue").reduce((sum, p) => sum + Number(p.amount), 0);
 
   const formatMonth = (ref: string) => {
     const [y, m] = ref.split("-");
@@ -148,11 +216,23 @@ const AdminPagamentos = () => {
     <AppLayout>
       <div className="container max-w-6xl py-8 space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-foreground">Pagamentos</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Os pagamentos são gerados automaticamente a cada mês. Aqui geres apenas o estado.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-foreground">Pagamentos</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Gerados automaticamente a cada mês. Gere o estado ou adicione manualmente.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={generateCurrentMonth} disabled={generating}>
+              {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              Gerar Mês Atual
+            </Button>
+            <Button size="sm" onClick={() => setShowManual(true)}>
+              <Plus className="h-4 w-4" />
+              Adicionar Manual
+            </Button>
+          </div>
         </div>
 
         {/* Summary Cards */}
@@ -334,6 +414,60 @@ const AdminPagamentos = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Manual Payment Dialog */}
+      <Dialog open={showManual} onOpenChange={setShowManual}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Registar Pagamento Manual</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Empresa</Label>
+              <Select value={manualCompany} onValueChange={setManualCompany}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecionar empresa" />
+                </SelectTrigger>
+                <SelectContent>
+                  {companies.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Mês de Referência</Label>
+              <Input type="month" value={manualMonth} onChange={(e) => setManualMonth(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Valor (€)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={manualAmount}
+                onChange={(e) => setManualAmount(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Notas (opcional)</Label>
+              <Input
+                placeholder="Ex: Pagamento extra, ajuste..."
+                value={manualNotes}
+                onChange={(e) => setManualNotes(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowManual(false)}>Cancelar</Button>
+            <Button onClick={handleManualSave} disabled={manualSaving}>
+              {manualSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+              Registar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 };
