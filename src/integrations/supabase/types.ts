@@ -61,6 +61,7 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          monthly_price: number
           name: string
           slug: string
           stripe_customer_id: string | null
@@ -73,6 +74,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          monthly_price?: number
           name: string
           slug: string
           stripe_customer_id?: string | null
@@ -85,6 +87,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          monthly_price?: number
           name?: string
           slug?: string
           stripe_customer_id?: string | null
