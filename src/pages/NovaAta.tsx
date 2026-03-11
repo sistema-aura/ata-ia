@@ -4,12 +4,14 @@ import { AssemblyInfoForm } from "@/components/AssemblyInfoForm";
 import { PontosOrdemDiaForm } from "@/components/PontosOrdemDiaForm";
 import { AtaPreview } from "@/components/AtaPreview";
 import { PdfUpload } from "@/components/PdfUpload";
-import { FileText, Sparkles, ListOrdered, Users, History } from "lucide-react";
+import { FileText, Sparkles, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
+import { AppLayout } from "@/components/AppLayout";
+import { useAuth } from "@/hooks/useAuth";
 
-const Index = () => {
+const NovaAta = () => {
+  const { company } = useAuth();
   const [formData, setFormData] = useState<AtaFormData>(INITIAL_FORM_DATA);
   const [ataGerada, setAtaGerada] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
