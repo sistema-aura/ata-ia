@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AtaFormData, INITIAL_FORM_DATA, PONTOS_PADRAO, PontoOrdemDia, PresencasData, DividasData } from "@/types/ata";
+import { AtaFormData, getInitialFormData, getInitialPontos, PontoOrdemDia, PresencasData, DividasData } from "@/types/ata";
 import { AssemblyInfoForm } from "@/components/AssemblyInfoForm";
 import { PontosOrdemDiaForm } from "@/components/PontosOrdemDiaForm";
 import { AtaPreview } from "@/components/AtaPreview";
