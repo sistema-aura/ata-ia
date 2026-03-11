@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const NovaAta = () => {
   const { company } = useAuth();
-  const [formData, setFormData] = useState<AtaFormData>(INITIAL_FORM_DATA);
+  const [formData, setFormData] = useState<AtaFormData>(getInitialFormData(company?.slug));
   const [ataGerada, setAtaGerada] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeStep, setActiveStep] = useState<"form" | "preview">("form");
