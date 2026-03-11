@@ -371,6 +371,7 @@ const NovaAta = () => {
               nomeCondominio={formData.nomeCondominio}
               dataAssembleia={formData.dataAssembleia}
               formData={formData}
+              companyId={company?.id}
             />
           </div>
         )}
