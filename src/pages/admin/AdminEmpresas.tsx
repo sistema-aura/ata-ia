@@ -18,6 +18,7 @@ interface Company {
   is_active: boolean;
   blocked_reason: string | null;
   subscription_status: string | null;
+  monthly_price: number;
   created_at: string;
 }
 
