@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -19,8 +20,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Loader2, CheckCircle, Clock, XCircle } from "lucide-react";
+import {
+  Plus,
+  Loader2,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Euro,
+  TrendingUp,
+  AlertTriangle,
+  Edit2,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 
 interface Company {
@@ -40,10 +60,13 @@ interface Payment {
   companies?: { name: string };
 }
 
-const STATUS_MAP: Record<string, { label: string; variant: "default" | "secondary" | "destructive" }> = {
-  paid: { label: "Pago", variant: "default" },
-  pending: { label: "Pendente", variant: "secondary" },
-  overdue: { label: "Em atraso", variant: "destructive" },
+const STATUS_MAP: Record<
+  string,
+  { label: string; variant: "default" | "secondary" | "destructive"; icon: typeof CheckCircle }
+> = {
+  paid: { label: "Pago", variant: "default", icon: CheckCircle },
+  pending: { label: "Pendente", variant: "secondary", icon: Clock },
+  overdue: { label: "Em atraso", variant: "destructive", icon: AlertTriangle },
 };
 
 const AdminPagamentos = () => {
@@ -52,12 +75,13 @@ const AdminPagamentos = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
 
   // Filter
   const [filterCompany, setFilterCompany] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
 
-  // New payment form
+  // Form
   const [formCompanyId, setFormCompanyId] = useState("");
   const [formAmount, setFormAmount] = useState("");
   const [formMonth, setFormMonth] = useState("");
@@ -69,7 +93,7 @@ const AdminPagamentos = () => {
       supabase
         .from("payments")
         .select("*, companies(name)")
-        .order("created_at", { ascending: false }),
+        .order("reference_month", { ascending: false }),
       supabase.from("companies").select("id, name").order("name"),
     ]);
     setPayments((paymentsRes.data as unknown as Payment[]) || []);
@@ -81,26 +105,46 @@ const AdminPagamentos = () => {
     fetchData();
   }, []);
 
-  const handleCreate = async () => {
+  const openCreate = () => {
+    setEditingPayment(null);
+    resetForm();
+    setDialogOpen(true);
+  };
+
+  const openEdit = (p: Payment) => {
+    setEditingPayment(p);
+    setFormCompanyId(p.company_id);
+    setFormAmount(String(p.amount));
+    setFormMonth(p.reference_month);
+    setFormStatus(p.status);
+    setFormNotes(p.notes || "");
+    setDialogOpen(true);
+  };
+
+  const handleSave = async () => {
     if (!formCompanyId || !formMonth) {
       toast.error("Preencha a empresa e o mês de referência");
       return;
     }
     setSaving(true);
-    const { error } = await supabase.from("payments").insert([
-      {
-        company_id: formCompanyId,
-        amount: parseFloat(formAmount) || 0,
-        reference_month: formMonth,
-        status: formStatus,
-        paid_at: formStatus === "paid" ? new Date().toISOString() : null,
-        notes: formNotes || "",
-      },
-    ]);
+
+    const payload = {
+      company_id: formCompanyId,
+      amount: parseFloat(formAmount) || 0,
+      reference_month: formMonth,
+      status: formStatus,
+      paid_at: formStatus === "paid" ? new Date().toISOString() : null,
+      notes: formNotes || "",
+    };
+
+    const { error } = editingPayment
+      ? await supabase.from("payments").update(payload).eq("id", editingPayment.id)
+      : await supabase.from("payments").insert([payload]);
+
     if (error) {
-      toast.error("Erro ao criar pagamento");
+      toast.error(editingPayment ? "Erro ao atualizar pagamento" : "Erro ao criar pagamento");
     } else {
-      toast.success("Pagamento registado!");
+      toast.success(editingPayment ? "Pagamento atualizado!" : "Pagamento registado!");
       setDialogOpen(false);
       resetForm();
       fetchData();
@@ -108,13 +152,21 @@ const AdminPagamentos = () => {
     setSaving(false);
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm("Tem a certeza que quer eliminar este pagamento?")) return;
+    const { error } = await supabase.from("payments").delete().eq("id", id);
+    if (error) {
+      toast.error("Erro ao eliminar pagamento");
+    } else {
+      toast.success("Pagamento eliminado");
+      fetchData();
+    }
+  };
+
   const toggleStatus = async (payment: Payment) => {
-    const nextStatus =
-      payment.status === "pending"
-        ? "paid"
-        : payment.status === "paid"
-        ? "overdue"
-        : "pending";
+    const order = ["pending", "paid", "overdue"];
+    const nextIdx = (order.indexOf(payment.status) + 1) % order.length;
+    const nextStatus = order[nextIdx];
 
     const { error } = await supabase
       .from("payments")
@@ -138,6 +190,7 @@ const AdminPagamentos = () => {
     setFormMonth("");
     setFormStatus("pending");
     setFormNotes("");
+    setEditingPayment(null);
   };
 
   const filtered = payments.filter((p) => {
@@ -146,10 +199,23 @@ const AdminPagamentos = () => {
     return true;
   });
 
-  const getStatusIcon = (status: string) => {
-    if (status === "paid") return <CheckCircle className="h-3.5 w-3.5" />;
-    if (status === "overdue") return <XCircle className="h-3.5 w-3.5" />;
-    return <Clock className="h-3.5 w-3.5" />;
+  // Summary stats
+  const totalReceived = payments
+    .filter((p) => p.status === "paid")
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+  const totalPending = payments
+    .filter((p) => p.status === "pending")
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+  const totalOverdue = payments
+    .filter((p) => p.status === "overdue")
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+  const overdueCount = payments.filter((p) => p.status === "overdue").length;
+
+  const formatMonth = (ref: string) => {
+    const [y, m] = ref.split("-");
+    const d = new Date(parseInt(y), parseInt(m) - 1);
+    const label = d.toLocaleDateString("pt-PT", { month: "long", year: "numeric" });
+    return label.charAt(0).toUpperCase() + label.slice(1);
   };
 
   // Generate month options (current + 11 past months)
@@ -163,109 +229,219 @@ const AdminPagamentos = () => {
 
   return (
     <AppLayout>
-      <div className="container max-w-5xl py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="font-heading text-2xl font-bold text-foreground">Pagamentos</h1>
-          <Button
-            className="gap-2"
-            onClick={() => {
-              resetForm();
-              setDialogOpen(true);
-            }}
-          >
+      <div className="container max-w-6xl py-8 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-foreground">Pagamentos</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Gestão e controlo de faturação por empresa
+            </p>
+          </div>
+          <Button onClick={openCreate} className="gap-2">
             <Plus className="h-4 w-4" /> Registar Pagamento
           </Button>
         </div>
 
-        {/* Filters */}
-        <div className="flex gap-3 mb-6">
-          <Select value={filterCompany} onValueChange={setFilterCompany}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Empresa" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas as empresas</SelectItem>
-              {companies.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Estado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="paid">Pago</SelectItem>
-              <SelectItem value="pending">Pendente</SelectItem>
-              <SelectItem value="overdue">Em atraso</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-accent" />
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground">
-            <p>Nenhum pagamento registado.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filtered.map((p) => (
-              <div
-                key={p.id}
-                className="flex items-center justify-between rounded-lg border border-border bg-card p-4 shadow-sm"
-              >
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-medium text-foreground">
-                    {p.companies?.name || "—"}
-                  </h3>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span className="text-sm text-muted-foreground capitalize">
-                      {(() => {
-                        const [y, m] = p.reference_month.split("-");
-                        const d = new Date(parseInt(y), parseInt(m) - 1);
-                        return d.toLocaleDateString("pt-PT", { month: "long", year: "numeric" });
-                      })()}
-                    </span>
-                    <span className="text-sm font-semibold text-foreground">
-                      €{Number(p.amount).toFixed(2)}
-                    </span>
-                  </div>
-                  {p.notes && (
-                    <p className="text-xs text-muted-foreground mt-1">{p.notes}</p>
-                  )}
-                  {p.paid_at && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Pago em {new Date(p.paid_at).toLocaleDateString("pt-PT")}
-                    </p>
-                  )}
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-emerald-500/10 p-2.5">
+                  <Euro className="h-5 w-5 text-emerald-600" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant={STATUS_MAP[p.status]?.variant || "secondary"}
-                    className="gap-1 cursor-pointer"
-                    onClick={() => toggleStatus(p)}
-                  >
-                    {getStatusIcon(p.status)}
-                    {STATUS_MAP[p.status]?.label || p.status}
-                  </Badge>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Recebido</p>
+                  <p className="text-xl font-bold text-foreground">€{totalReceived.toFixed(2)}</p>
                 </div>
               </div>
-            ))}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-amber-500/10 p-2.5">
+                  <Clock className="h-5 w-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pendente</p>
+                  <p className="text-xl font-bold text-foreground">€{totalPending.toFixed(2)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-red-500/10 p-2.5">
+                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Em Atraso</p>
+                  <p className="text-xl font-bold text-foreground">€{totalOverdue.toFixed(2)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-primary/10 p-2.5">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Registos</p>
+                  <p className="text-xl font-bold text-foreground">{payments.length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Filters */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-wrap gap-3">
+              <Select value={filterCompany} onValueChange={setFilterCompany}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Empresa" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as empresas</SelectItem>
+                  {companies.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os estados</SelectItem>
+                  <SelectItem value="paid">Pago</SelectItem>
+                  <SelectItem value="pending">Pendente</SelectItem>
+                  <SelectItem value="overdue">Em atraso</SelectItem>
+                </SelectContent>
+              </Select>
+              {(filterCompany !== "all" || filterStatus !== "all") && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground"
+                  onClick={() => {
+                    setFilterCompany("all");
+                    setFilterStatus("all");
+                  }}
+                >
+                  Limpar filtros
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Table */}
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
+        ) : filtered.length === 0 ? (
+          <Card>
+            <CardContent className="py-16 text-center">
+              <Euro className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
+              <p className="text-muted-foreground font-medium">Nenhum pagamento encontrado</p>
+              <p className="text-sm text-muted-foreground/70 mt-1">
+                Registe o primeiro pagamento clicando no botão acima.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Empresa</TableHead>
+                    <TableHead>Mês de Referência</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Data Pagamento</TableHead>
+                    <TableHead>Notas</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((p) => {
+                    const statusInfo = STATUS_MAP[p.status] || STATUS_MAP.pending;
+                    const StatusIcon = statusInfo.icon;
+                    return (
+                      <TableRow key={p.id}>
+                        <TableCell className="font-medium">
+                          {p.companies?.name || "—"}
+                        </TableCell>
+                        <TableCell>{formatMonth(p.reference_month)}</TableCell>
+                        <TableCell className="text-right font-semibold tabular-nums">
+                          €{Number(p.amount).toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={statusInfo.variant}
+                            className="gap-1 cursor-pointer select-none"
+                            onClick={() => toggleStatus(p)}
+                          >
+                            <StatusIcon className="h-3 w-3" />
+                            {statusInfo.label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {p.paid_at
+                            ? new Date(p.paid_at).toLocaleDateString("pt-PT")
+                            : "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm max-w-[200px] truncate">
+                          {p.notes || "—"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => openEdit(p)}
+                            >
+                              <Edit2 className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:text-destructive"
+                              onClick={() => handleDelete(p.id)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         )}
       </div>
 
-      {/* Create Payment Dialog */}
+      {/* Create/Edit Payment Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Registar Pagamento</DialogTitle>
+            <DialogTitle>
+              {editingPayment ? "Editar Pagamento" : "Registar Pagamento"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -336,9 +512,9 @@ const AdminPagamentos = () => {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleCreate} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Registar
+              {editingPayment ? "Guardar" : "Registar"}
             </Button>
           </DialogFooter>
         </DialogContent>
