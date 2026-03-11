@@ -13,9 +13,10 @@ interface Props {
   nomeCondominio?: string;
   dataAssembleia?: string;
   formData?: any;
+  companyId?: string | null;
 }
 
-export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAssembleia, formData }: Props) => {
+export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAssembleia, formData, companyId }: Props) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -32,6 +33,7 @@ export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAsse
       data_assembleia: dataAssembleia || "",
       conteudo: ata,
       form_data: formData || null,
+      company_id: companyId || null,
     });
 
     if (error) {
