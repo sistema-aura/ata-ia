@@ -213,7 +213,7 @@ const NovaAta = () => {
                     setOrdemDiaParsed(false);
                     setFormData((prev) => ({
                       ...prev,
-                      pontosOrdemDia: PONTOS_PADRAO.map((p) => ({ ...p })),
+                      pontosOrdemDia: getInitialPontos(company?.slug),
                     }));
                   }}
                 />
