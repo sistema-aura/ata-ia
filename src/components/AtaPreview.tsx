@@ -16,7 +16,7 @@ interface Props {
   companyId?: string | null;
 }
 
-export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAssembleia, formData }: Props) => {
+export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAssembleia, formData, companyId }: Props) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
