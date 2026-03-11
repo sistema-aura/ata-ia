@@ -68,81 +68,31 @@ export interface AtaFormData {
   observacoesAdicionais: string;
 }
 
-// Presets exclusivos da Condominio Dinamico
-export const PONTOS_PADRAO_CD: PontoOrdemDia[] = [
-  {
-    id: "p1",
-    titulo: "Apresentação, debate e aprovação das contas referentes ao exercício 20__",
-    tipo: "padrao",
-    descricaoPadrao:
-      "Foram apresentadas as contas relativamente aos exercícios e aprovadas por unanimidade dos votos presentes de acordo com os documentos apresentados e que se encontram anexos à ata.",
-  },
-  {
-    id: "p2",
-    titulo: "Eleição da Administração",
-    tipo: "padrao",
-    descricaoPadrao:
-      "Foi nomeada a Empresa Condomínio Dinâmico, Lda., com NIF 513 259 678, representada pela Sra. Dina Isabel Lopes Jordão Inverno, Foi deliberado pelos presentes na Assembleia eleger com elo de ligação e titulares da conta bancária, Sr. ________, representante da fração _ \"____\" e a gerente da empresa Condomínio Dinâmico, Lda. com o NIPC 513 259 678, representada pela Sra. Dina Isabel Lopes Jordão Inverno, com o número de contribuinte 198891962. Foi dada autorização por unanimidade dos presentes para alterar, bem como consultar ou requisitar qualquer tipo de serviço que a entidade bancaria disponibilize numa conta à ordem ou a prazo em nome do condomínio, para a movimentação da mesma será necessário a assinatura dos dois titulares. Foi também aprovado por unanimidade que para além das funções previstas no código civil pelo art.º 1436º, conferir poderes à gerência do condomínio dinâmico a representação perante organismos públicos e entidades oficiais pelo condomínio.",
-  },
-  {
-    id: "p3",
-    titulo: "Apresentação, debate e aprovação do orçamento previsional",
-    tipo: "padrao",
-    descricaoPadrao:
-      "Foi aprovado o orçamento cuja despesa total ascende a € ___ (___ euros e ___ cêntimos), acrescido da verba legal destinada ao fundo de reserva no montante de € ____ (___ euros e ___ cêntimos).",
-  },
-  {
-    id: "p4",
-    titulo:
-      "Deliberação sobre a criação de uma penalização a aplicar às frações com quotas por liquidar em caso de cobrança pela via judicial",
-    tipo: "padrao",
-    descricaoPadrao:
-      "O Condómino que não proceder ao pagamento da sua quota-parte nas despesas e encargos dentro do prazo fixado (180 dias) pela Assembleia de Condóminos, será sujeito à aplicação de uma multa pelo atraso no pagamento do valor correspondente a 10% do valor em cobrança, sempre em respeito pelo limite legal previsto no n.º 2 do artigo 1434.º do Código Civil (no valor 400,00 €) Serão suportadas pelo condómino em causa, todas as despesas judiciais e extrajudiciais custeadas ( no valor mínimo de 750,00 € + iva) pelo Condomínio para cobrança coerciva dos valores em dívida, incluindo honorários de advogado, solicitador ou agente de execução e custas judiciais presentes e futuros",
-  },
-  {
-    id: "p5",
-    titulo: "Atualização dos valores em dívida ao condomínio",
-    tipo: "padrao",
-    descricaoPadrao:
-      "Foi deliberado por unanimidade dos presentes aprovar a informação prestada pela Administração de que se encontram em divida ao condomínio, pelos proprietários das seguintes frações autónomas, as seguintes quantias a data desta assembleia:",
-  },
-  {
-    id: "p6",
-    titulo: "Seguro das frações",
-    tipo: "padrao",
-    descricaoPadrao:
-      "Neste ponto os condóminos foram informados que de acordo com a legislação da propriedade horizontal, Art.º 1429º o seguro das frações é obrigatório. Como tal é necessário que seja entregue a Administração uma cópia devidamente atualizada do respetivo RECIBO DE PRÉMIO do seguro.",
-  },
-  {
-    id: "p7",
-    titulo: "Outros assuntos de interesse geral para o condomínio",
-    tipo: "padrao",
-    descricaoPadrao: "",
-  },
-];
+export interface CompanyTemplate {
+  id: string;
+  company_id: string;
+  pontos_padrao: PontoOrdemDia[];
+  local_reuniao_padrao: string;
+}
 
-// Pontos genéricos para outras empresas (mesma estrutura, sem textos pré-preenchidos)
-export const PONTOS_PADRAO_GENERICO: PontoOrdemDia[] = [
-  { id: "p1", titulo: "", tipo: "personalizado", notas: "" },
-];
-
-export const CD_COMPANY_SLUG = "condominio-dinamico";
-
-export const getInitialPontos = (companySlug?: string): PontoOrdemDia[] => {
-  if (companySlug === CD_COMPANY_SLUG) {
-    return PONTOS_PADRAO_CD.map((p) => ({ ...p }));
-  }
-  return PONTOS_PADRAO_GENERICO.map((p) => ({ ...p }));
+// Default empty point for companies without templates
+export const PONTO_VAZIO: PontoOrdemDia = {
+  id: "p1",
+  titulo: "",
+  tipo: "personalizado",
+  notas: "",
 };
 
-export const getInitialFormData = (companySlug?: string): AtaFormData => ({
+export const getDefaultFormData = (
+  template?: CompanyTemplate | null
+): AtaFormData => ({
   numeroAta: "",
   nomeCondominio: "",
   morada: "",
   nifCondominio: "",
   freguesia: "",
   concelho: "",
-  localReuniao: companySlug === CD_COMPANY_SLUG ? "Hall de entrada" : "",
+  localReuniao: template?.local_reuniao_padrao || "",
   dataAssembleia: "",
   horaInicio: "",
   tipoAssembleia: "ordinaria",
@@ -152,7 +102,10 @@ export const getInitialFormData = (companySlug?: string): AtaFormData => ({
   fracoesPresentes: "",
   fracoesRepresentadas: "",
   percentagemPresente: "",
-  pontosOrdemDia: getInitialPontos(companySlug),
+  pontosOrdemDia:
+    template?.pontos_padrao && template.pontos_padrao.length > 0
+      ? template.pontos_padrao.map((p) => ({ ...p }))
+      : [{ ...PONTO_VAZIO }],
   presencasData: null,
   dividasData: null,
   observacoesAdicionais: "",
