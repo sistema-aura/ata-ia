@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FileText, History, LifeBuoy, LogOut, LayoutDashboard, Building2, Users, Shield, CreditCard, HelpCircle, Wallet } from "lucide-react";
+import { FileText, History, LifeBuoy, LogOut, LayoutDashboard, Building2, Users, Shield, CreditCard, HelpCircle, Wallet, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const AppSidebar = () => {
