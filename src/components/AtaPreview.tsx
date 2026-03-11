@@ -13,6 +13,7 @@ interface Props {
   nomeCondominio?: string;
   dataAssembleia?: string;
   formData?: any;
+  companyId?: string | null;
 }
 
 export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAssembleia, formData }: Props) => {
