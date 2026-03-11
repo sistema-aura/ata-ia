@@ -101,6 +101,7 @@ export type Database = {
           id: string
           local_reuniao_padrao: string | null
           pontos_padrao: Json
+          presidente_mesa_padrao: string | null
           updated_at: string
         }
         Insert: {
@@ -109,6 +110,7 @@ export type Database = {
           id?: string
           local_reuniao_padrao?: string | null
           pontos_padrao?: Json
+          presidente_mesa_padrao?: string | null
           updated_at?: string
         }
         Update: {
@@ -117,6 +119,7 @@ export type Database = {
           id?: string
           local_reuniao_padrao?: string | null
           pontos_padrao?: Json
+          presidente_mesa_padrao?: string | null
           updated_at?: string
         }
         Relationships: [

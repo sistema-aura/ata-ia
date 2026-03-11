@@ -32,6 +32,7 @@ const AdminTemplates = () => {
   const [selectedCompanyId, setSelectedCompanyId] = useState(companyIdParam || "");
   const [pontos, setPontos] = useState<PontoOrdemDia[]>([]);
   const [localReuniao, setLocalReuniao] = useState("");
+  const [presidenteMesa, setPresidenteMesa] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [templateExists, setTemplateExists] = useState(false);
@@ -47,6 +48,7 @@ const AdminTemplates = () => {
     if (!selectedCompanyId) {
       setPontos([]);
       setLocalReuniao("");
+      setPresidenteMesa("");
       setTemplateExists(false);
       return;
     }
@@ -63,10 +65,12 @@ const AdminTemplates = () => {
     if (data) {
       setPontos((data.pontos_padrao as unknown as PontoOrdemDia[]) || []);
       setLocalReuniao(data.local_reuniao_padrao || "");
+      setPresidenteMesa(data.presidente_mesa_padrao || "");
       setTemplateExists(true);
     } else {
       setPontos([]);
       setLocalReuniao("");
+      setPresidenteMesa("");
       setTemplateExists(false);
     }
   };
@@ -99,6 +103,7 @@ const AdminTemplates = () => {
       company_id: selectedCompanyId,
       pontos_padrao: JSON.parse(JSON.stringify(pontos)),
       local_reuniao_padrao: localReuniao,
+      presidente_mesa_padrao: presidenteMesa,
     };
 
     let error;
@@ -158,15 +163,26 @@ const AdminTemplates = () => {
           <div className="space-y-6 animate-fade-in">
             {/* Local de reunião padrão */}
             <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
-              <Label className="mb-2 block">Local de Reunião Padrão</Label>
-              <Input
-                value={localReuniao}
-                onChange={(e) => setLocalReuniao(e.target.value)}
-                placeholder="Ex: Hall de entrada"
-                className="max-w-md"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Será pré-preenchido ao criar uma nova ata
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <Label className="mb-2 block">Local de Reunião Padrão</Label>
+                  <Input
+                    value={localReuniao}
+                    onChange={(e) => setLocalReuniao(e.target.value)}
+                    placeholder="Ex: Hall de entrada"
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2 block">Presidente da Mesa Padrão</Label>
+                  <Input
+                    value={presidenteMesa}
+                    onChange={(e) => setPresidenteMesa(e.target.value)}
+                    placeholder="Ex: Nome do presidente"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Serão pré-preenchidos ao criar uma nova ata
               </p>
             </div>
 
