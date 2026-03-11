@@ -33,6 +33,7 @@ export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAsse
       data_assembleia: dataAssembleia || "",
       conteudo: ata,
       form_data: formData || null,
+      company_id: companyId || null,
     });
 
     if (error) {
