@@ -114,6 +114,11 @@ const AdminEmpresas = () => {
                   <Input value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="email@empresa.com" type="email" />
                   <p className="text-xs text-muted-foreground">Se o utilizador já tiver conta, será associado à empresa.</p>
                 </div>
+                <div className="space-y-2">
+                  <Label>Preço Mensal (€)</Label>
+                  <Input type="number" step="0.01" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} placeholder="0.00" />
+                  <p className="text-xs text-muted-foreground">Valor usado na geração automática de pagamentos.</p>
+                </div>
                 <Button onClick={createCompany} disabled={creating} className="w-full">
                   {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Criar Empresa
