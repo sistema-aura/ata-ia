@@ -73,6 +73,7 @@ export interface CompanyTemplate {
   company_id: string;
   pontos_padrao: PontoOrdemDia[];
   local_reuniao_padrao: string;
+  presidente_mesa_padrao: string;
 }
 
 // Default empty point for companies without templates
