@@ -22,6 +22,7 @@ const NovaAta = () => {
   const [presencasParsed, setPresencasParsed] = useState(false);
   const [dividasParsed, setDividasParsed] = useState(false);
   const [template, setTemplate] = useState<CompanyTemplate | null>(null);
+  const [wordFormatting, setWordFormatting] = useState<WordFormattingConfig | undefined>(undefined);
 
   // Load company template from DB
   useEffect(() => {
