@@ -97,6 +97,74 @@ export type Database = {
         }
         Relationships: []
       }
+      company_formatting: {
+        Row: {
+          ai_custom_instructions: string | null
+          company_id: string
+          created_at: string
+          font_family: string
+          font_size: number
+          footer_text: string | null
+          header_text: string | null
+          id: string
+          line_spacing: number
+          margin_bottom: number
+          margin_left: number
+          margin_right: number
+          margin_top: number
+          morada_empresa: string | null
+          nif_empresa: string | null
+          nome_empresa_ata: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_custom_instructions?: string | null
+          company_id: string
+          created_at?: string
+          font_family?: string
+          font_size?: number
+          footer_text?: string | null
+          header_text?: string | null
+          id?: string
+          line_spacing?: number
+          margin_bottom?: number
+          margin_left?: number
+          margin_right?: number
+          margin_top?: number
+          morada_empresa?: string | null
+          nif_empresa?: string | null
+          nome_empresa_ata?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_custom_instructions?: string | null
+          company_id?: string
+          created_at?: string
+          font_family?: string
+          font_size?: number
+          footer_text?: string | null
+          header_text?: string | null
+          id?: string
+          line_spacing?: number
+          margin_bottom?: number
+          margin_left?: number
+          margin_right?: number
+          margin_top?: number
+          morada_empresa?: string | null
+          nif_empresa?: string | null
+          nome_empresa_ata?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_formatting_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_templates: {
         Row: {
           company_id: string
