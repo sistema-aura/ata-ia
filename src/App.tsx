@@ -47,6 +47,7 @@ const App = () => (
             <Route path="/admin/templates" element={<ProtectedRoute requireAdmin><AdminTemplates /></ProtectedRoute>} />
             <Route path="/admin/pagamentos" element={<ProtectedRoute requireAdmin><AdminPagamentos /></ProtectedRoute>} />
             <Route path="/admin/precos" element={<ProtectedRoute requireAdmin><AdminPrecos /></ProtectedRoute>} />
+            <Route path="/admin/formatacao" element={<ProtectedRoute requireAdmin><AdminFormatacao /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
