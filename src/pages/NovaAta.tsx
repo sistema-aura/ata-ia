@@ -162,6 +162,7 @@ const NovaAta = () => {
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
           body: JSON.stringify({ formData: { ...formData, companyId: company?.id } }),
+        }
       );
 
       if (!resp.ok) {
