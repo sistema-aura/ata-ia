@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { AtaFormData, getDefaultFormData, PontoOrdemDia, PresencasData, DividasData, CompanyTemplate, PONTO_VAZIO } from "@/types/ata";
+import { WordFormattingConfig } from "@/lib/exportWord";
 import { AssemblyInfoForm } from "@/components/AssemblyInfoForm";
 import { PontosOrdemDiaForm } from "@/components/PontosOrdemDiaForm";
 import { AtaPreview } from "@/components/AtaPreview";
@@ -21,30 +22,52 @@ const NovaAta = () => {
   const [presencasParsed, setPresencasParsed] = useState(false);
   const [dividasParsed, setDividasParsed] = useState(false);
   const [template, setTemplate] = useState<CompanyTemplate | null>(null);
+  const [wordFormatting, setWordFormatting] = useState<WordFormattingConfig | undefined>(undefined);
 
-  // Load company template from DB
   useEffect(() => {
-    const loadTemplate = async () => {
-      if (!company?.id) return;
-      const { data } = await supabase
+    if (!company?.id) return;
+    const loadCompanyConfig = async () => {
+      // Load template
+      const { data: tData } = await supabase
         .from("company_templates")
         .select("*")
         .eq("company_id", company.id)
         .single();
 
-      if (data) {
+      if (tData) {
         const t: CompanyTemplate = {
-          id: data.id,
-          company_id: data.company_id,
-          pontos_padrao: (data.pontos_padrao as unknown as PontoOrdemDia[]) || [],
-          local_reuniao_padrao: data.local_reuniao_padrao || "",
-          presidente_mesa_padrao: data.presidente_mesa_padrao || "",
+          id: tData.id,
+          company_id: tData.company_id,
+          pontos_padrao: (tData.pontos_padrao as unknown as PontoOrdemDia[]) || [],
+          local_reuniao_padrao: tData.local_reuniao_padrao || "",
+          presidente_mesa_padrao: tData.presidente_mesa_padrao || "",
         };
         setTemplate(t);
         setFormData(getDefaultFormData(t));
       }
+
+      // Load formatting
+      const { data: fData } = await supabase
+        .from("company_formatting")
+        .select("*")
+        .eq("company_id", company.id)
+        .single();
+
+      if (fData) {
+        setWordFormatting({
+          font_family: fData.font_family,
+          font_size: fData.font_size,
+          margin_top: fData.margin_top,
+          margin_bottom: fData.margin_bottom,
+          margin_left: fData.margin_left,
+          margin_right: fData.margin_right,
+          line_spacing: fData.line_spacing,
+          header_text: fData.header_text || "",
+          footer_text: fData.footer_text || "",
+        });
+      }
     };
-    loadTemplate();
+    loadCompanyConfig();
   }, [company?.id]);
 
   const updateField = (field: keyof AtaFormData, value: any) => {
@@ -138,7 +161,7 @@ const NovaAta = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ formData }),
+          body: JSON.stringify({ formData: { ...formData, companyId: company?.id } }),
         }
       );
 
@@ -397,6 +420,7 @@ const NovaAta = () => {
               dataAssembleia={formData.dataAssembleia}
               formData={formData}
               companyId={company?.id}
+              wordFormatting={wordFormatting}
             />
           </div>
         )}

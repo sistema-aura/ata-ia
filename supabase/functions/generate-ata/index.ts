@@ -198,6 +198,36 @@ serve(async (req) => {
       pontosOrdemDia, observacoesAdicionais, dividasData,
     } = formData;
 
+    // Fetch custom AI instructions for this company if available
+    let customInstructions = "";
+    if (formData.companyId) {
+      try {
+        const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+        const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+        if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+          const fmtResp = await fetch(
+            `${SUPABASE_URL}/rest/v1/company_formatting?company_id=eq.${formData.companyId}&select=ai_custom_instructions,nome_empresa_ata,nif_empresa,morada_empresa`,
+            {
+              headers: {
+                apikey: SUPABASE_SERVICE_ROLE_KEY,
+                Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+              },
+            }
+          );
+          if (fmtResp.ok) {
+            const fmtData = await fmtResp.json();
+            if (fmtData?.[0]) {
+              if (fmtData[0].ai_custom_instructions) {
+                customInstructions = fmtData[0].ai_custom_instructions;
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch formatting config:", e);
+      }
+    }
+
     const pontosFormatados = pontosOrdemDia
       .map((p: any, i: number) => {
         if (p.tipo === "padrao") {
@@ -206,6 +236,11 @@ serve(async (req) => {
         return `Ponto ${i + 1} (personalizado): ${p.titulo} - Notas: ${p.notas || "Sem notas"}`;
       })
       .join("\n");
+
+    let systemPrompt = buildSystemPrompt();
+    if (customInstructions) {
+      systemPrompt += `\n\nINSTRUÇÕES ADICIONAIS ESPECÍFICAS DESTA EMPRESA (seguir obrigatoriamente):\n${customInstructions}`;
+    }
 
     const userPrompt = `Gera uma ata de assembleia de condomínio com os seguintes dados:
 
@@ -244,7 +279,7 @@ Redige a ata completa seguindo EXATAMENTE o formato do system prompt. SEM markdo
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: buildSystemPrompt() },
+          { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
         stream: true,

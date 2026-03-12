@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
-import { exportAtaToWord } from "@/lib/exportWord";
+import { exportAtaToWord, WordFormattingConfig } from "@/lib/exportWord";
 
 interface Props {
   ata: string;
@@ -14,9 +14,10 @@ interface Props {
   dataAssembleia?: string;
   formData?: any;
   companyId?: string | null;
+  wordFormatting?: WordFormattingConfig;
 }
 
-export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAssembleia, formData, companyId }: Props) => {
+export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAssembleia, formData, companyId, wordFormatting }: Props) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -61,7 +62,7 @@ export const AtaPreview = ({ ata, isGenerating, onBack, nomeCondominio, dataAsse
                 Copiar
               </Button>
               <Button
-                onClick={() => exportAtaToWord(ata, nomeCondominio, formData?.numeroAta)}
+                onClick={() => exportAtaToWord(ata, nomeCondominio, formData?.numeroAta, wordFormatting)}
                 variant="outline"
                 className="gap-2"
               >
