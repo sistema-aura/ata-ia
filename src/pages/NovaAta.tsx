@@ -420,6 +420,7 @@ const NovaAta = () => {
               dataAssembleia={formData.dataAssembleia}
               formData={formData}
               companyId={company?.id}
+              wordFormatting={wordFormatting}
             />
           </div>
         )}
