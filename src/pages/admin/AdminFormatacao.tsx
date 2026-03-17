@@ -171,6 +171,11 @@ const AdminFormatacao = () => {
         legal_opening_text: row.legal_opening_text ?? DEFAULTS.legal_opening_text,
         closing_text: row.closing_text ?? DEFAULTS.closing_text,
         signatures_title: row.signatures_title ?? DEFAULTS.signatures_title,
+        debt_section_intro_text:
+          row.debt_section_intro_text ?? DEFAULTS.debt_section_intro_text,
+        debt_total_label: row.debt_total_label ?? DEFAULTS.debt_total_label,
+        debt_quota_extra_label:
+          row.debt_quota_extra_label ?? DEFAULTS.debt_quota_extra_label,
       });
       setExists(true);
       return;
