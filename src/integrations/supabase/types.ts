@@ -99,14 +99,20 @@ export type Database = {
       }
       company_formatting: {
         Row: {
+          absentees_intro_text: string
           ai_custom_instructions: string | null
+          attendance_intro_text: string
+          body_alignment: string
+          closing_text: string
           company_id: string
           created_at: string
+          first_line_indent: number
           font_family: string
           font_size: number
           footer_text: string | null
           header_text: string | null
           id: string
+          legal_opening_text: string
           line_spacing: number
           margin_bottom: number
           margin_left: number
@@ -115,17 +121,26 @@ export type Database = {
           morada_empresa: string | null
           nif_empresa: string | null
           nome_empresa_ata: string | null
+          paragraph_spacing_after: number
+          signatures_title: string
+          title_alignment: string
           updated_at: string
         }
         Insert: {
+          absentees_intro_text?: string
           ai_custom_instructions?: string | null
+          attendance_intro_text?: string
+          body_alignment?: string
+          closing_text?: string
           company_id: string
           created_at?: string
+          first_line_indent?: number
           font_family?: string
           font_size?: number
           footer_text?: string | null
           header_text?: string | null
           id?: string
+          legal_opening_text?: string
           line_spacing?: number
           margin_bottom?: number
           margin_left?: number
@@ -134,17 +149,26 @@ export type Database = {
           morada_empresa?: string | null
           nif_empresa?: string | null
           nome_empresa_ata?: string | null
+          paragraph_spacing_after?: number
+          signatures_title?: string
+          title_alignment?: string
           updated_at?: string
         }
         Update: {
+          absentees_intro_text?: string
           ai_custom_instructions?: string | null
+          attendance_intro_text?: string
+          body_alignment?: string
+          closing_text?: string
           company_id?: string
           created_at?: string
+          first_line_indent?: number
           font_family?: string
           font_size?: number
           footer_text?: string | null
           header_text?: string | null
           id?: string
+          legal_opening_text?: string
           line_spacing?: number
           margin_bottom?: number
           margin_left?: number
@@ -153,6 +177,9 @@ export type Database = {
           morada_empresa?: string | null
           nif_empresa?: string | null
           nome_empresa_ata?: string | null
+          paragraph_spacing_after?: number
+          signatures_title?: string
+          title_alignment?: string
           updated_at?: string
         }
         Relationships: [

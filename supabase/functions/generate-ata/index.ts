@@ -5,7 +5,41 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-function buildSystemPrompt() {
+interface CompanyFormattingTexts {
+  attendance_intro_text?: string;
+  absentees_intro_text?: string;
+  legal_opening_text?: string;
+  closing_text?: string;
+  signatures_title?: string;
+}
+
+const DEFAULT_COMPANY_TEXTS: Required<CompanyFormattingTexts> = {
+  attendance_intro_text:
+    "A assembleia foi regularmente convocada por carta registada. Estiveram presentes e representados os seguintes condóminos:",
+  absentees_intro_text: "Estiveram ausentes os seguintes condóminos:",
+  legal_opening_text:
+    "Os condóminos presentes representam [SOMA das permilagens dos presentes]‰ da permilagem total do imóvel, correspondentes a [percentagem] % do Capital Total do Edifício, nos termos do art.º 1432.º, do CC, o que permite deliberar sobre os assuntos constantes da ordem de trabalhos. Exerceu as funções de presidente o Sr. [nome presidente].",
+  closing_text:
+    "Nada mais havendo a acrescentar, deu-se por encerrada a Assembleia cerca das [hora] horas e [minutos] minutos, sendo lavrada a presente ata que depois de lida e aprovada vai ser assinada por todos os condóminos presentes.",
+  signatures_title: "Presidente:",
+};
+
+function buildSystemPrompt(companyFormatting: CompanyFormattingTexts = {}) {
+  const attendanceIntro =
+    companyFormatting.attendance_intro_text?.trim() ||
+    DEFAULT_COMPANY_TEXTS.attendance_intro_text;
+  const absenteesIntro =
+    companyFormatting.absentees_intro_text?.trim() ||
+    DEFAULT_COMPANY_TEXTS.absentees_intro_text;
+  const legalOpening =
+    companyFormatting.legal_opening_text?.trim() ||
+    DEFAULT_COMPANY_TEXTS.legal_opening_text;
+  const closingText =
+    companyFormatting.closing_text?.trim() || DEFAULT_COMPANY_TEXTS.closing_text;
+  const signaturesTitle =
+    companyFormatting.signatures_title?.trim() ||
+    DEFAULT_COMPANY_TEXTS.signatures_title;
+
   return `És um assistente especializado em redigir atas de assembleias de condomínios em Portugal.
 A ata deve ser redigida em português europeu formal. NÃO uses markdown (sem #, **, ---, etc.). Escreve texto corrido simples.
 
@@ -19,18 +53,18 @@ Aos [data por extenso], pelas [hora] horas, reuniu no [local] em [convocatória]
 2. [Ponto 2];
 (lista numerada simples com ponto e vírgula no fim de cada)
 
-A assembleia foi regularmente convocada por carta registada. Estiveram presentes e representados os seguintes condóminos:
+${attendanceIntro}
 
 • [Nome completo], proprietário da fração [X], correspondente ao [descrição], representando [permilagem] % do capital total do edifício;
 • [Nome completo], proprietário da fração [Y], correspondente ao [descrição], representando [permilagem] % do capital total do edifício;
 (listar TODOS os presentes por ordem de fração, com bullet point •, nome primeiro)
 
-Estiveram ausentes os seguintes condóminos:
+${absenteesIntro}
 
 • [Nome completo], proprietário da fração [X], correspondente ao [descrição], representando [permilagem] % do capital total do edifício;
 (MESMO formato que os presentes, com bullet point •)
 
-Os condóminos presentes representam [SOMA das permilagens dos presentes]‰ da permilagem total do imóvel, correspondentes a [percentagem] % do Capital Total do Edifício, nos termos do art.º 1432.º, do CC, o que permite deliberar sobre os assuntos constantes da ordem de trabalhos. Exerceu as funções de presidente o Sr. [nome presidente].
+${legalOpening}
 IMPORTANTE: O valor em ‰ (permilagem) DEVE ser a SOMA ARITMÉTICA das permilagens individuais de todos os condóminos presentes listados acima. Calcula a soma e usa esse valor.
 
 Ponto Um: [Título do ponto]- [Texto da deliberação]
@@ -39,9 +73,9 @@ Ponto Dois: [Título do ponto]- [Texto da deliberação]
 
 (continuar para todos os pontos, números POR EXTENSO: Um, Dois, Três, Quatro, Cinco, Seis, Sete, Oito, Nove, Dez)
 
-Nada mais havendo a acrescentar, deu-se por encerrada a Assembleia cerca das [hora] horas e [minutos] minutos, sendo lavrada a presente ata que depois de lida e aprovada vai ser assinada por todos os condóminos presentes.
+${closingText}
 
-Presidente: _____________________________________________________________
+${signaturesTitle} _____________________________________________________________
 
 [Descrição fração 1]: ____________________________________________________________
 
@@ -58,6 +92,7 @@ REGRAS OBRIGATÓRIAS:
 - Condóminos SEMPRE por ordem de fração.
 - Presentes e ausentes EXATAMENTE no mesmo formato com bullet •.
 - As assinaturas usam a DESCRIÇÃO da fração (ex: "Garagem A:", "Cave Esq:", "1º Dto:"), NÃO a letra.
+- Os textos configurados desta empresa para presenças, ausentes, abertura legal, fecho e assinatura principal devem ser respeitados exatamente, adaptando apenas os placeholders entre [ ].
 
 TEXTOS FIXOS OBRIGATÓRIOS (quando o ponto é marcado como "padrão", usa o texto fornecido na descricaoPadrao TAL QUAL, sem alterar nem resumir):
 
@@ -113,35 +148,63 @@ function formatPresencas(presencasData: any): string {
 }
 
 function parseObservacoesToPeriods(obs: string): string[] {
-  // Parse "Oct/2024-Feb/2026" or "Jan/2026-Fev/2026" into year-separated period lines
   const monthMap: Record<string, string> = {
-    "jan": "janeiro", "fev": "fevereiro", "mar": "março", "abr": "abril",
-    "mai": "maio", "maio": "maio", "jun": "junho", "jul": "julho", "ago": "agosto",
-    "set": "setembro", "out": "outubro", "oct": "outubro", "nov": "novembro", "dez": "dezembro",
-    "dec": "dezembro", "feb": "fevereiro", "apr": "abril", "aug": "agosto", "sep": "setembro",
+    jan: "janeiro",
+    fev: "fevereiro",
+    mar: "março",
+    abr: "abril",
+    mai: "maio",
+    maio: "maio",
+    jun: "junho",
+    jul: "julho",
+    ago: "agosto",
+    set: "setembro",
+    out: "outubro",
+    oct: "outubro",
+    nov: "novembro",
+    dez: "dezembro",
+    dec: "dezembro",
+    feb: "fevereiro",
+    apr: "abril",
+    aug: "agosto",
+    sep: "setembro",
   };
   const toMonth = (s: string) => monthMap[s.toLowerCase()] || s.toLowerCase();
-  
+
   const match = obs?.match(/([A-Za-zç]+)\/(\d{4})\s*-\s*([A-Za-zç]+)\/(\d{4})/);
   if (!match) return [];
-  
+
   const [, m1, y1, m2, y2] = match;
   const startYear = parseInt(y1);
   const endYear = parseInt(y2);
-  
-  const allMonths = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+
+  const allMonths = [
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
+  ];
   const startIdx = allMonths.indexOf(toMonth(m1));
   const endIdx = allMonths.indexOf(toMonth(m2));
-  
+
   if (startIdx === -1 || endIdx === -1) return [];
-  
+
   const lines: string[] = [];
   for (let year = startYear; year <= endYear; year++) {
     const from = year === startYear ? allMonths[startIdx] : "janeiro";
     const to = year === endYear ? allMonths[endIdx] : "dezembro";
-    const meses = from === to
-      ? `do mês de ${from} do ano ${year}`
-      : `do mês de ${from} até ao mês de ${to} do ano ${year}`;
+    const meses =
+      from === to
+        ? `do mês de ${from} do ano ${year}`
+        : `do mês de ${from} até ao mês de ${to} do ano ${year}`;
     lines.push(`o  a quotização (€ ____) e fundo de reserva (€ ____) ${meses} (€ ____);`);
   }
   return lines;
@@ -149,37 +212,41 @@ function parseObservacoesToPeriods(obs: string): string[] {
 
 function formatDividas(dividasData: any): string {
   if (!dividasData?.dividas?.length) return "";
-  
+
   const formatDetalhe = (det: any): string => {
     if (det.quotaExtra) {
       const totalVal = det.total || "____";
       return `o  Quota extra ${det.quotaExtra} (€ ${totalVal});`;
     }
-    const meses = det.mesInicio === det.mesFim
-      ? `do mês de ${det.mesInicio} do ano ${det.ano}`
-      : `do mês de ${det.mesInicio} até ao mês de ${det.mesFim} do ano ${det.ano}`;
+    const meses =
+      det.mesInicio === det.mesFim
+        ? `do mês de ${det.mesInicio} do ano ${det.ano}`
+        : `do mês de ${det.mesInicio} até ao mês de ${det.mesFim} do ano ${det.ano}`;
     const quotVal = det.quotizacao || "____";
     const frVal = det.fundoReserva && det.fundoReserva !== "__" ? det.fundoReserva : "____";
     const totalVal = det.total || "____";
     return `o  a quotização (€ ${quotVal}) e fundo de reserva (€ ${frVal}) ${meses} (€ ${totalVal});`;
   };
 
-  return `\n\nDÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):\n` +
-    dividasData.dividas.map((d: any) => {
-      const header = `✓ Fração ${d.fracao} – ${d.descricao || d.fracao} – [VALOR POR EXTENSO de ${d.valorDivida}€] (€ ${d.valorDivida}) correspondentes:`;
-      if (d.detalhes?.length) {
-        return header + "\n" + d.detalhes.map(formatDetalhe).join("\n");
-      }
-      // Fallback: parse observacoes field for date ranges
-      if (d.observacoes) {
-        const periodLines = parseObservacoesToPeriods(d.observacoes);
-        if (periodLines.length) {
-          return header + "\n" + periodLines.join("\n");
+  return (
+    `\n\nDÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):\n` +
+    dividasData.dividas
+      .map((d: any) => {
+        const header = `✓ Fração ${d.fracao} – ${d.descricao || d.fracao} – [VALOR POR EXTENSO de ${d.valorDivida}€] (€ ${d.valorDivida}) correspondentes:`;
+        if (d.detalhes?.length) {
+          return header + "\n" + d.detalhes.map(formatDetalhe).join("\n");
         }
-      }
-      return header;
-    }).join("\n") +
-    `\nTotal geral em dívida ao condomínio: ${dividasData.totalDivida}€`;
+        if (d.observacoes) {
+          const periodLines = parseObservacoesToPeriods(d.observacoes);
+          if (periodLines.length) {
+            return header + "\n" + periodLines.join("\n");
+          }
+        }
+        return header;
+      })
+      .join("\n") +
+    `\nTotal geral em dívida ao condomínio: ${dividasData.totalDivida}€`
+  );
 }
 
 serve(async (req) => {
@@ -191,22 +258,38 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const {
-      numeroAta, nomeCondominio, morada, nifCondominio, freguesia, concelho,
-      localReuniao, dataAssembleia, horaInicio, tipoAssembleia,
-      convocatoria, presidenteMesa, totalFracoes, fracoesPresentes,
-      fracoesRepresentadas, percentagemPresente, presencasData,
-      pontosOrdemDia, observacoesAdicionais, dividasData,
+      numeroAta,
+      nomeCondominio,
+      morada,
+      nifCondominio,
+      freguesia,
+      concelho,
+      localReuniao,
+      dataAssembleia,
+      horaInicio,
+      tipoAssembleia,
+      convocatoria,
+      presidenteMesa,
+      totalFracoes,
+      fracoesPresentes,
+      fracoesRepresentadas,
+      percentagemPresente,
+      presencasData,
+      pontosOrdemDia,
+      observacoesAdicionais,
+      dividasData,
     } = formData;
 
-    // Fetch custom AI instructions for this company if available
     let customInstructions = "";
+    let companyFormatting: CompanyFormattingTexts = {};
+
     if (formData.companyId) {
       try {
         const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
         const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
         if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
           const fmtResp = await fetch(
-            `${SUPABASE_URL}/rest/v1/company_formatting?company_id=eq.${formData.companyId}&select=ai_custom_instructions,nome_empresa_ata,nif_empresa,morada_empresa`,
+            `${SUPABASE_URL}/rest/v1/company_formatting?company_id=eq.${formData.companyId}&select=ai_custom_instructions,nome_empresa_ata,nif_empresa,morada_empresa,attendance_intro_text,absentees_intro_text,legal_opening_text,closing_text,signatures_title`,
             {
               headers: {
                 apikey: SUPABASE_SERVICE_ROLE_KEY,
@@ -217,9 +300,14 @@ serve(async (req) => {
           if (fmtResp.ok) {
             const fmtData = await fmtResp.json();
             if (fmtData?.[0]) {
-              if (fmtData[0].ai_custom_instructions) {
-                customInstructions = fmtData[0].ai_custom_instructions;
-              }
+              customInstructions = fmtData[0].ai_custom_instructions || "";
+              companyFormatting = {
+                attendance_intro_text: fmtData[0].attendance_intro_text,
+                absentees_intro_text: fmtData[0].absentees_intro_text,
+                legal_opening_text: fmtData[0].legal_opening_text,
+                closing_text: fmtData[0].closing_text,
+                signatures_title: fmtData[0].signatures_title,
+              };
             }
           }
         }
@@ -237,7 +325,7 @@ serve(async (req) => {
       })
       .join("\n");
 
-    let systemPrompt = buildSystemPrompt();
+    let systemPrompt = buildSystemPrompt(companyFormatting);
     if (customInstructions) {
       systemPrompt += `\n\nINSTRUÇÕES ADICIONAIS ESPECÍFICAS DESTA EMPRESA (seguir obrigatoriamente):\n${customInstructions}`;
     }
@@ -288,19 +376,30 @@ Redige a ata completa seguindo EXATAMENTE o formato do system prompt. SEM markdo
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Limite de pedidos excedido. Tente novamente em alguns segundos." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({
+            error: "Limite de pedidos excedido. Tente novamente em alguns segundos.",
+          }),
+          {
+            status: 429,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Créditos insuficientes. Adicione créditos ao seu workspace." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({ error: "Créditos insuficientes. Adicione créditos ao seu workspace." }),
+          {
+            status: 402,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
       return new Response(JSON.stringify({ error: "Erro ao gerar ata" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -309,8 +408,12 @@ Redige a ata completa seguindo EXATAMENTE o formato do system prompt. SEM markdo
     });
   } catch (e) {
     console.error("generate-ata error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
 });
