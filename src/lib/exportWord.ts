@@ -209,9 +209,9 @@ export async function exportAtaToWord(
       spacing: { before: 120 },
       children: [
         new TextRun({ text: "Página ", size: size - 2, font }),
-        PageNumber.CURRENT,
+        new SimpleField("PAGE"),
         new TextRun({ text: " de ", size: size - 2, font }),
-        PageNumber.TOTAL_PAGES,
+        new SimpleField("NUMPAGES"),
       ],
     })
   );
