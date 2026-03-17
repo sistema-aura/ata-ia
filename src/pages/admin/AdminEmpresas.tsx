@@ -208,6 +208,14 @@ const AdminEmpresas = () => {
                   <Button variant={company.is_active ? "destructive" : "default"} size="sm" className="gap-2" onClick={() => toggleBlock(company)}>
                     {company.is_active ? <><Ban className="h-3 w-3" /> Bloquear</> : <><CheckCircle className="h-3 w-3" /> Desbloquear</>}
                   </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => setDeleteDialog({ open: true, companyId: company.id, companyName: company.name })}
+                  >
+                    <Trash2 className="h-3 w-3" /> Eliminar
+                  </Button>
                 </div>
               </div>
             ))}
