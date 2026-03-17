@@ -188,16 +188,29 @@ const AdminFormatacao = () => {
         nome_empresa_ata: row.nome_empresa_ata ?? "",
         nif_empresa: row.nif_empresa ?? "",
         morada_empresa: row.morada_empresa ?? "",
+        opening_paragraph_template:
+          row.opening_paragraph_template ?? DEFAULTS.opening_paragraph_template,
+        agenda_item_template: row.agenda_item_template ?? DEFAULTS.agenda_item_template,
         attendance_intro_text: row.attendance_intro_text ?? DEFAULTS.attendance_intro_text,
+        attendance_item_template:
+          row.attendance_item_template ?? DEFAULTS.attendance_item_template,
         absentees_intro_text: row.absentees_intro_text ?? DEFAULTS.absentees_intro_text,
+        absentee_item_template:
+          row.absentee_item_template ?? DEFAULTS.absentee_item_template,
         legal_opening_text: row.legal_opening_text ?? DEFAULTS.legal_opening_text,
+        point_paragraph_template:
+          row.point_paragraph_template ?? DEFAULTS.point_paragraph_template,
         closing_text: row.closing_text ?? DEFAULTS.closing_text,
         signatures_title: row.signatures_title ?? DEFAULTS.signatures_title,
+        signature_item_template:
+          row.signature_item_template ?? DEFAULTS.signature_item_template,
         debt_section_intro_text:
           row.debt_section_intro_text ?? DEFAULTS.debt_section_intro_text,
         debt_total_label: row.debt_total_label ?? DEFAULTS.debt_total_label,
         debt_quota_extra_label:
           row.debt_quota_extra_label ?? DEFAULTS.debt_quota_extra_label,
+        debt_header_template: row.debt_header_template ?? DEFAULTS.debt_header_template,
+        debt_detail_template: row.debt_detail_template ?? DEFAULTS.debt_detail_template,
       });
       setExists(true);
       return;
