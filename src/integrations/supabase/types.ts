@@ -106,6 +106,9 @@ export type Database = {
           closing_text: string
           company_id: string
           created_at: string
+          debt_quota_extra_label: string
+          debt_section_intro_text: string
+          debt_total_label: string
           first_line_indent: number
           font_family: string
           font_size: number
@@ -134,6 +137,9 @@ export type Database = {
           closing_text?: string
           company_id: string
           created_at?: string
+          debt_quota_extra_label?: string
+          debt_section_intro_text?: string
+          debt_total_label?: string
           first_line_indent?: number
           font_family?: string
           font_size?: number
@@ -162,6 +168,9 @@ export type Database = {
           closing_text?: string
           company_id?: string
           created_at?: string
+          debt_quota_extra_label?: string
+          debt_section_intro_text?: string
+          debt_total_label?: string
           first_line_indent?: number
           font_family?: string
           font_size?: number

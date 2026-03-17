@@ -11,6 +11,9 @@ interface CompanyFormattingTexts {
   legal_opening_text?: string;
   closing_text?: string;
   signatures_title?: string;
+  debt_section_intro_text?: string;
+  debt_total_label?: string;
+  debt_quota_extra_label?: string;
 }
 
 const DEFAULT_COMPANY_TEXTS: Required<CompanyFormattingTexts> = {
@@ -22,6 +25,9 @@ const DEFAULT_COMPANY_TEXTS: Required<CompanyFormattingTexts> = {
   closing_text:
     "Nada mais havendo a acrescentar, deu-se por encerrada a Assembleia cerca das [hora] horas e [minutos] minutos, sendo lavrada a presente ata que depois de lida e aprovada vai ser assinada por todos os condóminos presentes.",
   signatures_title: "Presidente:",
+  debt_section_intro_text: "DÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):",
+  debt_total_label: "Total geral em dívida ao condomínio:",
+  debt_quota_extra_label: "Quota extra",
 };
 
 function buildSystemPrompt(companyFormatting: CompanyFormattingTexts = {}) {
@@ -39,6 +45,14 @@ function buildSystemPrompt(companyFormatting: CompanyFormattingTexts = {}) {
   const signaturesTitle =
     companyFormatting.signatures_title?.trim() ||
     DEFAULT_COMPANY_TEXTS.signatures_title;
+  const debtSectionIntro =
+    companyFormatting.debt_section_intro_text?.trim() ||
+    DEFAULT_COMPANY_TEXTS.debt_section_intro_text;
+  const debtTotalLabel =
+    companyFormatting.debt_total_label?.trim() || DEFAULT_COMPANY_TEXTS.debt_total_label;
+  const debtQuotaExtraLabel =
+    companyFormatting.debt_quota_extra_label?.trim() ||
+    DEFAULT_COMPANY_TEXTS.debt_quota_extra_label;
 
   return `És um assistente especializado em redigir atas de assembleias de condomínios em Portugal.
 A ata deve ser redigida em português europeu formal. NÃO uses markdown (sem #, **, ---, etc.). Escreve texto corrido simples.
@@ -108,7 +122,9 @@ Para o ponto de PENALIZAÇÃO/COBRANÇA JUDICIAL, usa o texto padrão fornecido 
 
 Para o ponto de ATUALIZAÇÃO DOS VALORES EM DÍVIDA, usa o texto padrão fornecido como introdução, seguido da lista de dívidas EXATAMENTE como fornecida nos dados. COPIA TAL QUAL, incluindo os "____" nos valores. O utilizador preencherá os valores depois.
 
-Para o ponto de SEGURO DAS FRAÇÕES, usa o texto padrão fornecido TAL QUAL, sem modificar.
+Texto de introdução da secção de dívidas a usar: ${debtSectionIntro}
+Texto do total final da secção de dívidas a usar: ${debtTotalLabel}
+Texto da linha de quota extra a usar: ${debtQuotaExtraLabel}
 
 FORMATO DAS DÍVIDAS (no ponto de atualização dos valores em dívida):
 COPIA A SECÇÃO DE DÍVIDAS TAL QUAL COMO É FORNECIDA NOS DADOS DO UTILIZADOR. NÃO alteres NADA. Mantém os "____" nos campos de quotização, fundo de reserva e totais.
@@ -210,13 +226,25 @@ function parseObservacoesToPeriods(obs: string): string[] {
   return lines;
 }
 
-function formatDividas(dividasData: any): string {
+function formatDividas(
+  dividasData: any,
+  companyFormatting: CompanyFormattingTexts = {}
+): string {
   if (!dividasData?.dividas?.length) return "";
+
+  const debtSectionIntro =
+    companyFormatting.debt_section_intro_text?.trim() ||
+    DEFAULT_COMPANY_TEXTS.debt_section_intro_text;
+  const debtTotalLabel =
+    companyFormatting.debt_total_label?.trim() || DEFAULT_COMPANY_TEXTS.debt_total_label;
+  const debtQuotaExtraLabel =
+    companyFormatting.debt_quota_extra_label?.trim() ||
+    DEFAULT_COMPANY_TEXTS.debt_quota_extra_label;
 
   const formatDetalhe = (det: any): string => {
     if (det.quotaExtra) {
       const totalVal = det.total || "____";
-      return `o  Quota extra ${det.quotaExtra} (€ ${totalVal});`;
+      return `o  ${debtQuotaExtraLabel} ${det.quotaExtra} (€ ${totalVal});`;
     }
     const meses =
       det.mesInicio === det.mesFim
@@ -229,7 +257,7 @@ function formatDividas(dividasData: any): string {
   };
 
   return (
-    `\n\nDÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):\n` +
+    `\n\n${debtSectionIntro}\n` +
     dividasData.dividas
       .map((d: any) => {
         const header = `✓ Fração ${d.fracao} – ${d.descricao || d.fracao} – [VALOR POR EXTENSO de ${d.valorDivida}€] (€ ${d.valorDivida}) correspondentes:`;
@@ -245,7 +273,7 @@ function formatDividas(dividasData: any): string {
         return header;
       })
       .join("\n") +
-    `\nTotal geral em dívida ao condomínio: ${dividasData.totalDivida}€`
+    `\n${debtTotalLabel} ${dividasData.totalDivida}€`
   );
 }
 
@@ -289,7 +317,7 @@ serve(async (req) => {
         const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
         if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
           const fmtResp = await fetch(
-            `${SUPABASE_URL}/rest/v1/company_formatting?company_id=eq.${formData.companyId}&select=ai_custom_instructions,nome_empresa_ata,nif_empresa,morada_empresa,attendance_intro_text,absentees_intro_text,legal_opening_text,closing_text,signatures_title`,
+            `${SUPABASE_URL}/rest/v1/company_formatting?company_id=eq.${formData.companyId}&select=ai_custom_instructions,nome_empresa_ata,nif_empresa,morada_empresa,attendance_intro_text,absentees_intro_text,legal_opening_text,closing_text,signatures_title,debt_section_intro_text,debt_total_label,debt_quota_extra_label`,
             {
               headers: {
                 apikey: SUPABASE_SERVICE_ROLE_KEY,
@@ -307,6 +335,9 @@ serve(async (req) => {
                 legal_opening_text: fmtData[0].legal_opening_text,
                 closing_text: fmtData[0].closing_text,
                 signatures_title: fmtData[0].signatures_title,
+                debt_section_intro_text: fmtData[0].debt_section_intro_text,
+                debt_total_label: fmtData[0].debt_total_label,
+                debt_quota_extra_label: fmtData[0].debt_quota_extra_label,
               };
             }
           }
@@ -352,7 +383,7 @@ ${formatPresencas(presencasData)}
 
 Pontos da Ordem de Trabalhos:
 ${pontosFormatados}
-${formatDividas(dividasData)}
+${formatDividas(dividasData, companyFormatting)}
 
 ${observacoesAdicionais ? `Observações Adicionais: ${observacoesAdicionais}` : ""}
 
