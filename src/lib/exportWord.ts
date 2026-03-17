@@ -113,13 +113,13 @@ export async function exportAtaToWord(
       continue;
     }
 
-    if (clean.startsWith("•") || clean.startsWith("ü") || clean.startsWith("-")) {
+    if (clean.startsWith("✓")) {
       paragraphs.push(
         new Paragraph({
-          alignment: AlignmentType.LEFT,
-          indent: { left: 360 },
-          spacing: { line: lineSpacing, after: Math.round(paragraphSpacingAfter * 0.67) },
-          children: [new TextRun({ text: clean, size, font })],
+          alignment: bodyAlignment,
+          indent: { left: 360, hanging: 220 },
+          spacing: { line: lineSpacing, before: 180, after: Math.round(paragraphSpacingAfter * 0.45) },
+          children: [new TextRun({ text: clean, size, font, bold: true })],
         })
       );
       continue;
@@ -128,9 +128,21 @@ export async function exportAtaToWord(
     if (clean.startsWith("o ") || clean.startsWith("o\t")) {
       paragraphs.push(
         new Paragraph({
+          alignment: bodyAlignment,
+          indent: { left: 720, hanging: 180 },
+          spacing: { line: lineSpacing, after: Math.round(paragraphSpacingAfter * 0.4) },
+          children: [new TextRun({ text: clean, size, font })],
+        })
+      );
+      continue;
+    }
+
+    if (clean.startsWith("•") || clean.startsWith("ü") || clean.startsWith("-")) {
+      paragraphs.push(
+        new Paragraph({
           alignment: AlignmentType.LEFT,
-          indent: { left: 720 },
-          spacing: { line: lineSpacing, after: Math.round(paragraphSpacingAfter * 0.5) },
+          indent: { left: 360, hanging: 180 },
+          spacing: { line: lineSpacing, after: Math.round(paragraphSpacingAfter * 0.67) },
           children: [new TextRun({ text: clean, size, font })],
         })
       );
@@ -141,7 +153,7 @@ export async function exportAtaToWord(
       paragraphs.push(
         new Paragraph({
           alignment: AlignmentType.LEFT,
-          indent: { left: 360 },
+          indent: { left: 360, hanging: 180 },
           spacing: { line: lineSpacing, after: Math.round(paragraphSpacingAfter * 0.67) },
           children: [new TextRun({ text: clean, size, font })],
         })
