@@ -187,10 +187,11 @@ export async function exportAtaToWord(
     );
   }
 
+  const footerParagraphs: Paragraph[] = [];
+
   if (formatting?.footer_text) {
-    paragraphs.push(new Paragraph({ spacing: { before: 300 } }));
     for (const fLine of formatting.footer_text.split("\n")) {
-      paragraphs.push(
+      footerParagraphs.push(
         new Paragraph({
           alignment: AlignmentType.CENTER,
           spacing: { line: lineSpacing, after: 60 },
@@ -201,6 +202,19 @@ export async function exportAtaToWord(
       );
     }
   }
+
+  footerParagraphs.push(
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 120 },
+      children: [
+        new TextRun({ text: "Página ", size: size - 2, font }),
+        PageNumber.CURRENT,
+        new TextRun({ text: " de ", size: size - 2, font }),
+        PageNumber.TOTAL_PAGES,
+      ],
+    })
+  );
 
   const doc = new Document({
     sections: [
@@ -214,6 +228,11 @@ export async function exportAtaToWord(
               right: marginRight,
             },
           },
+        },
+        footers: {
+          default: new Footer({
+            children: footerParagraphs,
+          }),
         },
         children: paragraphs,
       },
