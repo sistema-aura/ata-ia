@@ -25,7 +25,7 @@ const DEFAULT_ALIGNMENT = AlignmentType.JUSTIFIED;
 
 const resolveAlignment = (
   alignment?: WordFormattingConfig["body_alignment"]
-): AlignmentType => {
+) => {
   switch (alignment) {
     case "left":
       return AlignmentType.LEFT;
