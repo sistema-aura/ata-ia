@@ -228,7 +228,7 @@ const AdminFormatacao = () => {
     if (!selectedCompanyId) return;
     setSaving(true);
 
-    const payload = { company_id: selectedCompanyId, ...config };
+    const payload: any = { company_id: selectedCompanyId, ...config };
 
     let error;
     if (exists) {
