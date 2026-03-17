@@ -6,14 +6,22 @@ const corsHeaders = {
 };
 
 interface CompanyFormattingTexts {
+  opening_paragraph_template?: string;
+  agenda_item_template?: string;
   attendance_intro_text?: string;
+  attendance_item_template?: string;
   absentees_intro_text?: string;
+  absentee_item_template?: string;
   legal_opening_text?: string;
+  point_paragraph_template?: string;
   closing_text?: string;
   signatures_title?: string;
+  signature_item_template?: string;
   debt_section_intro_text?: string;
   debt_total_label?: string;
   debt_quota_extra_label?: string;
+  debt_header_template?: string;
+  debt_detail_template?: string;
 }
 
 const DEFAULT_COMPANY_TEXTS: Required<CompanyFormattingTexts> = {
