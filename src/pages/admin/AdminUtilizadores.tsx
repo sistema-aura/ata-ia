@@ -131,6 +131,23 @@ const AdminUtilizadores = () => {
     setAssigning(false);
   };
 
+  const handleDeleteUser = async () => {
+    setDeleting(true);
+    const { data, error } = await supabase.functions.invoke("admin-users", {
+      body: { action: "delete_user", userId: deleteDialog.userId },
+    });
+
+    if (error || data?.error) {
+      toast.error(data?.error || "Erro ao eliminar utilizador");
+    } else {
+      toast.success("Utilizador eliminado com sucesso");
+      setDeleteDialog({ open: false, userId: "", email: "" });
+      fetchData();
+    }
+
+    setDeleting(false);
+  };
+
   const copyEmail = (email: string) => {
     navigator.clipboard.writeText(email);
     setCopied(true);

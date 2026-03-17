@@ -109,6 +109,23 @@ const AdminEmpresas = () => {
     setBlockReason("");
   };
 
+  const handleDeleteCompany = async () => {
+    setDeletingCompany(true);
+    const { data, error } = await supabase.functions.invoke("admin-users", {
+      body: { action: "delete_company", companyId: deleteDialog.companyId },
+    });
+
+    if (error || data?.error) {
+      toast.error(data?.error || "Erro ao eliminar empresa");
+    } else {
+      toast.success("Empresa eliminada com sucesso");
+      setDeleteDialog({ open: false, companyId: "", companyName: "" });
+      fetchCompanies();
+    }
+
+    setDeletingCompany(false);
+  };
+
   return (
     <AppLayout>
       <div className="container max-w-5xl py-8">
