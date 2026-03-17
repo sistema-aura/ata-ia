@@ -163,7 +163,7 @@ const Login = () => {
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Não tem conta?{" "}
             <Link to="/signup" className="text-accent hover:underline font-medium">
-              Contacte-nos
+              Cria uma!
             </Link>
           </p>
         </div>
