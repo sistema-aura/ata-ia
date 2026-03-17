@@ -9,10 +9,12 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
+import CodigoEmpresa from "./pages/CodigoEmpresa";
 import NovaAta from "./pages/NovaAta";
 import Historico from "./pages/Historico";
 import Suporte from "./pages/Suporte";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminCodigosEmpresa from "./pages/admin/AdminCodigosEmpresa";
 import AdminEmpresas from "./pages/admin/AdminEmpresas";
 import AdminUtilizadores from "./pages/admin/AdminUtilizadores";
 import AdminTickets from "./pages/admin/AdminTickets";
@@ -37,10 +39,12 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/codigo-empresa" element={<ProtectedRoute><CodigoEmpresa /></ProtectedRoute>} />
             <Route path="/nova-ata" element={<ProtectedRoute requireActive><NovaAta /></ProtectedRoute>} />
             <Route path="/historico" element={<ProtectedRoute requireActive><Historico /></ProtectedRoute>} />
             <Route path="/suporte" element={<ProtectedRoute><Suporte /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/codigos-empresa" element={<ProtectedRoute requireAdmin><AdminCodigosEmpresa /></ProtectedRoute>} />
             <Route path="/admin/empresas" element={<ProtectedRoute requireAdmin><AdminEmpresas /></ProtectedRoute>} />
             <Route path="/admin/utilizadores" element={<ProtectedRoute requireAdmin><AdminUtilizadores /></ProtectedRoute>} />
             <Route path="/admin/tickets" element={<ProtectedRoute requireAdmin><AdminTickets /></ProtectedRoute>} />

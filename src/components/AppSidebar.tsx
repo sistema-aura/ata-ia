@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FileText, History, LifeBuoy, LogOut, LayoutDashboard, Building2, Users, Shield, CreditCard, HelpCircle, Wallet, Tag, Palette } from "lucide-react";
+import { FileText, History, LifeBuoy, LogOut, LayoutDashboard, Building2, Users, Shield, HelpCircle, Wallet, Tag, Palette, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const AppSidebar = () => {
@@ -23,6 +23,7 @@ export const AppSidebar = () => {
 
   const companyMenuItems = [
     { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+    { title: "Código da Empresa", icon: KeyRound, path: "/codigo-empresa" },
     ...(!isBlocked ? [
       { title: "Nova Ata", icon: FileText, path: "/nova-ata" },
       { title: "Histórico", icon: History, path: "/historico" },
@@ -32,6 +33,7 @@ export const AppSidebar = () => {
 
   const adminMenuItems = [
     { title: "Painel Admin", icon: Shield, path: "/admin" },
+    { title: "Códigos", icon: KeyRound, path: "/admin/codigos-empresa" },
     { title: "Empresas", icon: Building2, path: "/admin/empresas" },
     { title: "Utilizadores", icon: Users, path: "/admin/utilizadores" },
     { title: "Tickets", icon: HelpCircle, path: "/admin/tickets" },
