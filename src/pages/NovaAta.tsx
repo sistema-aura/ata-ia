@@ -51,19 +51,24 @@ const NovaAta = () => {
         .from("company_formatting")
         .select("*")
         .eq("company_id", company.id)
-        .single();
+        .maybeSingle();
 
       if (fData) {
+        const row = fData as any;
         setWordFormatting({
-          font_family: fData.font_family,
-          font_size: fData.font_size,
-          margin_top: fData.margin_top,
-          margin_bottom: fData.margin_bottom,
-          margin_left: fData.margin_left,
-          margin_right: fData.margin_right,
-          line_spacing: fData.line_spacing,
-          header_text: fData.header_text || "",
-          footer_text: fData.footer_text || "",
+          font_family: row.font_family,
+          font_size: row.font_size,
+          margin_top: row.margin_top,
+          margin_bottom: row.margin_bottom,
+          margin_left: row.margin_left,
+          margin_right: row.margin_right,
+          line_spacing: row.line_spacing,
+          paragraph_spacing_after: row.paragraph_spacing_after ?? row.line_spacing,
+          first_line_indent: row.first_line_indent ?? 0,
+          title_alignment: row.title_alignment ?? "center",
+          body_alignment: row.body_alignment ?? "justify",
+          header_text: row.header_text || "",
+          footer_text: row.footer_text || "",
         });
       }
     };
