@@ -369,7 +369,7 @@ const NovaAta = () => {
                           {c.representado && (
                             <span className="text-xs text-accent">(representado)</span>
                           )}
-                          <span className="ml-auto text-xs text-muted-foreground">{c.permilagem}‰</span>
+                          <span className="ml-auto text-xs text-muted-foreground">{formatPermilagem(c.permilagem)}‰</span>
                         </div>
                       ))}
                     </div>
