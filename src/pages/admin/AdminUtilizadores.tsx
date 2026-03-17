@@ -64,11 +64,15 @@ const AdminUtilizadores = () => {
   const [companyDialog, setCompanyDialog] = useState<{ open: boolean; userId: string; email: string; currentCompanyId: string | null }>({
     open: false, userId: "", email: "", currentCompanyId: null,
   });
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; userId: string; email: string }>({
+    open: false, userId: "", email: "",
+  });
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [assigning, setAssigning] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const fetchData = async () => {

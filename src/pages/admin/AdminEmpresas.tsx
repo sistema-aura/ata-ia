@@ -43,6 +43,12 @@ const AdminEmpresas = () => {
   const [creating, setCreating] = useState(false);
   const [blockReason, setBlockReason] = useState("");
   const [blockingId, setBlockingId] = useState<string | null>(null);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; companyId: string; companyName: string }>({
+    open: false,
+    companyId: "",
+    companyName: "",
+  });
+  const [deletingCompany, setDeletingCompany] = useState(false);
 
   const fetchCompanies = async () => {
     const { data } = await supabase.from("companies").select("*").order("created_at", { ascending: false });
