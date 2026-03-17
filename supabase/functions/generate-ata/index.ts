@@ -335,6 +335,9 @@ serve(async (req) => {
                 legal_opening_text: fmtData[0].legal_opening_text,
                 closing_text: fmtData[0].closing_text,
                 signatures_title: fmtData[0].signatures_title,
+                debt_section_intro_text: fmtData[0].debt_section_intro_text,
+                debt_total_label: fmtData[0].debt_total_label,
+                debt_quota_extra_label: fmtData[0].debt_quota_extra_label,
               };
             }
           }
