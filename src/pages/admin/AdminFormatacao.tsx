@@ -32,6 +32,9 @@ interface FormattingConfig extends WordFormattingConfig {
   legal_opening_text: string;
   closing_text: string;
   signatures_title: string;
+  debt_section_intro_text: string;
+  debt_total_label: string;
+  debt_quota_extra_label: string;
 }
 
 const DEFAULTS: FormattingConfig = {
