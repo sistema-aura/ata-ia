@@ -45,6 +45,14 @@ function buildSystemPrompt(companyFormatting: CompanyFormattingTexts = {}) {
   const signaturesTitle =
     companyFormatting.signatures_title?.trim() ||
     DEFAULT_COMPANY_TEXTS.signatures_title;
+  const debtSectionIntro =
+    companyFormatting.debt_section_intro_text?.trim() ||
+    DEFAULT_COMPANY_TEXTS.debt_section_intro_text;
+  const debtTotalLabel =
+    companyFormatting.debt_total_label?.trim() || DEFAULT_COMPANY_TEXTS.debt_total_label;
+  const debtQuotaExtraLabel =
+    companyFormatting.debt_quota_extra_label?.trim() ||
+    DEFAULT_COMPANY_TEXTS.debt_quota_extra_label;
 
   return `És um assistente especializado em redigir atas de assembleias de condomínios em Portugal.
 A ata deve ser redigida em português europeu formal. NÃO uses markdown (sem #, **, ---, etc.). Escreve texto corrido simples.
