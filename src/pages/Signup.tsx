@@ -126,7 +126,7 @@ const Signup = () => {
     }
 
     setSuccessTitle("Funcionário registado!");
-    setSuccessMessage(`A sua conta foi associada à empresa ${data.companyName}. Já pode iniciar sessão com este email.`);
+    setSuccessMessage(data.message || `A sua conta foi associada à empresa ${data.companyName}.`);
     setSuccess(true);
     toast.success("Conta de funcionário criada com sucesso!");
   };
