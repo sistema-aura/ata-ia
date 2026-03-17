@@ -7,8 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Ban, CheckCircle, Loader2, FileText } from "lucide-react";
+import { Plus, Ban, CheckCircle, Loader2, FileText, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Company {
@@ -33,6 +43,12 @@ const AdminEmpresas = () => {
   const [creating, setCreating] = useState(false);
   const [blockReason, setBlockReason] = useState("");
   const [blockingId, setBlockingId] = useState<string | null>(null);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; companyId: string; companyName: string }>({
+    open: false,
+    companyId: "",
+    companyName: "",
+  });
+  const [deletingCompany, setDeletingCompany] = useState(false);
 
   const fetchCompanies = async () => {
     const { data } = await supabase.from("companies").select("*").order("created_at", { ascending: false });
@@ -91,6 +107,23 @@ const AdminEmpresas = () => {
     else { toast.success("Empresa bloqueada!"); fetchCompanies(); }
     setBlockingId(null);
     setBlockReason("");
+  };
+
+  const handleDeleteCompany = async () => {
+    setDeletingCompany(true);
+    const { data, error } = await supabase.functions.invoke("admin-users", {
+      body: { action: "delete_company", companyId: deleteDialog.companyId },
+    });
+
+    if (error || data?.error) {
+      toast.error(data?.error || "Erro ao eliminar empresa");
+    } else {
+      toast.success("Empresa eliminada com sucesso");
+      setDeleteDialog({ open: false, companyId: "", companyName: "" });
+      fetchCompanies();
+    }
+
+    setDeletingCompany(false);
   };
 
   return (
@@ -175,11 +208,36 @@ const AdminEmpresas = () => {
                   <Button variant={company.is_active ? "destructive" : "default"} size="sm" className="gap-2" onClick={() => toggleBlock(company)}>
                     {company.is_active ? <><Ban className="h-3 w-3" /> Bloquear</> : <><CheckCircle className="h-3 w-3" /> Desbloquear</>}
                   </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => setDeleteDialog({ open: true, companyId: company.id, companyName: company.name })}
+                  >
+                    <Trash2 className="h-3 w-3" /> Eliminar
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
         )}
+        <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Eliminar empresa</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tem a certeza que quer eliminar a empresa <strong>{deleteDialog.companyName}</strong>? As atas, pagamentos, tickets, templates e formatações ligados a esta empresa serão removidos.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteCompany} disabled={deletingCompany}>
+                {deletingCompany && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Eliminar empresa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AppLayout>
   );

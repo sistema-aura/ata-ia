@@ -13,13 +13,23 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, KeyRound, Eye, EyeOff, Copy, Check, Building2 } from "lucide-react";
+import { Loader2, KeyRound, Eye, EyeOff, Copy, Check, Building2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Profile {
@@ -54,11 +64,15 @@ const AdminUtilizadores = () => {
   const [companyDialog, setCompanyDialog] = useState<{ open: boolean; userId: string; email: string; currentCompanyId: string | null }>({
     open: false, userId: "", email: "", currentCompanyId: null,
   });
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; userId: string; email: string }>({
+    open: false, userId: "", email: "",
+  });
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [assigning, setAssigning] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const fetchData = async () => {
@@ -115,6 +129,23 @@ const AdminUtilizadores = () => {
       fetchData();
     }
     setAssigning(false);
+  };
+
+  const handleDeleteUser = async () => {
+    setDeleting(true);
+    const { data, error } = await supabase.functions.invoke("admin-users", {
+      body: { action: "delete_user", userId: deleteDialog.userId },
+    });
+
+    if (error || data?.error) {
+      toast.error(data?.error || "Erro ao eliminar utilizador");
+    } else {
+      toast.success("Utilizador eliminado com sucesso");
+      setDeleteDialog({ open: false, userId: "", email: "" });
+      fetchData();
+    }
+
+    setDeleting(false);
   };
 
   const copyEmail = (email: string) => {
@@ -183,7 +214,7 @@ const AdminUtilizadores = () => {
                         setSelectedCompanyId(p.company_id || "none");
                       }}
                     >
-                      <Building2 className="h-3.5 w-3.5 mr-1" />
+                      <Building2 className="mr-1 h-3.5 w-3.5" />
                       Empresa
                     </Button>
                     <Button
@@ -191,8 +222,16 @@ const AdminUtilizadores = () => {
                       size="sm"
                       onClick={() => setResetDialog({ open: true, userId: p.id, email: p.email })}
                     >
-                      <KeyRound className="h-3.5 w-3.5 mr-1" />
+                      <KeyRound className="mr-1 h-3.5 w-3.5" />
                       Password
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setDeleteDialog({ open: true, userId: p.id, email: p.email })}
+                    >
+                      <Trash2 className="mr-1 h-3.5 w-3.5" />
+                      Eliminar
                     </Button>
                   </div>
                 </div>
@@ -285,6 +324,23 @@ const AdminUtilizadores = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar utilizador</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem a certeza que quer eliminar a conta <strong>{deleteDialog.email}</strong>? Esta ação remove o acesso do utilizador e não pode ser revertida.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser} disabled={deleting}>
+              {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 };
