@@ -70,6 +70,8 @@ const NovaAta = () => {
           header_text: row.header_text || "",
           footer_text: row.footer_text || "",
         });
+      } else {
+        setWordFormatting(undefined);
       }
     };
     loadCompanyConfig();

@@ -99,13 +99,18 @@ export type Database = {
       }
       company_formatting: {
         Row: {
+          absentee_item_template: string
           absentees_intro_text: string
+          agenda_item_template: string
           ai_custom_instructions: string | null
           attendance_intro_text: string
+          attendance_item_template: string
           body_alignment: string
           closing_text: string
           company_id: string
           created_at: string
+          debt_detail_template: string
+          debt_header_template: string
           debt_quota_extra_label: string
           debt_section_intro_text: string
           debt_total_label: string
@@ -124,19 +129,27 @@ export type Database = {
           morada_empresa: string | null
           nif_empresa: string | null
           nome_empresa_ata: string | null
+          opening_paragraph_template: string
           paragraph_spacing_after: number
+          point_paragraph_template: string
+          signature_item_template: string
           signatures_title: string
           title_alignment: string
           updated_at: string
         }
         Insert: {
+          absentee_item_template?: string
           absentees_intro_text?: string
+          agenda_item_template?: string
           ai_custom_instructions?: string | null
           attendance_intro_text?: string
+          attendance_item_template?: string
           body_alignment?: string
           closing_text?: string
           company_id: string
           created_at?: string
+          debt_detail_template?: string
+          debt_header_template?: string
           debt_quota_extra_label?: string
           debt_section_intro_text?: string
           debt_total_label?: string
@@ -155,19 +168,27 @@ export type Database = {
           morada_empresa?: string | null
           nif_empresa?: string | null
           nome_empresa_ata?: string | null
+          opening_paragraph_template?: string
           paragraph_spacing_after?: number
+          point_paragraph_template?: string
+          signature_item_template?: string
           signatures_title?: string
           title_alignment?: string
           updated_at?: string
         }
         Update: {
+          absentee_item_template?: string
           absentees_intro_text?: string
+          agenda_item_template?: string
           ai_custom_instructions?: string | null
           attendance_intro_text?: string
+          attendance_item_template?: string
           body_alignment?: string
           closing_text?: string
           company_id?: string
           created_at?: string
+          debt_detail_template?: string
+          debt_header_template?: string
           debt_quota_extra_label?: string
           debt_section_intro_text?: string
           debt_total_label?: string
@@ -186,7 +207,10 @@ export type Database = {
           morada_empresa?: string | null
           nif_empresa?: string | null
           nome_empresa_ata?: string | null
+          opening_paragraph_template?: string
           paragraph_spacing_after?: number
+          point_paragraph_template?: string
+          signature_item_template?: string
           signatures_title?: string
           title_alignment?: string
           updated_at?: string

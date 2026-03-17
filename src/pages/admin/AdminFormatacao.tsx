@@ -27,14 +27,22 @@ interface FormattingConfig extends WordFormattingConfig {
   nome_empresa_ata: string;
   nif_empresa: string;
   morada_empresa: string;
+  opening_paragraph_template: string;
+  agenda_item_template: string;
   attendance_intro_text: string;
+  attendance_item_template: string;
   absentees_intro_text: string;
+  absentee_item_template: string;
   legal_opening_text: string;
+  point_paragraph_template: string;
   closing_text: string;
   signatures_title: string;
+  signature_item_template: string;
   debt_section_intro_text: string;
   debt_total_label: string;
   debt_quota_extra_label: string;
+  debt_header_template: string;
+  debt_detail_template: string;
 }
 
 const DEFAULTS: FormattingConfig = {
@@ -55,17 +63,31 @@ const DEFAULTS: FormattingConfig = {
   nome_empresa_ata: "",
   nif_empresa: "",
   morada_empresa: "",
+  opening_paragraph_template:
+    "Aos [data por extenso], pelas [hora] horas, reuniu no [local] em [convocatória] convocatória, a Assembleia [Ordinária/Extraordinária] de Condóminos do condomínio sito na [morada], concelho de [concelho] com o NIPC [NIF], para deliberar sobre os assuntos seguintes:",
+  agenda_item_template: "[numero]. [titulo];",
   attendance_intro_text:
     "A assembleia foi regularmente convocada por carta registada. Estiveram presentes e representados os seguintes condóminos:",
+  attendance_item_template:
+    "• [Nome completo], proprietário da fração [X], correspondente ao [descrição], representando [permilagem] % do capital total do edifício;",
   absentees_intro_text: "Estiveram ausentes os seguintes condóminos:",
+  absentee_item_template:
+    "• [Nome completo], proprietário da fração [X], correspondente ao [descrição], representando [permilagem] % do capital total do edifício;",
   legal_opening_text:
     "Os condóminos presentes representam [SOMA das permilagens dos presentes]‰ da permilagem total do imóvel, correspondentes a [percentagem] % do Capital Total do Edifício, nos termos do art.º 1432.º, do CC, o que permite deliberar sobre os assuntos constantes da ordem de trabalhos. Exerceu as funções de presidente o Sr. [nome presidente].",
+  point_paragraph_template: "Ponto [número por extenso]: [Título]- [Texto da deliberação]",
   closing_text:
     "Nada mais havendo a acrescentar, deu-se por encerrada a Assembleia cerca das [hora] horas e [minutos] minutos, sendo lavrada a presente ata que depois de lida e aprovada vai ser assinada por todos os condóminos presentes.",
   signatures_title: "Presidente:",
+  signature_item_template:
+    "[Descrição fração]: ____________________________________________________________",
   debt_section_intro_text: "DÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):",
   debt_total_label: "Total geral em dívida ao condomínio:",
   debt_quota_extra_label: "Quota extra",
+  debt_header_template:
+    "✓ Fração [X] – [Descrição] – [Valor por extenso] (€ [valor numérico]) correspondentes:",
+  debt_detail_template:
+    "o  a quotização (€ ____) e fundo de reserva (€ ____) do mês de [mês início] até ao mês de [mês fim] do ano [ano] (€ ____);",
 };
 
 const FONT_OPTIONS = [
@@ -166,16 +188,29 @@ const AdminFormatacao = () => {
         nome_empresa_ata: row.nome_empresa_ata ?? "",
         nif_empresa: row.nif_empresa ?? "",
         morada_empresa: row.morada_empresa ?? "",
+        opening_paragraph_template:
+          row.opening_paragraph_template ?? DEFAULTS.opening_paragraph_template,
+        agenda_item_template: row.agenda_item_template ?? DEFAULTS.agenda_item_template,
         attendance_intro_text: row.attendance_intro_text ?? DEFAULTS.attendance_intro_text,
+        attendance_item_template:
+          row.attendance_item_template ?? DEFAULTS.attendance_item_template,
         absentees_intro_text: row.absentees_intro_text ?? DEFAULTS.absentees_intro_text,
+        absentee_item_template:
+          row.absentee_item_template ?? DEFAULTS.absentee_item_template,
         legal_opening_text: row.legal_opening_text ?? DEFAULTS.legal_opening_text,
+        point_paragraph_template:
+          row.point_paragraph_template ?? DEFAULTS.point_paragraph_template,
         closing_text: row.closing_text ?? DEFAULTS.closing_text,
         signatures_title: row.signatures_title ?? DEFAULTS.signatures_title,
+        signature_item_template:
+          row.signature_item_template ?? DEFAULTS.signature_item_template,
         debt_section_intro_text:
           row.debt_section_intro_text ?? DEFAULTS.debt_section_intro_text,
         debt_total_label: row.debt_total_label ?? DEFAULTS.debt_total_label,
         debt_quota_extra_label:
           row.debt_quota_extra_label ?? DEFAULTS.debt_quota_extra_label,
+        debt_header_template: row.debt_header_template ?? DEFAULTS.debt_header_template,
+        debt_detail_template: row.debt_detail_template ?? DEFAULTS.debt_detail_template,
       });
       setExists(true);
       return;
@@ -193,7 +228,7 @@ const AdminFormatacao = () => {
     if (!selectedCompanyId) return;
     setSaving(true);
 
-    const payload = { company_id: selectedCompanyId, ...config };
+    const payload: any = { company_id: selectedCompanyId, ...config };
 
     let error;
     if (exists) {
@@ -486,10 +521,36 @@ const AdminFormatacao = () => {
             </SectionCard>
 
             <SectionCard
-              title="Textos Base da Ata"
-              description={`Estes textos passam a servir de base automática para ${selectedCompany?.name}. Podes usar placeholders como [percentagem], [nome presidente], [hora] e [minutos].`}
+              title="Estrutura Completa da Ata"
+              description={`Agora podes definir quase toda a estrutura base usada para ${selectedCompany?.name}. Usa placeholders como [data por extenso], [hora], [local], [titulo], [Texto da deliberação], [Descrição fração], [valor numérico] e [ano].`}
             >
               <div className="grid gap-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Parágrafo de abertura</Label>
+                  <Textarea
+                    value={config.opening_paragraph_template}
+                    onChange={(e) => updateField("opening_paragraph_template", e.target.value)}
+                    className="mt-1 min-h-[120px]"
+                  />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Template de cada item da ordem de trabalhos</Label>
+                    <Input
+                      value={config.agenda_item_template}
+                      onChange={(e) => updateField("agenda_item_template", e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Template de cada ponto deliberado</Label>
+                    <Input
+                      value={config.point_paragraph_template}
+                      onChange={(e) => updateField("point_paragraph_template", e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">Texto antes das presenças</Label>
                   <Textarea
@@ -499,10 +560,26 @@ const AdminFormatacao = () => {
                   />
                 </div>
                 <div>
+                  <Label className="text-xs text-muted-foreground">Template de cada presente</Label>
+                  <Textarea
+                    value={config.attendance_item_template}
+                    onChange={(e) => updateField("attendance_item_template", e.target.value)}
+                    className="mt-1 min-h-[90px]"
+                  />
+                </div>
+                <div>
                   <Label className="text-xs text-muted-foreground">Texto antes dos ausentes</Label>
                   <Textarea
                     value={config.absentees_intro_text}
                     onChange={(e) => updateField("absentees_intro_text", e.target.value)}
+                    className="mt-1 min-h-[90px]"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Template de cada ausente</Label>
+                  <Textarea
+                    value={config.absentee_item_template}
+                    onChange={(e) => updateField("absentee_item_template", e.target.value)}
                     className="mt-1 min-h-[90px]"
                   />
                 </div>
@@ -522,20 +599,30 @@ const AdminFormatacao = () => {
                     className="mt-1 min-h-[110px]"
                   />
                 </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Título da assinatura principal</Label>
-                  <Input
-                    value={config.signatures_title}
-                    onChange={(e) => updateField("signatures_title", e.target.value)}
-                    className="mt-1 max-w-sm"
-                  />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Título da assinatura principal</Label>
+                    <Input
+                      value={config.signatures_title}
+                      onChange={(e) => updateField("signatures_title", e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Template de cada assinatura de fração</Label>
+                    <Input
+                      value={config.signature_item_template}
+                      onChange={(e) => updateField("signature_item_template", e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
               </div>
             </SectionCard>
 
             <SectionCard
-              title="Instruções Personalizadas para a IA"
-              description="Regras adicionais de escrita, tom, vocabulário, estrutura e textos fixos desta empresa."
+              title="Dívidas e regras finais da IA"
+              description="Aqui defines como a secção de dívidas e as instruções extra devem sair na ata desta empresa."
             >
               <div className="grid gap-4">
                 <div>
@@ -545,6 +632,24 @@ const AdminFormatacao = () => {
                     onChange={(e) => updateField("debt_section_intro_text", e.target.value)}
                     className="mt-1 min-h-[90px]"
                   />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Template do cabeçalho da dívida</Label>
+                    <Textarea
+                      value={config.debt_header_template}
+                      onChange={(e) => updateField("debt_header_template", e.target.value)}
+                      className="mt-1 min-h-[90px]"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Template da linha de detalhe da dívida</Label>
+                    <Textarea
+                      value={config.debt_detail_template}
+                      onChange={(e) => updateField("debt_detail_template", e.target.value)}
+                      className="mt-1 min-h-[90px]"
+                    />
+                  </div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
@@ -569,7 +674,7 @@ const AdminFormatacao = () => {
                   <Textarea
                     value={config.ai_custom_instructions}
                     onChange={(e) => updateField("ai_custom_instructions", e.target.value)}
-                    className="min-h-[160px] mt-1"
+                    className="mt-1 min-h-[160px]"
                   />
                 </div>
               </div>
