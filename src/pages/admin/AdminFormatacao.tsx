@@ -63,6 +63,9 @@ const DEFAULTS: FormattingConfig = {
   closing_text:
     "Nada mais havendo a acrescentar, deu-se por encerrada a Assembleia cerca das [hora] horas e [minutos] minutos, sendo lavrada a presente ata que depois de lida e aprovada vai ser assinada por todos os condóminos presentes.",
   signatures_title: "Presidente:",
+  debt_section_intro_text: "DÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):",
+  debt_total_label: "Total geral em dívida ao condomínio:",
+  debt_quota_extra_label: "Quota extra",
 };
 
 const FONT_OPTIONS = [
