@@ -12,6 +12,17 @@ import { AppLayout } from "@/components/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
+const formatPermilagem = (value?: string | number | null) => {
+  if (value === null || value === undefined) return "0,0000";
+
+  const normalized = String(value).trim().replace(/‰/g, "").replace(/\s/g, "").replace(",", ".");
+  const parsed = Number(normalized);
+
+  if (Number.isNaN(parsed)) return String(value).replace(/‰/g, "").trim();
+
+  return parsed.toFixed(4).replace(".", ",");
+};
+
 const NovaAta = () => {
   const { company } = useAuth();
   const [formData, setFormData] = useState<AtaFormData>(getDefaultFormData());
