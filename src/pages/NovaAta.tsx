@@ -388,7 +388,7 @@ const NovaAta = () => {
                         >
                           <span className="font-medium text-foreground">{c.fracao}</span>
                           <span className="text-muted-foreground">{c.nome}</span>
-                          <span className="ml-auto text-xs text-muted-foreground">{c.permilagem}‰</span>
+                          <span className="ml-auto text-xs text-muted-foreground">{formatPermilagem(c.permilagem)}‰</span>
                         </div>
                       ))}
                     </div>

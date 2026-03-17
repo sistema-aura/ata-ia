@@ -35,13 +35,18 @@ Extrai a informação de todos os condóminos e organiza-os POR ORDEM DE FRAÇÃ
 Devolve APENAS um JSON válido com esta estrutura (sem markdown, sem texto extra):
 {
   "presentes": [
-    {"nome": "Nome", "fracao": "R/C Esq", "nif": "123456789", "permilagem": "50.0000", "representado": false}
+    {"nome": "Nome", "fracao": "R/C Esq", "nif": "123456789", "permilagem": "50,0000", "representado": false}
   ],
   "ausentes": [
-    {"nome": "Nome", "fracao": "1º Dto", "nif": "987654321", "permilagem": "75.0000"}
+    {"nome": "Nome", "fracao": "1º Dto", "nif": "987654321", "permilagem": "75,0000"}
   ],
-  "totalPermilagem": "100.0000"
+  "totalPermilagem": "1000,0000"
 }
+
+REGRAS DAS PERMILAGENS:
+- Usa SEMPRE 4 casas decimais.
+- Usa vírgula como separador decimal.
+- Exemplo correto: "98,0000".
 
 Se algum campo não for legível, coloca "ilegível". 
 Ordena SEMPRE por fração (andar e lado), nunca por ordem alfabética.
