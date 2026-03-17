@@ -91,7 +91,7 @@ const SectionCard = ({
 }: {
   title: string;
   description: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => (
   <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
     <h2 className="mb-1 font-heading text-lg font-semibold text-foreground">{title}</h2>
