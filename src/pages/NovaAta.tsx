@@ -136,14 +136,27 @@ const NovaAta = () => {
   };
 
   const handlePresencasParsed = (data: PresencasData) => {
+    const normalizedData: PresencasData = {
+      ...data,
+      totalPermilagem: formatPermilagem(data.totalPermilagem),
+      presentes: (data.presentes || []).map((c) => ({
+        ...c,
+        permilagem: formatPermilagem(c.permilagem),
+      })),
+      ausentes: (data.ausentes || []).map((c) => ({
+        ...c,
+        permilagem: formatPermilagem(c.permilagem),
+      })),
+    };
+
     setFormData((prev) => ({
       ...prev,
-      presencasData: data,
-      fracoesPresentes: String(data.presentes?.length || ""),
+      presencasData: normalizedData,
+      fracoesPresentes: String(normalizedData.presentes?.length || ""),
       fracoesRepresentadas: String(
-        data.presentes?.filter((c) => c.representado).length || "0"
+        normalizedData.presentes?.filter((c) => c.representado).length || "0"
       ),
-      percentagemPresente: data.totalPermilagem || "",
+      percentagemPresente: normalizedData.totalPermilagem || "",
     }));
     setPresencasParsed(true);
   };
