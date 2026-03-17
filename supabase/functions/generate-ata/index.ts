@@ -122,7 +122,9 @@ Para o ponto de PENALIZAÇÃO/COBRANÇA JUDICIAL, usa o texto padrão fornecido 
 
 Para o ponto de ATUALIZAÇÃO DOS VALORES EM DÍVIDA, usa o texto padrão fornecido como introdução, seguido da lista de dívidas EXATAMENTE como fornecida nos dados. COPIA TAL QUAL, incluindo os "____" nos valores. O utilizador preencherá os valores depois.
 
-Para o ponto de SEGURO DAS FRAÇÕES, usa o texto padrão fornecido TAL QUAL, sem modificar.
+Texto de introdução da secção de dívidas a usar: ${debtSectionIntro}
+Texto do total final da secção de dívidas a usar: ${debtTotalLabel}
+Texto da linha de quota extra a usar: ${debtQuotaExtraLabel}
 
 FORMATO DAS DÍVIDAS (no ponto de atualização dos valores em dívida):
 COPIA A SECÇÃO DE DÍVIDAS TAL QUAL COMO É FORNECIDA NOS DADOS DO UTILIZADOR. NÃO alteres NADA. Mantém os "____" nos campos de quotização, fundo de reserva e totais.
