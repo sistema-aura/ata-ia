@@ -12,6 +12,17 @@ import { AppLayout } from "@/components/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
+const formatPermilagem = (value?: string | number | null) => {
+  if (value === null || value === undefined) return "0,0000";
+
+  const normalized = String(value).trim().replace(/‰/g, "").replace(/\s/g, "").replace(",", ".");
+  const parsed = Number(normalized);
+
+  if (Number.isNaN(parsed)) return String(value).replace(/‰/g, "").trim();
+
+  return parsed.toFixed(4).replace(".", ",");
+};
+
 const NovaAta = () => {
   const { company } = useAuth();
   const [formData, setFormData] = useState<AtaFormData>(getDefaultFormData());
@@ -125,14 +136,27 @@ const NovaAta = () => {
   };
 
   const handlePresencasParsed = (data: PresencasData) => {
+    const normalizedData: PresencasData = {
+      ...data,
+      totalPermilagem: formatPermilagem(data.totalPermilagem),
+      presentes: (data.presentes || []).map((c) => ({
+        ...c,
+        permilagem: formatPermilagem(c.permilagem),
+      })),
+      ausentes: (data.ausentes || []).map((c) => ({
+        ...c,
+        permilagem: formatPermilagem(c.permilagem),
+      })),
+    };
+
     setFormData((prev) => ({
       ...prev,
-      presencasData: data,
-      fracoesPresentes: String(data.presentes?.length || ""),
+      presencasData: normalizedData,
+      fracoesPresentes: String(normalizedData.presentes?.length || ""),
       fracoesRepresentadas: String(
-        data.presentes?.filter((c) => c.representado).length || "0"
+        normalizedData.presentes?.filter((c) => c.representado).length || "0"
       ),
-      percentagemPresente: data.totalPermilagem || "",
+      percentagemPresente: normalizedData.totalPermilagem || "",
     }));
     setPresencasParsed(true);
   };
@@ -345,7 +369,7 @@ const NovaAta = () => {
                           {c.representado && (
                             <span className="text-xs text-accent">(representado)</span>
                           )}
-                          <span className="ml-auto text-xs text-muted-foreground">{c.permilagem}‰</span>
+                          <span className="ml-auto text-xs text-muted-foreground">{formatPermilagem(c.permilagem)}‰</span>
                         </div>
                       ))}
                     </div>
@@ -364,7 +388,7 @@ const NovaAta = () => {
                         >
                           <span className="font-medium text-foreground">{c.fracao}</span>
                           <span className="text-muted-foreground">{c.nome}</span>
-                          <span className="ml-auto text-xs text-muted-foreground">{c.permilagem}‰</span>
+                          <span className="ml-auto text-xs text-muted-foreground">{formatPermilagem(c.permilagem)}‰</span>
                         </div>
                       ))}
                     </div>
