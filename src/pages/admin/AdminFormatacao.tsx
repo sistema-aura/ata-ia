@@ -535,13 +535,44 @@ const AdminFormatacao = () => {
 
             <SectionCard
               title="Instruções Personalizadas para a IA"
-              description="Regras adicionais de escrita, tom, vocabulário e estrutura específica desta empresa."
+              description="Regras adicionais de escrita, tom, vocabulário, estrutura e textos fixos desta empresa."
             >
-              <Textarea
-                value={config.ai_custom_instructions}
-                onChange={(e) => updateField("ai_custom_instructions", e.target.value)}
-                className="min-h-[160px]"
-              />
+              <div className="grid gap-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Introdução da secção de dívidas</Label>
+                  <Textarea
+                    value={config.debt_section_intro_text}
+                    onChange={(e) => updateField("debt_section_intro_text", e.target.value)}
+                    className="mt-1 min-h-[90px]"
+                  />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Texto do total das dívidas</Label>
+                    <Input
+                      value={config.debt_total_label}
+                      onChange={(e) => updateField("debt_total_label", e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Texto da quota extra</Label>
+                    <Input
+                      value={config.debt_quota_extra_label}
+                      onChange={(e) => updateField("debt_quota_extra_label", e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Instruções adicionais para a IA</Label>
+                  <Textarea
+                    value={config.ai_custom_instructions}
+                    onChange={(e) => updateField("ai_custom_instructions", e.target.value)}
+                    className="min-h-[160px] mt-1"
+                  />
+                </div>
+              </div>
             </SectionCard>
 
             <div className="flex justify-between">

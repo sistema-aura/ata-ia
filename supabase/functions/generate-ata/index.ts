@@ -383,7 +383,7 @@ ${formatPresencas(presencasData)}
 
 Pontos da Ordem de Trabalhos:
 ${pontosFormatados}
-${formatDividas(dividasData)}
+${formatDividas(dividasData, companyFormatting)}
 
 ${observacoesAdicionais ? `Observações Adicionais: ${observacoesAdicionais}` : ""}
 
