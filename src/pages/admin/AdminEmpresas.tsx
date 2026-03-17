@@ -221,6 +221,23 @@ const AdminEmpresas = () => {
             ))}
           </div>
         )}
+        <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Eliminar empresa</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tem a certeza que quer eliminar a empresa <strong>{deleteDialog.companyName}</strong>? As atas, pagamentos, tickets, templates e formatações ligados a esta empresa serão removidos.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteCompany} disabled={deletingCompany}>
+                {deletingCompany && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Eliminar empresa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AppLayout>
   );

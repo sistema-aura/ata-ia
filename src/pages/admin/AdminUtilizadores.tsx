@@ -324,6 +324,23 @@ const AdminUtilizadores = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar utilizador</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem a certeza que quer eliminar a conta <strong>{deleteDialog.email}</strong>? Esta ação remove o acesso do utilizador e não pode ser revertida.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser} disabled={deleting}>
+              {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 };
