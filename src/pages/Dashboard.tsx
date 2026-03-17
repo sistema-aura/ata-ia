@@ -2,10 +2,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
-import { FileText, History, LifeBuoy, Plus, AlertTriangle, Copy, KeyRound } from "lucide-react";
+import { FileText, History, LifeBuoy, Plus, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 const Dashboard = () => {
   const { company, profile } = useAuth();
@@ -13,12 +12,6 @@ const Dashboard = () => {
   const [ticketsCount, setTicketsCount] = useState(0);
 
   const isBlocked = company && !company.is_active;
-
-  const copyCompanyCode = async () => {
-    if (!company?.slug) return;
-    await navigator.clipboard.writeText(company.slug);
-    toast.success("Código da empresa copiado");
-  };
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -48,27 +41,6 @@ const Dashboard = () => {
           </h1>
           <p className="mt-1 text-muted-foreground">{company?.name}</p>
         </div>
-
-        {company?.slug && (
-          <div className="mb-8 rounded-lg border border-border bg-card p-5 shadow-document">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <div className="mb-2 flex items-center gap-2">
-                  <KeyRound className="h-4 w-4 text-accent" />
-                  <h2 className="font-heading text-lg font-semibold text-foreground">Código da empresa</h2>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Partilhe este código com os funcionários para criarem conta.
-                </p>
-                <p className="mt-2 font-mono text-lg font-semibold text-foreground">{company.slug}</p>
-              </div>
-              <Button variant="outline" className="gap-2" onClick={copyCompanyCode}>
-                <Copy className="h-4 w-4" />
-                Copiar código
-              </Button>
-            </div>
-          </div>
-        )}
 
         {isBlocked && (
           <div className="mb-8 flex items-start gap-4 rounded-lg border border-destructive/30 bg-destructive/5 p-5">
