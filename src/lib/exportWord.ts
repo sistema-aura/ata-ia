@@ -1,4 +1,4 @@
-import { AlignmentType, Document, Footer, Packer, Paragraph, TextRun, PageNumber } from "docx";
+import { AlignmentType, Document, Footer, Packer, Paragraph, SimpleField, TextRun } from "docx";
 import { saveAs } from "file-saver";
 
 export interface WordFormattingConfig {
