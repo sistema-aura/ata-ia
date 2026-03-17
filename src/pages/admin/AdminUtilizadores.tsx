@@ -214,7 +214,7 @@ const AdminUtilizadores = () => {
                         setSelectedCompanyId(p.company_id || "none");
                       }}
                     >
-                      <Building2 className="h-3.5 w-3.5 mr-1" />
+                      <Building2 className="mr-1 h-3.5 w-3.5" />
                       Empresa
                     </Button>
                     <Button
@@ -222,8 +222,16 @@ const AdminUtilizadores = () => {
                       size="sm"
                       onClick={() => setResetDialog({ open: true, userId: p.id, email: p.email })}
                     >
-                      <KeyRound className="h-3.5 w-3.5 mr-1" />
+                      <KeyRound className="mr-1 h-3.5 w-3.5" />
                       Password
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setDeleteDialog({ open: true, userId: p.id, email: p.email })}
+                    >
+                      <Trash2 className="mr-1 h-3.5 w-3.5" />
+                      Eliminar
                     </Button>
                   </div>
                 </div>
