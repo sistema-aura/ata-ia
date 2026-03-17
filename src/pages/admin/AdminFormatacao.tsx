@@ -521,10 +521,36 @@ const AdminFormatacao = () => {
             </SectionCard>
 
             <SectionCard
-              title="Textos Base da Ata"
-              description={`Estes textos passam a servir de base automática para ${selectedCompany?.name}. Podes usar placeholders como [percentagem], [nome presidente], [hora] e [minutos].`}
+              title="Estrutura Completa da Ata"
+              description={`Agora podes definir quase toda a estrutura base usada para ${selectedCompany?.name}. Usa placeholders como [data por extenso], [hora], [local], [titulo], [Texto da deliberação], [Descrição fração], [valor numérico] e [ano].`}
             >
               <div className="grid gap-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Parágrafo de abertura</Label>
+                  <Textarea
+                    value={config.opening_paragraph_template}
+                    onChange={(e) => updateField("opening_paragraph_template", e.target.value)}
+                    className="mt-1 min-h-[120px]"
+                  />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Template de cada item da ordem de trabalhos</Label>
+                    <Input
+                      value={config.agenda_item_template}
+                      onChange={(e) => updateField("agenda_item_template", e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Template de cada ponto deliberado</Label>
+                    <Input
+                      value={config.point_paragraph_template}
+                      onChange={(e) => updateField("point_paragraph_template", e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">Texto antes das presenças</Label>
                   <Textarea
@@ -534,10 +560,26 @@ const AdminFormatacao = () => {
                   />
                 </div>
                 <div>
+                  <Label className="text-xs text-muted-foreground">Template de cada presente</Label>
+                  <Textarea
+                    value={config.attendance_item_template}
+                    onChange={(e) => updateField("attendance_item_template", e.target.value)}
+                    className="mt-1 min-h-[90px]"
+                  />
+                </div>
+                <div>
                   <Label className="text-xs text-muted-foreground">Texto antes dos ausentes</Label>
                   <Textarea
                     value={config.absentees_intro_text}
                     onChange={(e) => updateField("absentees_intro_text", e.target.value)}
+                    className="mt-1 min-h-[90px]"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Template de cada ausente</Label>
+                  <Textarea
+                    value={config.absentee_item_template}
+                    onChange={(e) => updateField("absentee_item_template", e.target.value)}
                     className="mt-1 min-h-[90px]"
                   />
                 </div>
@@ -557,20 +599,30 @@ const AdminFormatacao = () => {
                     className="mt-1 min-h-[110px]"
                   />
                 </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Título da assinatura principal</Label>
-                  <Input
-                    value={config.signatures_title}
-                    onChange={(e) => updateField("signatures_title", e.target.value)}
-                    className="mt-1 max-w-sm"
-                  />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Título da assinatura principal</Label>
+                    <Input
+                      value={config.signatures_title}
+                      onChange={(e) => updateField("signatures_title", e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Template de cada assinatura de fração</Label>
+                    <Input
+                      value={config.signature_item_template}
+                      onChange={(e) => updateField("signature_item_template", e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
               </div>
             </SectionCard>
 
             <SectionCard
-              title="Instruções Personalizadas para a IA"
-              description="Regras adicionais de escrita, tom, vocabulário, estrutura e textos fixos desta empresa."
+              title="Dívidas e regras finais da IA"
+              description="Aqui defines como a secção de dívidas e as instruções extra devem sair na ata desta empresa."
             >
               <div className="grid gap-4">
                 <div>
@@ -580,6 +632,24 @@ const AdminFormatacao = () => {
                     onChange={(e) => updateField("debt_section_intro_text", e.target.value)}
                     className="mt-1 min-h-[90px]"
                   />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Template do cabeçalho da dívida</Label>
+                    <Textarea
+                      value={config.debt_header_template}
+                      onChange={(e) => updateField("debt_header_template", e.target.value)}
+                      className="mt-1 min-h-[90px]"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Template da linha de detalhe da dívida</Label>
+                    <Textarea
+                      value={config.debt_detail_template}
+                      onChange={(e) => updateField("debt_detail_template", e.target.value)}
+                      className="mt-1 min-h-[90px]"
+                    />
+                  </div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
@@ -604,7 +674,7 @@ const AdminFormatacao = () => {
                   <Textarea
                     value={config.ai_custom_instructions}
                     onChange={(e) => updateField("ai_custom_instructions", e.target.value)}
-                    className="min-h-[160px] mt-1"
+                    className="mt-1 min-h-[160px]"
                   />
                 </div>
               </div>
