@@ -317,7 +317,7 @@ serve(async (req) => {
         const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
         if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
           const fmtResp = await fetch(
-            `${SUPABASE_URL}/rest/v1/company_formatting?company_id=eq.${formData.companyId}&select=ai_custom_instructions,nome_empresa_ata,nif_empresa,morada_empresa,attendance_intro_text,absentees_intro_text,legal_opening_text,closing_text,signatures_title`,
+            `${SUPABASE_URL}/rest/v1/company_formatting?company_id=eq.${formData.companyId}&select=ai_custom_instructions,nome_empresa_ata,nif_empresa,morada_empresa,attendance_intro_text,absentees_intro_text,legal_opening_text,closing_text,signatures_title,debt_section_intro_text,debt_total_label,debt_quota_extra_label`,
             {
               headers: {
                 apikey: SUPABASE_SERVICE_ROLE_KEY,
