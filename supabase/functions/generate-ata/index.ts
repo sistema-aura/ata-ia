@@ -226,13 +226,25 @@ function parseObservacoesToPeriods(obs: string): string[] {
   return lines;
 }
 
-function formatDividas(dividasData: any): string {
+function formatDividas(
+  dividasData: any,
+  companyFormatting: CompanyFormattingTexts = {}
+): string {
   if (!dividasData?.dividas?.length) return "";
+
+  const debtSectionIntro =
+    companyFormatting.debt_section_intro_text?.trim() ||
+    DEFAULT_COMPANY_TEXTS.debt_section_intro_text;
+  const debtTotalLabel =
+    companyFormatting.debt_total_label?.trim() || DEFAULT_COMPANY_TEXTS.debt_total_label;
+  const debtQuotaExtraLabel =
+    companyFormatting.debt_quota_extra_label?.trim() ||
+    DEFAULT_COMPANY_TEXTS.debt_quota_extra_label;
 
   const formatDetalhe = (det: any): string => {
     if (det.quotaExtra) {
       const totalVal = det.total || "____";
-      return `o  Quota extra ${det.quotaExtra} (€ ${totalVal});`;
+      return `o  ${debtQuotaExtraLabel} ${det.quotaExtra} (€ ${totalVal});`;
     }
     const meses =
       det.mesInicio === det.mesFim
@@ -245,7 +257,7 @@ function formatDividas(dividasData: any): string {
   };
 
   return (
-    `\n\nDÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):\n` +
+    `\n\n${debtSectionIntro}\n` +
     dividasData.dividas
       .map((d: any) => {
         const header = `✓ Fração ${d.fracao} – ${d.descricao || d.fracao} – [VALOR POR EXTENSO de ${d.valorDivida}€] (€ ${d.valorDivida}) correspondentes:`;
@@ -261,7 +273,7 @@ function formatDividas(dividasData: any): string {
         return header;
       })
       .join("\n") +
-    `\nTotal geral em dívida ao condomínio: ${dividasData.totalDivida}€`
+    `\n${debtTotalLabel} ${dividasData.totalDivida}€`
   );
 }
 
