@@ -37,7 +37,7 @@ const DEFAULT_COMPANY_TEXTS: Required<CompanyFormattingTexts> = {
     "• [Nome completo], proprietário da fração [X], correspondente ao [descrição], representando [permilagem] % do capital total do edifício;",
   legal_opening_text:
     "Os condóminos presentes representam [SOMA das permilagens dos presentes]‰ da permilagem total do imóvel, correspondentes a [percentagem] % do Capital Total do Edifício, nos termos do art.º 1432.º, do CC, o que permite deliberar sobre os assuntos constantes da ordem de trabalhos. Exerceu as funções de presidente o Sr. [nome presidente].",
-  point_paragraph_template: "Ponto [número por extenso]: [Título]- [Texto da deliberação]",
+  point_paragraph_template: "Ponto [número cardinal por extenso (Um, Dois, Três, Quatro, Cinco, Seis, Sete, Oito, Nove, Dez)]: [Título]- [Texto da deliberação]",
   closing_text:
     "Nada mais havendo a acrescentar, deu-se por encerrada a Assembleia cerca das [hora] horas e [minutos] minutos, sendo lavrada a presente ata que depois de lida e aprovada vai ser assinada por todos os condóminos presentes.",
   signatures_title: "Presidente:",
@@ -120,11 +120,16 @@ REGRAS OBRIGATÓRIAS:
 - Os textos configurados desta empresa devem ser respeitados exatamente, adaptando apenas os placeholders entre [ ].
 - Se o template usar placeholders como [numero], [titulo], [Nome completo], [Descrição fração], [valor numérico], [ano], tens de os preencher com os dados corretos.
 - Se o template tiver pontuação própria, mantém essa pontuação.
+- A numeração dos pontos DEVE usar números cardinais por extenso: Ponto Um, Ponto Dois, Ponto Três, Ponto Quatro, Ponto Cinco, Ponto Seis, Ponto Sete, Ponto Oito, Ponto Nove, Ponto Dez. NUNCA uses ordinais (primeiro, segundo, terceiro).
 
-TEXTOS FIXOS OBRIGATÓRIOS (quando o ponto é marcado como "padrão", usa o texto fornecido na descricaoPadrao TAL QUAL, sem alterar nem resumir):
-- Para o ponto de APRESENTAÇÃO DAS CONTAS, usa o texto padrão fornecido. Se tiver notas adicionais com valores de saldo, preenche os espaços em branco.
-- Para o ponto de ELEIÇÃO DA ADMINISTRAÇÃO, usa SEMPRE o texto padrão fornecido pelo utilizador sem alterar conteúdo base, preenchendo apenas espaços em branco quando existirem notas.
-- Para o ponto de ORÇAMENTO PREVISIONAL, usa o texto padrão fornecido. Se tiver notas adicionais com valores, preenche os espaços em branco.
+TEXTOS PRESET OBRIGATÓRIOS — REGRA CRÍTICA:
+- Quando um ponto é marcado como "padrão", o campo descricaoPadrao contém o texto COMPLETO que DEVE ser usado TAL QUAL na ata.
+- NÃO resumas, NÃO encurtes, NÃO reformules, NÃO omitas nenhuma parte do texto padrão.
+- Copia o texto padrão PALAVRA POR PALAVRA, apenas preenchendo espaços em branco (____) quando existirem notas adicionais com valores.
+- Se o texto padrão tiver vários parágrafos, mantém todos.
+- Para o ponto de APRESENTAÇÃO DAS CONTAS, usa o texto padrão fornecido COMPLETO.
+- Para o ponto de ELEIÇÃO DA ADMINISTRAÇÃO, usa o texto padrão fornecido COMPLETO.
+- Para o ponto de ORÇAMENTO PREVISIONAL, usa o texto padrão fornecido COMPLETO.
 - Para o ponto de PENALIZAÇÃO/COBRANÇA JUDICIAL, usa o texto padrão fornecido TAL QUAL, sem modificar nenhuma palavra.
 - Para o ponto de ATUALIZAÇÃO DOS VALORES EM DÍVIDA, usa o texto padrão fornecido como introdução, seguido da lista de dívidas EXATAMENTE como fornecida nos dados.
 
