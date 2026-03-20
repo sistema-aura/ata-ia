@@ -116,6 +116,7 @@ REGRAS OBRIGATÓRIAS:
 - NÃO inventes dados — usa apenas a informação fornecida.
 - Condóminos SEMPRE por ordem de fração.
 - Todas as permilagens devem ser apresentadas com 4 casas decimais e vírgula decimal, por exemplo: 98,0000‰.
+- Todas as percentagens (%) devem ser apresentadas com 2 casas decimais e vírgula decimal, por exemplo: 50,88%.
 - Os textos configurados desta empresa devem ser respeitados exatamente, adaptando apenas os placeholders entre [ ].
 - Se o template usar placeholders como [numero], [titulo], [Nome completo], [Descrição fração], [valor numérico], [ano], tens de os preencher com os dados corretos.
 - Se o template tiver pontuação própria, mantém essa pontuação.
