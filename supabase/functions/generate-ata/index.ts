@@ -389,14 +389,28 @@ serve(async (req) => {
       }
     }
 
-    const pontosFormatados = pontosOrdemDia
+    const cardinais = ["Um", "Dois", "Três", "Quatro", "Cinco", "Seis", "Sete", "Oito", "Nove", "Dez"];
+    const getRotuloPonto = (index: number) => `Ponto ${cardinais[index] || String(index + 1)}:`;
+
+    const pontosFormatados = (pontosOrdemDia || [])
       .map((p: any, i: number) => {
+        const rotulo = getRotuloPonto(i);
+
         if (p.tipo === "padrao") {
-          return `Ponto ${i + 1} (padrão): ${p.titulo} - ${p.descricaoPadrao}${p.notas ? ` | Notas adicionais: ${p.notas}` : ""}`;
+          return [
+            `${rotulo} ${p.titulo}`,
+            "TEXTO_PRESET_OBRIGATORIO_INICIO",
+            p.descricaoPadrao || "",
+            "TEXTO_PRESET_OBRIGATORIO_FIM",
+            p.notas ? `NOTAS_ADICIONAIS: ${p.notas}` : "",
+          ]
+            .filter(Boolean)
+            .join("\n");
         }
-        return `Ponto ${i + 1} (personalizado): ${p.titulo} - Notas: ${p.notas || "Sem notas"}`;
+
+        return `${rotulo} ${p.titulo} - ${p.notas || "Sem notas"}`;
       })
-      .join("\n");
+      .join("\n\n");
 
     let systemPrompt = buildSystemPrompt(companyFormatting);
     if (customInstructions) {
@@ -425,6 +439,11 @@ ${formatPresencas(presencasData)}
 
 Pontos da Ordem de Trabalhos:
 ${pontosFormatados}
+
+INSTRUÇÕES CRÍTICAS PARA OS PONTOS:
+- Usa exatamente os rótulos fornecidos (Ponto Um:, Ponto Dois:, ...). Nunca uses "primeiro", "segundo" ou ordinais.
+- Sempre que existir TEXTO_PRESET_OBRIGATORIO_INICIO/FIM, copia o conteúdo entre esses marcadores palavra por palavra, sem resumir e sem alterar.
+
 ${formatDividas(dividasData, companyFormatting)}
 
 ${observacoesAdicionais ? `Observações Adicionais: ${observacoesAdicionais}` : ""}
