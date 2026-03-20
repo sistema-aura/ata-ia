@@ -161,17 +161,20 @@ export async function exportAtaToWord(
       continue;
     }
 
-    const pontoMatch = clean.match(/^(Ponto\s+\w+:\s*[^-]*-?\s*)(.*)/i);
+    const pontoMatch = clean.match(/^(Ponto\s+\w+\s*:)\s*(.*)/i);
     if (pontoMatch) {
+      const children: any[] = [
+        new TextRun({ text: pontoMatch[1], bold: true, size, font }),
+      ];
+      if (pontoMatch[2]) {
+        children.push(new TextRun({ text: " " + pontoMatch[2], size, font }));
+      }
       paragraphs.push(
         new Paragraph({
           alignment: bodyAlignment,
           indent: { firstLine: firstLineIndent },
           spacing: { line: lineSpacing, before: 240, after: paragraphSpacingAfter },
-          children: [
-            new TextRun({ text: pontoMatch[1], bold: true, size, font }),
-            new TextRun({ text: pontoMatch[2] || "", size, font }),
-          ],
+          children,
         })
       );
       continue;
@@ -205,7 +208,7 @@ export async function exportAtaToWord(
 
   footerParagraphs.push(
     new Paragraph({
-      alignment: AlignmentType.CENTER,
+      alignment: AlignmentType.RIGHT,
       spacing: { before: 120 },
       children: [
         new TextRun({ text: "Página ", size: size - 2, font }),
