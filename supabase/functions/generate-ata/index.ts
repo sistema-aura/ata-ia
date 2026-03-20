@@ -37,7 +37,7 @@ const DEFAULT_COMPANY_TEXTS: Required<CompanyFormattingTexts> = {
     "• [Nome completo], proprietário da fração [X], correspondente ao [descrição], representando [permilagem] % do capital total do edifício;",
   legal_opening_text:
     "Os condóminos presentes representam [SOMA das permilagens dos presentes]‰ da permilagem total do imóvel, correspondentes a [percentagem] % do Capital Total do Edifício, nos termos do art.º 1432.º, do CC, o que permite deliberar sobre os assuntos constantes da ordem de trabalhos. Exerceu as funções de presidente o Sr. [nome presidente].",
-  point_paragraph_template: "Ponto [número por extenso]: [Título]- [Texto da deliberação]",
+  point_paragraph_template: "Ponto [número cardinal por extenso (Um, Dois, Três, Quatro, Cinco, Seis, Sete, Oito, Nove, Dez)]: [Título]- [Texto da deliberação]",
   closing_text:
     "Nada mais havendo a acrescentar, deu-se por encerrada a Assembleia cerca das [hora] horas e [minutos] minutos, sendo lavrada a presente ata que depois de lida e aprovada vai ser assinada por todos os condóminos presentes.",
   signatures_title: "Presidente:",
