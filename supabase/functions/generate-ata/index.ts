@@ -157,10 +157,13 @@ function stripFracaoPrefix(fracao: string, descricao: string): string {
 
 function splitFracao(fracao: string): { code: string; desc: string } {
   // Split "0-C - R/C C" into code "0-C" and description "R/C C"
-  // Match the first part (fraction code) separated by " - " from the description
-  const match = fracao.match(/^(\S+)\s*[-–]\s*(.+)$/);
-  if (match) {
-    return { code: match[1], desc: match[2].trim() };
+  // Use explicit " - " (space-dash-space) or " – " as separator
+  const sepIndex = fracao.indexOf(" - ");
+  const enDashIndex = fracao.indexOf(" – ");
+  const idx = sepIndex !== -1 ? sepIndex : enDashIndex;
+  if (idx !== -1) {
+    const sep = sepIndex !== -1 ? " - " : " – ";
+    return { code: fracao.substring(0, idx), desc: fracao.substring(idx + sep.length).trim() };
   }
   return { code: fracao, desc: fracao };
 }
