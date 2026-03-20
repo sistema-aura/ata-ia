@@ -142,10 +142,19 @@ FORMATO DAS DÍVIDAS:
 - Não uses tabelas.`;
 }
 
+function stripFracaoPrefix(fracao: string, descricao: string): string {
+  if (!descricao) return fracao;
+  // Remove prefix like "H - " or "A - " from description to keep only the floor/unit part
+  const stripped = descricao.replace(/^[A-Za-z0-9]+\s*[-–]\s*/, "").trim();
+  return stripped || descricao;
+}
+
 function formatPresencas(presencasData: any): string {
   if (!presencasData) return "";
-  const fmt = (c: any) =>
-    `${c.nome}, proprietário da fração ${c.fracao}, correspondente ao ${c.descricao || c.fracao}, representando ${c.permilagem} % do capital total do edifício${c.representado ? " (representado)" : ""}`;
+  const fmt = (c: any) => {
+    const desc = stripFracaoPrefix(c.fracao, c.descricao || c.fracao);
+    return `${c.nome}, proprietário da fração ${c.fracao}, correspondente ao ${desc}, representando ${c.permilagem} % do capital total do edifício${c.representado ? " (representado)" : ""}`;
+  };
 
   let result = "";
   if (presencasData.presentes?.length) {
