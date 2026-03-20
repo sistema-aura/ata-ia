@@ -205,7 +205,7 @@ export async function exportAtaToWord(
 
   footerParagraphs.push(
     new Paragraph({
-      alignment: AlignmentType.CENTER,
+      alignment: AlignmentType.RIGHT,
       spacing: { before: 120 },
       children: [
         new TextRun({ text: "Página ", size: size - 2, font }),
