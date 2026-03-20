@@ -149,11 +149,22 @@ function stripFracaoPrefix(fracao: string, descricao: string): string {
   return stripped || descricao;
 }
 
+function splitFracao(fracao: string): { code: string; desc: string } {
+  // Split "0-C - R/C C" into code "0-C" and description "R/C C"
+  // Match the first part (fraction code) separated by " - " from the description
+  const match = fracao.match(/^(\S+)\s*[-–]\s*(.+)$/);
+  if (match) {
+    return { code: match[1], desc: match[2].trim() };
+  }
+  return { code: fracao, desc: fracao };
+}
+
 function formatPresencas(presencasData: any): string {
   if (!presencasData) return "";
   const fmt = (c: any) => {
-    const desc = stripFracaoPrefix(c.fracao, c.descricao || c.fracao);
-    return `${c.nome}, proprietário da fração ${c.fracao}, correspondente ao ${desc}, representando ${c.permilagem} % do capital total do edifício${c.representado ? " (representado)" : ""}`;
+    const { code, desc } = splitFracao(c.fracao);
+    const nifPart = c.nif ? `, com NIF ${c.nif},` : ",";
+    return `${c.nome}${nifPart} proprietário da fração ${code}, correspondente ao ${desc}, representando ${c.permilagem} ‰ do capital total do edifício${c.representado ? " (representado)" : ""}`;
   };
 
   let result = "";
