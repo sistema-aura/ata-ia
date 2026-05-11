@@ -7,15 +7,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Dashboard from "./pages/Dashboard";
 import NovaAta from "./pages/NovaAta";
 import Historico from "./pages/Historico";
-import Suporte from "./pages/Suporte";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminCodigosEmpresa from "./pages/admin/AdminCodigosEmpresa";
-import AdminEmpresas from "./pages/admin/AdminEmpresas";
-import AdminUtilizadores from "./pages/admin/AdminUtilizadores";
-import AdminTickets from "./pages/admin/AdminTickets";
 import AdminTemplates from "./pages/admin/AdminTemplates";
-import AdminPagamentos from "./pages/admin/AdminPagamentos";
-import AdminPrecos from "./pages/admin/AdminPrecos";
 import AdminFormatacao from "./pages/admin/AdminFormatacao";
 import NotFound from "./pages/NotFound";
 
@@ -35,16 +28,9 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/nova-ata" element={<NovaAta />} />
             <Route path="/historico" element={<Historico />} />
-            <Route path="/suporte" element={<Suporte />} />
             <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/codigos-empresa" element={<AdminCodigosEmpresa />} />
-            <Route path="/admin/empresas" element={<AdminEmpresas />} />
-            <Route path="/admin/utilizadores" element={<AdminUtilizadores />} />
-            <Route path="/admin/tickets" element={<AdminTickets />} />
             <Route path="/admin/templates" element={<AdminTemplates />} />
             <Route path="/admin/formatacao" element={<AdminFormatacao />} />
-            <Route path="/admin/precos" element={<AdminPrecos />} />
-            <Route path="/admin/pagamentos" element={<AdminPagamentos />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
