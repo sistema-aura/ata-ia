@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -12,22 +11,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FileText, History, LifeBuoy, LogOut, LayoutDashboard, Building2, Users, Shield, HelpCircle, Wallet, Tag, Palette, KeyRound } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { FileText, History, LifeBuoy, LayoutDashboard, Building2, Users, Shield, HelpCircle, Wallet, Tag, Palette, KeyRound } from "lucide-react";
 
 export const AppSidebar = () => {
-  const { isAdmin, company, profile, signOut } = useAuth();
+  const { company } = useAuth();
   const location = useLocation();
 
-  const isBlocked = !isAdmin && company && !company.is_active;
-
-  const companyMenuItems = [
+  const menuItems = [
     { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-    { title: "Código da Empresa", icon: KeyRound, path: "/codigo-empresa" },
-    ...(!isBlocked ? [
-      { title: "Nova Ata", icon: FileText, path: "/nova-ata" },
-      { title: "Histórico", icon: History, path: "/historico" },
-    ] : []),
+    { title: "Nova Ata", icon: FileText, path: "/nova-ata" },
+    { title: "Histórico", icon: History, path: "/historico" },
     { title: "Suporte", icon: LifeBuoy, path: "/suporte" },
   ];
 
@@ -43,8 +36,6 @@ export const AppSidebar = () => {
     { title: "Pagamentos", icon: Wallet, path: "/admin/pagamentos" },
   ];
 
-  const menuItems = isAdmin ? adminMenuItems : companyMenuItems;
-
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-border p-4">
@@ -57,7 +48,7 @@ export const AppSidebar = () => {
               Atas<span className="text-gradient-gold">IA</span>
             </h2>
             <p className="text-xs text-muted-foreground truncate">
-              {isAdmin ? "Administração" : company?.name || profile?.email}
+              {company?.name || "Empresa"}
             </p>
           </div>
         </div>
@@ -65,7 +56,7 @@ export const AppSidebar = () => {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{isAdmin ? "Administração" : "Menu"}</SidebarGroupLabel>
+          <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -81,14 +72,25 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-      </SidebarContent>
 
-      <SidebarFooter className="border-t border-border p-4">
-        <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground" onClick={signOut}>
-          <LogOut className="h-4 w-4" />
-          Sair
-        </Button>
-      </SidebarFooter>
+        <SidebarGroup>
+          <SidebarGroupLabel>Administração</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {adminMenuItems.map((item) => (
+                <SidebarMenuItem key={item.path}>
+                  <SidebarMenuButton asChild isActive={location.pathname === item.path}>
+                    <Link to={item.path}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
     </Sidebar>
   );
 };
