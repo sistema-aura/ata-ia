@@ -7,7 +7,6 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Dashboard from "./pages/Dashboard";
 import NovaAta from "./pages/NovaAta";
 import Historico from "./pages/Historico";
-import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminTemplates from "./pages/admin/AdminTemplates";
 import AdminFormatacao from "./pages/admin/AdminFormatacao";
 import NotFound from "./pages/NotFound";
@@ -25,12 +24,14 @@ const App = () => (
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/login" element={<Navigate to="/dashboard" replace />} />
             <Route path="/signup" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/nova-ata" element={<NovaAta />} />
             <Route path="/historico" element={<Historico />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/templates" element={<AdminTemplates />} />
-            <Route path="/admin/formatacao" element={<AdminFormatacao />} />
+            <Route path="/templates" element={<AdminTemplates />} />
+            <Route path="/formatacao" element={<AdminFormatacao />} />
+            <Route path="/admin/templates" element={<Navigate to="/templates" replace />} />
+            <Route path="/admin/formatacao" element={<Navigate to="/formatacao" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

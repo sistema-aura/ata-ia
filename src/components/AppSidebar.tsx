@@ -21,12 +21,8 @@ export const AppSidebar = () => {
     { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
     { title: "Nova Ata", icon: FileText, path: "/nova-ata" },
     { title: "Histórico", icon: History, path: "/historico" },
-  ];
-
-  const adminMenuItems = [
-    { title: "Painel Admin", icon: Shield, path: "/admin" },
-    { title: "Templates", icon: FileText, path: "/admin/templates" },
-    { title: "Formatação", icon: Palette, path: "/admin/formatacao" },
+    { title: "Templates", icon: FileText, path: "/templates" },
+    { title: "Formatação", icon: Palette, path: "/formatacao" },
   ];
 
   return (
@@ -53,24 +49,6 @@ export const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton asChild isActive={location.pathname === item.path}>
-                    <Link to={item.path}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Administração</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {adminMenuItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton asChild isActive={location.pathname === item.path}>
                     <Link to={item.path}>
