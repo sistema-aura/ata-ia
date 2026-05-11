@@ -21,19 +21,12 @@ export const AppSidebar = () => {
     { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
     { title: "Nova Ata", icon: FileText, path: "/nova-ata" },
     { title: "Histórico", icon: History, path: "/historico" },
-    { title: "Suporte", icon: LifeBuoy, path: "/suporte" },
   ];
 
   const adminMenuItems = [
     { title: "Painel Admin", icon: Shield, path: "/admin" },
-    { title: "Códigos", icon: KeyRound, path: "/admin/codigos-empresa" },
-    { title: "Empresas", icon: Building2, path: "/admin/empresas" },
-    { title: "Utilizadores", icon: Users, path: "/admin/utilizadores" },
-    { title: "Tickets", icon: HelpCircle, path: "/admin/tickets" },
     { title: "Templates", icon: FileText, path: "/admin/templates" },
     { title: "Formatação", icon: Palette, path: "/admin/formatacao" },
-    { title: "Preços", icon: Tag, path: "/admin/precos" },
-    { title: "Pagamentos", icon: Wallet, path: "/admin/pagamentos" },
   ];
 
   return (
