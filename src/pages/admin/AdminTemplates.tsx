@@ -133,7 +133,7 @@ const AdminTemplates = () => {
     <AppLayout>
       <div className="container max-w-4xl py-8">
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/admin/empresas")}>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/admin")}>
             <ArrowLeft className="h-4 w-4 mr-1" />
             Voltar
           </Button>
