@@ -4,12 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
-import CodigoEmpresa from "./pages/CodigoEmpresa";
 import NovaAta from "./pages/NovaAta";
 import Historico from "./pages/Historico";
 import Suporte from "./pages/Suporte";
@@ -34,24 +29,22 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/codigo-empresa" element={<ProtectedRoute><CodigoEmpresa /></ProtectedRoute>} />
-            <Route path="/nova-ata" element={<ProtectedRoute requireActive><NovaAta /></ProtectedRoute>} />
-            <Route path="/historico" element={<ProtectedRoute requireActive><Historico /></ProtectedRoute>} />
-            <Route path="/suporte" element={<ProtectedRoute><Suporte /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/codigos-empresa" element={<ProtectedRoute requireAdmin><AdminCodigosEmpresa /></ProtectedRoute>} />
-            <Route path="/admin/empresas" element={<ProtectedRoute requireAdmin><AdminEmpresas /></ProtectedRoute>} />
-            <Route path="/admin/utilizadores" element={<ProtectedRoute requireAdmin><AdminUtilizadores /></ProtectedRoute>} />
-            <Route path="/admin/tickets" element={<ProtectedRoute requireAdmin><AdminTickets /></ProtectedRoute>} />
-            <Route path="/admin/templates" element={<ProtectedRoute requireAdmin><AdminTemplates /></ProtectedRoute>} />
-            <Route path="/admin/pagamentos" element={<ProtectedRoute requireAdmin><AdminPagamentos /></ProtectedRoute>} />
-            <Route path="/admin/precos" element={<ProtectedRoute requireAdmin><AdminPrecos /></ProtectedRoute>} />
-            <Route path="/admin/formatacao" element={<ProtectedRoute requireAdmin><AdminFormatacao /></ProtectedRoute>} />
+            <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/signup" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/nova-ata" element={<NovaAta />} />
+            <Route path="/historico" element={<Historico />} />
+            <Route path="/suporte" element={<Suporte />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/codigos-empresa" element={<AdminCodigosEmpresa />} />
+            <Route path="/admin/empresas" element={<AdminEmpresas />} />
+            <Route path="/admin/utilizadores" element={<AdminUtilizadores />} />
+            <Route path="/admin/tickets" element={<AdminTickets />} />
+            <Route path="/admin/templates" element={<AdminTemplates />} />
+            <Route path="/admin/formatacao" element={<AdminFormatacao />} />
+            <Route path="/admin/precos" element={<AdminPrecos />} />
+            <Route path="/admin/pagamentos" element={<AdminPagamentos />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
