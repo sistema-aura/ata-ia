@@ -160,12 +160,6 @@ const Login = () => {
             Continuar com Google
           </Button>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Não tem conta?{" "}
-            <Link to="/signup" className="text-accent hover:underline font-medium">
-              Cria uma!
-            </Link>
-          </p>
         </div>
       </div>
     </div>
