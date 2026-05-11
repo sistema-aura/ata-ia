@@ -1,24 +1,5 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
-
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  isAdmin: boolean;
-  profile: Profile | null;
-  company: Company | null;
-  signOut: () => Promise<void>;
-}
-
-interface Profile {
-  id: string;
-  email: string;
-  full_name: string | null;
-  avatar_url: string | null;
-  company_id: string | null;
-}
 
 interface Company {
   id: string;
@@ -29,12 +10,49 @@ interface Company {
   subscription_status: string | null;
 }
 
+interface Profile {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  company_id: string | null;
+}
+
+interface FakeUser {
+  id: string;
+  email: string;
+}
+
+interface AuthContextType {
+  user: FakeUser | null;
+  session: null;
+  loading: boolean;
+  isAdmin: boolean;
+  profile: Profile | null;
+  company: Company | null;
+  signOut: () => Promise<void>;
+}
+
+// App pública sem autenticação: utilizador "anónimo" sintético + empresa padrão.
+const ANON_USER: FakeUser = {
+  id: "00000000-0000-0000-0000-000000000000",
+  email: "publico@app.local",
+};
+
+const ANON_PROFILE: Profile = {
+  id: ANON_USER.id,
+  email: ANON_USER.email,
+  full_name: "",
+  avatar_url: null,
+  company_id: null,
+};
+
 const AuthContext = createContext<AuthContextType>({
-  user: null,
+  user: ANON_USER,
   session: null,
   loading: true,
-  isAdmin: false,
-  profile: null,
+  isAdmin: true,
+  profile: ANON_PROFILE,
   company: null,
   signOut: async () => {},
 });
@@ -42,85 +60,37 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
-
-  const fetchUserData = async (userId: string) => {
-    // Fetch profile
-    const { data: profileData } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-
-    if (profileData) {
-      setProfile(profileData as Profile);
-
-      // Fetch company if has one
-      if (profileData.company_id) {
-        const { data: companyData } = await supabase
-          .from("companies")
-          .select("*")
-          .eq("id", profileData.company_id)
-          .single();
-        setCompany(companyData as Company | null);
-      }
-    }
-
-    // Check admin role
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-
-    setIsAdmin(roles?.some((r) => r.role === "admin") ?? false);
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Use setTimeout to avoid deadlock with Supabase auth
-          setTimeout(() => fetchUserData(session.user.id), 0);
-        } else {
-          setProfile(null);
-          setCompany(null);
-          setIsAdmin(false);
-        }
-        setLoading(false);
-      }
-    );
+    (async () => {
+      const { data } = await supabase
+        .from("companies")
+        .select("*")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserData(session.user.id);
+      if (data) {
+        setCompany(data as Company);
       }
       setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    })();
   }, []);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setProfile(null);
-    setCompany(null);
-    setIsAdmin(false);
-  };
-
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, profile, company, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user: ANON_USER,
+        session: null,
+        loading,
+        isAdmin: true,
+        profile: { ...ANON_PROFILE, company_id: company?.id ?? null },
+        company,
+        signOut: async () => {},
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
