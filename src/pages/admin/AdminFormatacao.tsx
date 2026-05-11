@@ -263,7 +263,7 @@ const AdminFormatacao = () => {
     <AppLayout>
       <div className="container max-w-5xl py-8">
         <div className="mb-8 flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/admin/empresas")}>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/admin")}>
             <ArrowLeft className="mr-1 h-4 w-4" />
             Voltar
           </Button>
