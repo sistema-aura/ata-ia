@@ -1,57 +1,32 @@
+# Tornar a app 100% pública (sem login)
 
+## O que muda no comportamento
 
-## Problem
+- Já não há páginas `/login`, `/signup`, `/reset-password`. A raiz `/` abre direto no Dashboard.
+- Toda a gente que abrir o URL acede a tudo: Dashboard, Nova Ata, Histórico, Suporte, **e também todo o painel Admin** (Templates, Formatação, Preços, Pagamentos, Empresas, Utilizadores, Códigos, Tickets).
+- Deixa de existir o conceito de "empresa do utilizador". A app passa a operar sobre **uma única empresa fixa** (a primeira/única na base de dados) para que templates, formatação, histórico e dívidas continuem a funcionar.
+- A barra lateral deixa de mostrar email/empresa e o botão "Sair".
 
-The current approach sends **all** the preset texts to the AI and asks it to "copy them word for word." This is fundamentally unreliable — LLMs rephrase, summarize, and alter text regardless of how many times you tell them not to. The company formatting templates and preset texts you configured are being ignored or modified because the AI treats them as suggestions, not commands.
+## O que vou alterar
 
-## Solution: Build the Ata Deterministically in Code
+### Frontend
+- `src/App.tsx`: remover rotas de auth, remover `AuthProvider` e `ProtectedRoute`, redirecionar `/` → `/dashboard`. Todas as rotas (incluindo `/admin/*`) ficam públicas.
+- Apagar: `src/pages/Login.tsx`, `Signup.tsx`, `ResetPassword.tsx`, `CodigoEmpresa.tsx`, `src/components/ProtectedRoute.tsx`, `src/hooks/useAuth.tsx`.
+- `src/components/AppSidebar.tsx`: mostrar sempre o menu completo (empresa + admin juntos), tirar o "Sair" e a info de utilizador.
+- Substituir todos os `useAuth()` espalhados pelas páginas por um hook simples `useCompany()` que carrega a primeira empresa de `companies` (ou cria uma "Empresa Padrão" se não existir) e devolve o `company_id`.
 
-Stop relying on the AI to copy your templates. Instead, **construct the ata structure directly in code** and only use the AI for the parts that genuinely need generation (custom point deliberations).
+### Base de dados (migration)
+- Reescrever as RLS de todas as tabelas (`atas`, `companies`, `company_formatting`, `company_templates`, `payments`, `support_tickets`, `ticket_messages`, `profiles`, `user_roles`) para permitir leitura/escrita ao role `anon` (público).
+- Deixar `company_id` **opcional** (já é, na maioria) e os inserts passam a usar o id da empresa padrão obtido pelo frontend.
+- Não apago as tabelas `profiles` / `user_roles` / `auth.users` — ficam órfãs mas inertes.
 
-### Architecture Change
+### Edge functions
+- `signup-company`, `signup-employee`, `admin-users`: deixam de ser chamadas (posso apagá-las ou deixá-las inativas — vou apagar para limpar).
+- `generate-ata` e restantes: removo qualquer dependência de `auth.uid()` / token de utilizador, passam a aceitar o `company_id` vindo do cliente.
 
-```text
-CURRENT FLOW:
-  All data + all templates → AI → Full ata text (unreliable)
+## Riscos que aceitas ao avançar
+- **Qualquer pessoa com o URL acede e altera tudo**, incluindo dívidas, preços, pagamentos, templates e tickets de suporte. Não há forma de saber quem fez o quê.
+- Não dá para voltar atrás sem refazer auth + RLS de raiz.
+- Histórico antigo de atas que esteja ligado a um `company_id` específico continua acessível, mas tudo o que criares de novo ficará na "empresa padrão" única.
 
-NEW FLOW:
-  1. Code builds: opening paragraph, attendance, legal text, 
-     preset points, debts, closing, signatures (deterministic)
-  2. AI generates ONLY: deliberation text for custom points
-  3. Code stitches everything together → Final ata (reliable)
-```
-
-### What Changes
-
-**File: `supabase/functions/generate-ata/index.ts`**
-
-1. **New function `buildAtaDeterministic()`** — Takes all form data + company formatting and produces the full ata text by:
-   - Filling placeholders in `opening_paragraph_template` with actual data (date, location, NIF, etc.)
-   - Listing agenda items using `agenda_item_template`
-   - Building attendance/absentee lists using the item templates
-   - Filling `legal_opening_text` with calculated permilagem sums and percentages
-   - For **"padrao" points**: inserting `descricaoPadrao` text verbatim with the "Ponto Um:" label — no AI involved
-   - For **"personalizado" points**: inserting a placeholder marker like `{{AI_PONTO_3}}` 
-   - Building debts section deterministically (already mostly done)
-   - Adding closing text, signatures
-
-2. **Reduced AI scope** — The AI prompt now only receives:
-   - The personalizado points that need deliberation text
-   - Context about the assembly (for tone/relevance)
-   - Instructions to return ONLY the deliberation paragraphs, numbered to match
-
-3. **Post-processing** — Replace `{{AI_PONTO_X}}` markers with the AI-generated text to produce the final ata
-
-### Benefits
-- Preset texts appear **exactly** as configured — guaranteed, no AI involved
-- Company templates (opening, closing, legal, attendance format) are respected perfectly
-- AI only writes what it should: custom deliberation text
-- Faster generation (smaller prompt, less AI work)
-- Debts, signatures, attendance all formatted by code, not AI interpretation
-
-### Additional Details
-- Date conversion to "extenso" (e.g., "vinte e cinco de março de dois mil e vinte e seis") will be done in code with a helper function
-- Number-to-words helper for ata number
-- Permilagem sum calculated arithmetically in code
-- The streaming response still works — the deterministic parts are sent first, then AI-generated parts stream in
-
+Confirma e avanço com a implementação completa.
