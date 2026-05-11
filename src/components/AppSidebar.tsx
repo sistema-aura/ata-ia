@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FileText, History, LifeBuoy, LayoutDashboard, Building2, Users, Shield, HelpCircle, Wallet, Tag, Palette, KeyRound } from "lucide-react";
+import { FileText, History, LayoutDashboard, Shield, Palette } from "lucide-react";
 
 export const AppSidebar = () => {
   const { company } = useAuth();
