@@ -346,33 +346,37 @@ function buildAtaDeterministic(
 
   sections.push(legalText);
 
-  // ── Points (deliberations)
+  // ── Points (deliberations) — presets and manual custom text are always verbatim.
+  //     Only when a personalizado point has NO notas do we ask the AI to draft a paragraph.
   if (pontosOrdemDia?.length) {
     for (let i = 0; i < pontosOrdemDia.length; i++) {
       const p = pontosOrdemDia[i];
       const rotulo = getRotuloPonto(i);
 
       if (p.tipo === "padrao" && p.descricaoPadrao) {
-        // Preset text: insert verbatim
         let pointText = `${rotulo} ${p.titulo}\n${p.descricaoPadrao}`;
-        if (p.notas) {
-          pointText += `\n${p.notas}`;
-        }
+        if (p.notas) pointText += `\n${p.notas}`;
         sections.push(pointText);
+      } else if (p.notas && p.notas.trim().length > 0) {
+        // Custom point WITH user-authored text: use verbatim, never call AI
+        sections.push(`${rotulo} ${p.titulo}\n${p.notas}`);
       } else {
-        // Custom point: placeholder for AI
-        customPoints.push({ index: i, titulo: p.titulo || "", notas: p.notas || "" });
+        // Custom point without notas: fall back to AI draft
+        customPoints.push({ index: i, titulo: p.titulo || "", notas: "" });
         sections.push(`${rotulo} ${p.titulo}\n{{AI_PONTO_${i}}}`);
       }
     }
   }
 
   // ── Debts
-  const dividasText = buildDividas(dividasData, fmt);
+  const { text: dividasText, warnings: debtWarnings } = buildDividas(dividasData, fmt);
   if (dividasText) sections.push(dividasText);
 
   // ── Closing
-  const closingText = getText(fmt, "closing_text");
+  const closingText = getText(fmt, "closing_text")
+    .replace("[hora]", formData.horaFim || "")
+    .replace("[minutos]", "")
+    .replace("[data por extenso]", dataExtenso);
   sections.push(closingText);
 
   // ── Signatures
@@ -391,6 +395,7 @@ function buildAtaDeterministic(
   return {
     fullText: sections.join("\n\n"),
     customPoints,
+    debtWarnings,
   };
 }
 
