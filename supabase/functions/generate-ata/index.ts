@@ -376,32 +376,54 @@ function buildAtaDeterministic(
 
   sections.push(legalText);
 
+  // ── Debts: pré-computar para inserir dentro do ponto de "Atualização dos valores em dívida"
+  const { text: dividasText, warnings: debtWarnings } = buildDividas(dividasData, fmt);
+  const debtBlock = dividasText
+    ? (debtWarnings.length > 0 ? "{{DEBT_WARNING_BANNER}}\n\n" : "") + dividasText
+    : "";
+
+  const isDebtPoint = (titulo: string) => {
+    const t = (titulo || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    return t.includes("divida") && (t.includes("atualizacao") || t.includes("valores") || t.includes("mapa"));
+  };
+
   // ── Points (deliberations) — SEMPRE literais. Nunca chamamos IA.
-  //     Se o ponto personalizado não tiver notas, deixamos um marcador visível
-  //     para o utilizador preencher manualmente antes de entregar a ata.
+  let debtInserted = false;
   if (pontosOrdemDia?.length) {
     for (let i = 0; i < pontosOrdemDia.length; i++) {
       const p = pontosOrdemDia[i];
       const rotulo = getRotuloPonto(i);
+      const debtHere = debtBlock && !debtInserted && isDebtPoint(p.titulo || "");
 
+      let pointText: string;
       if (p.tipo === "padrao" && p.descricaoPadrao) {
-        let pointText = `${rotulo} ${p.titulo}\n${p.descricaoPadrao}`;
+        pointText = `${rotulo} ${p.titulo}\n${p.descricaoPadrao}`;
         if (p.notas) pointText += `\n${p.notas}`;
-        sections.push(pointText);
       } else if (p.notas && p.notas.trim().length > 0) {
-        sections.push(`${rotulo} ${p.titulo}\n${p.notas}`);
+        pointText = `${rotulo} ${p.titulo}\n${p.notas}`;
+      } else if (debtHere) {
+        pointText = `${rotulo} ${p.titulo}`;
       } else {
-        sections.push(`${rotulo} ${p.titulo}\n[POR PREENCHER — adicione aqui a deliberação deste ponto]`);
+        pointText = `${rotulo} ${p.titulo}\n[POR PREENCHER — adicione aqui a deliberação deste ponto]`;
       }
+
+      if (debtHere) {
+        pointText += `\n\n${debtBlock}`;
+        debtInserted = true;
+      }
+      sections.push(pointText);
     }
   }
 
-  // ── Debts (with inline warning marker placed IMMEDIATELY before the section)
-  const { text: dividasText, warnings: debtWarnings } = buildDividas(dividasData, fmt);
-  if (dividasText) {
-    if (debtWarnings.length > 0) sections.push("{{DEBT_WARNING_BANNER}}");
-    sections.push(dividasText);
+  // Se não existir ponto correspondente, coloca as dívidas como bloco autónomo (fallback)
+  if (debtBlock && !debtInserted) {
+    sections.push(debtBlock);
   }
+
+
 
 
   // ── Closing
