@@ -123,17 +123,50 @@ const NovaAta = () => {
     }));
   };
 
+  const normalizarTitulo = (s: string) =>
+    (s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9 ]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
   const handleOrdemDiaParsed = (data: { titulo: string }[]) => {
     if (!Array.isArray(data)) return;
-    const pontos: PontoOrdemDia[] = data.map((p, i) => ({
-      id: `pdf-${i}`,
-      titulo: p.titulo,
-      tipo: "personalizado" as const,
-      notas: "",
-    }));
+    const presets = template?.pontos_padrao || [];
+    const pontos: PontoOrdemDia[] = data.map((p, i) => {
+      const tituloNorm = normalizarTitulo(p.titulo);
+      const match = presets.find((preset) => {
+        const presetNorm = normalizarTitulo(preset.titulo);
+        if (!presetNorm || !tituloNorm) return false;
+        return (
+          presetNorm === tituloNorm ||
+          tituloNorm.includes(presetNorm) ||
+          presetNorm.includes(tituloNorm)
+        );
+      });
+
+      if (match) {
+        return {
+          id: `pdf-${i}`,
+          titulo: p.titulo,
+          tipo: "padrao" as const,
+          descricaoPadrao: match.descricaoPadrao,
+          notas: "",
+        };
+      }
+      return {
+        id: `pdf-${i}`,
+        titulo: p.titulo,
+        tipo: "personalizado" as const,
+        notas: "",
+      };
+    });
     setFormData((prev) => ({ ...prev, pontosOrdemDia: pontos }));
     setOrdemDiaParsed(true);
   };
+
 
   const handlePresencasParsed = (data: PresencasData) => {
     const normalizedData: PresencasData = {
