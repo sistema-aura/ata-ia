@@ -231,6 +231,41 @@ export async function exportAtaToWord(
   );
 
   const doc = new Document({
+    numbering: {
+      config: [
+        {
+          reference: "debtList",
+          levels: [
+            {
+              level: 0,
+              format: LevelFormat.BULLET,
+              text: "\u2713", // ✓
+              alignment: AlignmentType.LEFT,
+              style: { paragraph: { indent: { left: 360, hanging: 260 } } },
+            },
+            {
+              level: 1,
+              format: LevelFormat.BULLET,
+              text: "o",
+              alignment: AlignmentType.LEFT,
+              style: { paragraph: { indent: { left: 900, hanging: 260 } } },
+            },
+          ],
+        },
+        {
+          reference: "genericBullets",
+          levels: [
+            {
+              level: 0,
+              format: LevelFormat.BULLET,
+              text: "\u2022",
+              alignment: AlignmentType.LEFT,
+              style: { paragraph: { indent: { left: 360, hanging: 260 } } },
+            },
+          ],
+        },
+      ],
+    },
     sections: [
       {
         properties: {
