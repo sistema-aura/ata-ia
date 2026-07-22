@@ -1,9 +1,31 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { groupDebts, GroupedSubitem, DebtWarning } from "./debtGrouping.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+// Helper: money formatting "1234.56" -> "1.234,56"
+function fmtMoney(n: number): string {
+  return n.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+// Portuguese extenso for a euro amount (integer euros + cêntimos), simplified but readable.
+function moneyToWords(n: number): string {
+  const euros = Math.floor(n);
+  const cents = Math.round((n - euros) * 100);
+  const parts: string[] = [];
+  if (euros > 0) {
+    parts.push(numberToWords(euros) + (euros === 1 ? " euro" : " euros"));
+  } else if (cents === 0) {
+    return "zero euros";
+  }
+  if (cents > 0) {
+    parts.push((euros > 0 ? " e " : "") + numberToWords(cents) + (cents === 1 ? " cêntimo" : " cêntimos"));
+  }
+  return parts.join("");
+}
 
 // ─── Helpers: Numbers & Dates to Portuguese words ───────────────────────────
 
