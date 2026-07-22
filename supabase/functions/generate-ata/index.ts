@@ -173,10 +173,6 @@ function buildCondominoLine(c: any, template: string): string {
     .replace("[descrição]", desc)
     .replace("[permilagem]", permilagem);
 
-  // Insert NIF after name if available
-  if (c.nif) {
-    line = line.replace(c.nome || "", `${c.nome}, com NIF ${c.nif},`);
-  }
 
   if (c.representado) {
     line = line.replace(/;?\s*$/, " (representado);");
