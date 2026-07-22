@@ -123,37 +123,39 @@ export async function exportAtaToWord(
     }
 
     if (clean.startsWith("✓")) {
+      // Native Word level-0 bullet ✓
+      const text = clean.replace(/^✓\s*/, "");
       paragraphs.push(
         new Paragraph({
-          alignment: bodyAlignment,
-          indent: { left: 360, hanging: 220 },
+          numbering: { reference: "debtList", level: 0 },
           spacing: { line: lineSpacing, before: 180, after: Math.round(paragraphSpacingAfter * 0.45) },
-          children: [new TextRun({ text: clean, size, font, bold: true })],
-        })
+          children: [new TextRun({ text, size, font, bold: true })],
+        }),
       );
       continue;
     }
 
     if (clean.startsWith("o ") || clean.startsWith("o\t")) {
+      // Native Word level-1 sub-bullet
+      const text = clean.replace(/^o[\s\t]+/, "");
       paragraphs.push(
         new Paragraph({
-          alignment: bodyAlignment,
-          indent: { left: 720, hanging: 180 },
+          numbering: { reference: "debtList", level: 1 },
           spacing: { line: lineSpacing, after: Math.round(paragraphSpacingAfter * 0.4) },
-          children: [new TextRun({ text: clean, size, font })],
-        })
+          children: [new TextRun({ text, size, font })],
+        }),
       );
       continue;
     }
 
     if (clean.startsWith("•") || clean.startsWith("ü") || clean.startsWith("-")) {
+      const text = clean.replace(/^[•ü\-]\s*/, "");
       paragraphs.push(
         new Paragraph({
-          alignment: AlignmentType.LEFT,
-          indent: { left: 360, hanging: 180 },
+          numbering: { reference: "genericBullets", level: 0 },
           spacing: { line: lineSpacing, after: Math.round(paragraphSpacingAfter * 0.67) },
-          children: [new TextRun({ text: clean, size, font })],
-        })
+          children: [new TextRun({ text, size, font })],
+        }),
       );
       continue;
     }
