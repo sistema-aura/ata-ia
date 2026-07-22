@@ -286,8 +286,10 @@ function buildAtaDeterministic(
     .replace("[convocatória]", convLabel)
     .replace("[Ordinária/Extraordinária]", tipoLabel)
     .replace("[morada]", morada || "")
+    .replace("[freguesia]", freguesia || "")
     .replace("[concelho]", concelho || "")
-    .replace("[NIF]", nifCondominio || "");
+    .replace("[NIF]", nifCondominio || "")
+    .replace("[NIPC]", nifCondominio || "");
 
   sections.push(opening);
 
