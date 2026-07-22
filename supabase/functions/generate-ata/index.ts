@@ -347,8 +347,9 @@ function buildAtaDeterministic(
 
   sections.push(legalText);
 
-  // ── Points (deliberations) — presets and manual custom text are always verbatim.
-  //     Only when a personalizado point has NO notas do we ask the AI to draft a paragraph.
+  // ── Points (deliberations) — SEMPRE literais. Nunca chamamos IA.
+  //     Se o ponto personalizado não tiver notas, deixamos um marcador visível
+  //     para o utilizador preencher manualmente antes de entregar a ata.
   if (pontosOrdemDia?.length) {
     for (let i = 0; i < pontosOrdemDia.length; i++) {
       const p = pontosOrdemDia[i];
@@ -359,19 +360,20 @@ function buildAtaDeterministic(
         if (p.notas) pointText += `\n${p.notas}`;
         sections.push(pointText);
       } else if (p.notas && p.notas.trim().length > 0) {
-        // Custom point WITH user-authored text: use verbatim, never call AI
         sections.push(`${rotulo} ${p.titulo}\n${p.notas}`);
       } else {
-        // Custom point without notas: fall back to AI draft
-        customPoints.push({ index: i, titulo: p.titulo || "", notas: "" });
-        sections.push(`${rotulo} ${p.titulo}\n{{AI_PONTO_${i}}}`);
+        sections.push(`${rotulo} ${p.titulo}\n[POR PREENCHER — adicione aqui a deliberação deste ponto]`);
       }
     }
   }
 
-  // ── Debts
+  // ── Debts (with inline warning marker placed IMMEDIATELY before the section)
   const { text: dividasText, warnings: debtWarnings } = buildDividas(dividasData, fmt);
-  if (dividasText) sections.push(dividasText);
+  if (dividasText) {
+    if (debtWarnings.length > 0) sections.push("{{DEBT_WARNING_BANNER}}");
+    sections.push(dividasText);
+  }
+
 
   // ── Closing
   const closingText = getText(fmt, "closing_text")
@@ -564,33 +566,26 @@ serve(async (req) => {
       customInstructions = result.customInstructions;
     }
 
-    // Step 1: Build ata deterministically
-    const { fullText, customPoints, debtWarnings } = buildAtaDeterministic(formData, companyFormatting);
+    // Step 1: Build ata deterministically (no AI involvement)
+    const { fullText, debtWarnings } = buildAtaDeterministic(formData, companyFormatting);
 
-    // Step 2: Generate AI text ONLY for custom points without user-authored notas
     let finalText = fullText;
-    if (customPoints.length > 0) {
-      const aiTexts = await generateCustomPointTexts(customPoints, formData, customInstructions);
-      for (const [idx, text] of Object.entries(aiTexts)) {
-        finalText = finalText.replace(`{{AI_PONTO_${idx}}}`, text);
-      }
-    }
-    finalText = finalText.replace(/\{\{AI_PONTO_\d+\}\}/g, "Ponto deliberado conforme discussão em assembleia.");
 
-    // Prepend visible warning banner if debt sums didn't reconcile
+    // Inline warning banner placed right before the debts section
     if (debtWarnings.length > 0) {
       const banner = [
-        "⚠️ AVISO — Verificação de dívidas",
+        "⚠️ AVISO — Verificação de dívidas (rever ANTES de entregar):",
         ...debtWarnings.map(
           (w) =>
             `Fração ${w.fracao}: total lido € ${w.totalLido.toFixed(2).replace(".", ",")} · soma calculada € ${w.totalCalculado.toFixed(2).replace(".", ",")} · diferença € ${w.diferenca.toFixed(2).replace(".", ",")}`,
         ),
-        "Reveja os valores antes de entregar a ata.",
-        "---",
         "",
       ].join("\n");
-      finalText = banner + finalText;
+      finalText = finalText.replace("{{DEBT_WARNING_BANNER}}", banner);
+    } else {
+      finalText = finalText.replace("{{DEBT_WARNING_BANNER}}\n\n", "").replace("{{DEBT_WARNING_BANNER}}", "");
     }
+
 
     // Step 3: Stream result back as SSE (frontend expects this format)
     const stream = textToSSEStream(finalText);
