@@ -100,14 +100,19 @@ export const PontosOrdemDiaForm = ({
                     />
                   </div>
                 ) : (
-                  <Textarea
-                    placeholder="Notas e detalhes para este ponto (deliberações, votações, etc.)"
-                    value={ponto.notas || ""}
-                    onChange={(e) =>
-                      updatePonto(index, { notas: e.target.value })
-                    }
-                    className="min-h-[60px] text-sm"
-                  />
+                  <div className="space-y-1">
+                    <Textarea
+                      placeholder="Escreva aqui o texto EXATO da deliberação. Será usado tal e qual, sem reescrita pela IA."
+                      value={ponto.notas || ""}
+                      onChange={(e) =>
+                        updatePonto(index, { notas: e.target.value })
+                      }
+                      className="min-h-[80px] text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Texto usado literalmente. Deixe vazio apenas se quiser que a IA redija.
+                    </p>
+                  </div>
                 )}
               </div>
 
