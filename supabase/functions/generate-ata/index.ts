@@ -205,57 +205,49 @@ function buildCondominoLine(c: any, template: string): string {
 
 // ─── Build debts section ────────────────────────────────────────────────────
 
-function buildDividas(dividasData: any, fmt: CompanyFormattingTexts): string {
-  if (!dividasData?.dividas?.length) return "";
+function buildDividas(
+  dividasData: any,
+  fmt: CompanyFormattingTexts,
+): { text: string; warnings: DebtWarning[] } {
+  if (!dividasData?.dividas?.length) return { text: "", warnings: [] };
 
   const intro = getText(fmt, "debt_section_intro_text");
   const totalLabel = getText(fmt, "debt_total_label");
-  const quotaExtraLabel = getText(fmt, "debt_quota_extra_label");
-  const headerTpl = getText(fmt, "debt_header_template");
-  const detailTpl = getText(fmt, "debt_detail_template");
+  const { grouped, warnings } = groupDebts(dividasData.dividas);
 
   const lines: string[] = ["\n\n" + intro];
 
-  for (const d of dividasData.dividas) {
-    const header = headerTpl
-      .replaceAll("[X]", d.fracao || "")
-      .replaceAll("[Descrição]", d.descricao || d.fracao || "")
-      .replaceAll("[Valor por extenso]", `[VALOR POR EXTENSO de ${d.valorDivida}€]`)
-      .replaceAll("[valor numérico]", d.valorDivida || "");
+  for (const d of grouped) {
+    const extenso = moneyToWords(d.totalLido);
+    const capitalizado = extenso.charAt(0).toUpperCase() + extenso.slice(1);
+    lines.push(
+      `✓ Fração ${d.fracao} – ${d.descricao} – ${capitalizado} (€ ${fmtMoney(d.totalLido)}) correspondentes a:`,
+    );
 
-    lines.push(header);
-
-    if (d.detalhes?.length) {
-      for (const det of d.detalhes) {
-        if (det.quotaExtra) {
-          lines.push(`o  ${quotaExtraLabel} ${det.quotaExtra} (€ ${det.total || "____"});`);
-          continue;
-        }
-        const singleMonth = det.mesInicio === det.mesFim;
-        const fromText = singleMonth
-          ? `do mês de ${det.mesInicio} do ano ${det.ano}`
-          : `do mês de ${det.mesInicio} até ao mês de ${det.mesFim} do ano ${det.ano}`;
-
-        let detLine = detailTpl
-          .replaceAll("[mês]", det.mesInicio || "")
-          .replaceAll("[mês início]", det.mesInicio || "")
-          .replaceAll("[mês fim]", det.mesFim || det.mesInicio || "")
-          .replaceAll("[ano]", det.ano || "")
-          .replaceAll("[periodo]", fromText);
-
-        // Replace totals
-        detLine = detLine
-          .replace("(€ ____)", `(€ ${det.total || "____"})`)
-          .replace("quotização (€ ____)", `quotização (€ ${det.quotizacao || "____"})`)
-          .replace("fundo de reserva (€ ____)", `fundo de reserva (€ ${det.fundoReserva && det.fundoReserva !== "__" ? det.fundoReserva : "____"})`);
-
-        lines.push(detLine);
+    for (const s of d.subitens) {
+      if (s.kind === "quota_extra") {
+        lines.push(`o  quota extra relativa a ${s.descricao} (€ ${fmtMoney(s.total)});`);
+        continue;
       }
+      if (s.kind === "outro") {
+        lines.push(`o  ${s.descricao} (€ ${fmtMoney(s.total)});`);
+        continue;
+      }
+      // quotizacao_fundo
+      const singleMonth = s.mesInicio === s.mesFim;
+      const periodo = singleMonth
+        ? `do mês de ${s.mesInicio} do ano ${s.ano}`
+        : `do mês de ${s.mesInicio} até ao mês de ${s.mesFim} do ano ${s.ano}`;
+      const quotStr = s.quotizacao !== undefined ? fmtMoney(s.quotizacao) : "____";
+      const frStr = s.fundoReserva !== undefined ? fmtMoney(s.fundoReserva) : "____";
+      lines.push(
+        `o  a quotização (€ ${quotStr}) fundo de reserva (€ ${frStr}) ${periodo} (€ ${fmtMoney(s.total)});`,
+      );
     }
   }
 
-  lines.push(`${totalLabel} ${dividasData.totalDivida}€`);
-  return lines.join("\n");
+  lines.push(`\n${totalLabel} € ${fmtMoney(parseFloat(String(dividasData.totalDivida || "0").replace(",", ".")) || grouped.reduce((s, d) => s + d.totalLido, 0))}`);
+  return { text: lines.join("\n"), warnings };
 }
 
 // ─── Main: Build the ata deterministically ──────────────────────────────────
