@@ -566,33 +566,26 @@ serve(async (req) => {
       customInstructions = result.customInstructions;
     }
 
-    // Step 1: Build ata deterministically
-    const { fullText, customPoints, debtWarnings } = buildAtaDeterministic(formData, companyFormatting);
+    // Step 1: Build ata deterministically (no AI involvement)
+    const { fullText, debtWarnings } = buildAtaDeterministic(formData, companyFormatting);
 
-    // Step 2: Generate AI text ONLY for custom points without user-authored notas
     let finalText = fullText;
-    if (customPoints.length > 0) {
-      const aiTexts = await generateCustomPointTexts(customPoints, formData, customInstructions);
-      for (const [idx, text] of Object.entries(aiTexts)) {
-        finalText = finalText.replace(`{{AI_PONTO_${idx}}}`, text);
-      }
-    }
-    finalText = finalText.replace(/\{\{AI_PONTO_\d+\}\}/g, "Ponto deliberado conforme discussão em assembleia.");
 
-    // Prepend visible warning banner if debt sums didn't reconcile
+    // Inline warning banner placed right before the debts section
     if (debtWarnings.length > 0) {
       const banner = [
-        "⚠️ AVISO — Verificação de dívidas",
+        "⚠️ AVISO — Verificação de dívidas (rever ANTES de entregar):",
         ...debtWarnings.map(
           (w) =>
             `Fração ${w.fracao}: total lido € ${w.totalLido.toFixed(2).replace(".", ",")} · soma calculada € ${w.totalCalculado.toFixed(2).replace(".", ",")} · diferença € ${w.diferenca.toFixed(2).replace(".", ",")}`,
         ),
-        "Reveja os valores antes de entregar a ata.",
-        "---",
         "",
       ].join("\n");
-      finalText = banner + finalText;
+      finalText = finalText.replace("{{DEBT_WARNING_BANNER}}", banner);
+    } else {
+      finalText = finalText.replace("{{DEBT_WARNING_BANNER}}\n\n", "").replace("{{DEBT_WARNING_BANNER}}", "");
     }
+
 
     // Step 3: Stream result back as SSE (frontend expects this format)
     const stream = textToSSEStream(finalText);
