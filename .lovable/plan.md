@@ -1,32 +1,56 @@
-# Tornar a app 100% pública (sem login)
+## Objetivo
 
-## O que muda no comportamento
+Corrigir a geração das atas para respeitar rigorosamente o `Ata_tipo.docx`, os textos jurídicos e as regras de dívidas. **A IA deixa de escrever ata**: apenas extrai dados dos PDFs. Toda a montagem passa a ser determinística em código, e o Word é gerado a partir de uma cópia do template original.
 
-- Já não há páginas `/login`, `/signup`, `/reset-password`. A raiz `/` abre direto no Dashboard.
-- Toda a gente que abrir o URL acede a tudo: Dashboard, Nova Ata, Histórico, Suporte, **e também todo o painel Admin** (Templates, Formatação, Preços, Pagamentos, Empresas, Utilizadores, Códigos, Tickets).
-- Deixa de existir o conceito de "empresa do utilizador". A app passa a operar sobre **uma única empresa fixa** (a primeira/única na base de dados) para que templates, formatação, histórico e dívidas continuem a funcionar.
-- A barra lateral deixa de mostrar email/empresa e o botão "Sair".
+## Ficheiros afetados
 
-## O que vou alterar
+**Novos**
+- `public/templates/ata_tipo.docx` — cópia do template com placeholders `{campo}` e loops `{#lista}...{/lista}` (marcadores nativos preservados).
+- `src/lib/ataBuilder.ts` — montagem determinística: pontos, presenças, dívidas, agrupamento de meses, cálculo de totais, validação, ordinais e extenso.
+- `src/lib/debtGrouping.ts` — agrupamento de meses consecutivos por ano e por tipo, com deteção de inconsistências.
+- `src/components/DebtValidationWarning.tsx` — banner por cima da pré-visualização quando somas divergem (fração, valor lido, soma, diferença).
 
-### Frontend
-- `src/App.tsx`: remover rotas de auth, remover `AuthProvider` e `ProtectedRoute`, redirecionar `/` → `/dashboard`. Todas as rotas (incluindo `/admin/*`) ficam públicas.
-- Apagar: `src/pages/Login.tsx`, `Signup.tsx`, `ResetPassword.tsx`, `CodigoEmpresa.tsx`, `src/components/ProtectedRoute.tsx`, `src/hooks/useAuth.tsx`.
-- `src/components/AppSidebar.tsx`: mostrar sempre o menu completo (empresa + admin juntos), tirar o "Sair" e a info de utilizador.
-- Substituir todos os `useAuth()` espalhados pelas páginas por um hook simples `useCompany()` que carrega a primeira empresa de `companies` (ou cria uma "Empresa Padrão" se não existir) e devolve o `company_id`.
+**Alterados**
+- `src/lib/exportWord.ts` → passa a usar `docxtemplater` + `pizzip`, carrega `ata_tipo.docx`, preenche variáveis e clona/remove blocos de listas nativas. Sem regenerar formatação.
+- `src/components/PontosOrdemDiaForm.tsx` → quando `tipo=personalizado`, o campo de texto “Deliberação (texto exato)” passa a ser obrigatório e é sempre usado verbatim.
+- `src/components/AtaPreview.tsx` → invoca `ataBuilder` no cliente (sem edge para o cenário normal) e mostra o banner de validação; mantém o mesmo layout e botões.
+- `src/components/PdfUpload.tsx` → sem mudanças visuais; passa a receber também `permilagemPresente/total` e a preservar a ordem original da OT.
+- `supabase/functions/parse-pdf/index.ts` → prompts endurecidos: extrai dados brutos (nunca redige), separa por ano e por tipo, valida totais e devolve `warnings[]`.
+- `supabase/functions/generate-ata/index.ts` → passa a ser usado só para gerar deliberações de pontos personalizados quando o utilizador expressamente pedir sugestão (opcional, campo continua manual por defeito).
 
-### Base de dados (migration)
-- Reescrever as RLS de todas as tabelas (`atas`, `companies`, `company_formatting`, `company_templates`, `payments`, `support_tickets`, `ticket_messages`, `profiles`, `user_roles`) para permitir leitura/escrita ao role `anon` (público).
-- Deixar `company_id` **opcional** (já é, na maioria) e os inserts passam a usar o id da empresa padrão obtido pelo frontend.
-- Não apago as tabelas `profiles` / `user_roles` / `auth.users` — ficam órfãs mas inertes.
+## Regras determinísticas (código, não IA)
 
-### Edge functions
-- `signup-company`, `signup-employee`, `admin-users`: deixam de ser chamadas (posso apagá-las ou deixá-las inativas — vou apagar para limpar).
-- `generate-ata` e restantes: removo qualquer dependência de `auth.uid()` / token de utilizador, passam a aceitar o `company_id` vindo do cliente.
+- **Ordem de Trabalhos**: preservada exatamente como vem no PDF. Sem reordenar, sem juntar, sem inventar.
+- **Presenças/ausências**: linha por linha na ordem da folha. Sem NIF. Assinaturas apenas presentes + Presidente na 1ª linha.
+- **Dívidas**:
+  - Extração estruturada por fração → array de `{tipo, mes, ano, quotizacao, fundoReserva, quotaExtraDescricao, valor}`.
+  - Agrupamento: só juntar meses **consecutivos**, **mesmo ano**, **mesmo tipo**. Nunca cruzar anos.
+  - Frase gerada a partir do template jurídico por tipo (`quotizacao+fundo_reserva`, `quota_extra`, `credito`, `seguro`, `penalizacao`, `judicial`).
+  - Total da fração por extenso via helper `numeroPorExtenso`.
+  - Se `Σ subitens ≠ total lido`: adiciona warning `{fracao, lido, calculado, diferenca}` e continua.
+- **Formatação numérica**: permilagem 4 decimais, percentagem 2 decimais, sempre com vírgula.
 
-## Riscos que aceitas ao avançar
-- **Qualquer pessoa com o URL acede e altera tudo**, incluindo dívidas, preços, pagamentos, templates e tickets de suporte. Não há forma de saber quem fez o quê.
-- Não dá para voltar atrás sem refazer auth + RLS de raiz.
-- Histórico antigo de atas que esteja ligado a um `company_id` específico continua acessível, mas tudo o que criares de novo ficará na "empresa padrão" única.
+## Motor Word (docxtemplater)
 
-Confirma e avanço com a implementação completa.
+O `Ata_tipo.docx` é editado uma vez para conter marcadores:
+- Variáveis simples: `{numeroAta}`, `{data_extenso}`, `{hora}`, `{minutos}`, `{condominio}`, `{nif}`, `{presidente}`, `{permilagem_presente}`, `{percentagem_presente}`.
+- Loops nativos: `{#pontos}...{/pontos}`, `{#presentes}...{/presentes}`, `{#ausentes}...{/ausentes}`, `{#dividas}...{#subitens}...{/subitens}{/dividas}`, `{#assinaturas}...{/assinaturas}`.
+- Os parágrafos dentro dos loops mantêm os estilos, listas multinível, tabulações e cabeçalho/rodapé originais. Sem HTML, sem markdown.
+
+## Dependências novas
+- `docxtemplater`, `pizzip` — leves e battle-tested para preencher .docx preservando estilos.
+
+## Fora de âmbito
+- Não altero layout, cores, navegação, autenticação, páginas ou botões.
+- Não mexo em Templates/Formatação por empresa nem no ecrã Admin.
+- Não gero orçamento/tabelas (fica placeholder no template como pediste).
+
+## Ordem de implementação
+1. Instalar `docxtemplater` + `pizzip`.
+2. Preparar `public/templates/ata_tipo.docx` com marcadores (baseado no ficheiro que enviaste, mantendo tudo o resto igual).
+3. Criar `debtGrouping.ts` + `ataBuilder.ts`.
+4. Reescrever `exportWord.ts`.
+5. Ajustar `AtaPreview.tsx` (banner + chamar builder).
+6. Ajustar `PontosOrdemDiaForm.tsx` (deliberação manual obrigatória em personalizado).
+7. Endurecer `parse-pdf` (extração fiel, warnings).
+8. Testar com os PDFs que enviaste (005_*) e comparar com `Ata_nº_10.docx`.
