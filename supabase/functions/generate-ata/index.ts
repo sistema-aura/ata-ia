@@ -301,14 +301,19 @@ function buildAtaDeterministic(
 
   // ── Opening paragraph
   const tipoLabel = tipoAssembleia === "ordinaria" ? "Ordinária" : "Extraordinária";
-  const convLabel = convocatoria === "primeira" ? "1ª" : "2ª";
+  const convLabel = (convocatoria === "segunda" || convocatoria === "2" || convocatoria === "2ª")
+    ? "segunda"
+    : "primeira";
   const dataExtenso = dataAssembleia ? dateToWords(dataAssembleia) : "[data]";
+  const horaExtenso = timeToWords(horaInicio || "");
 
   let opening = getText(fmt, "opening_paragraph_template")
+    .replace(/\[hora\]\s*horas/gi, horaExtenso)
+    .replace(/\[hora\]/g, horaExtenso)
     .replace("[data por extenso]", dataExtenso)
-    .replace("[hora]", horaInicio || "")
     .replace("[local]", localReuniao || "Hall de entrada")
     .replace("[convocatória]", convLabel)
+    .replace("[convocatoria]", convLabel)
     .replace("[Ordinária/Extraordinária]", tipoLabel)
     .replace("[morada]", morada || "")
     .replace("[freguesia]", freguesia || "")
