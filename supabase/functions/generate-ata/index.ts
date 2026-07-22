@@ -105,16 +105,40 @@ function getRotuloPonto(index: number): string {
 }
 
 // ─── Helpers: Fraction parsing ──────────────────────────────────────────────
+// Formatos suportados:
+//   "0-C - R/C C"        → code "0-C", desc "R/C C"    (separador " - " com espaços)
+//   "C-41 R/C Dto Tardoz" → code "C",   desc "41 R/C Dto Tardoz" (primeiro "-" sem espaços)
+//   "A"                   → code "A",   desc "A"
 
 function splitFracao(fracao: string): { code: string; desc: string } {
-  const sepIndex = fracao.indexOf(" - ");
-  const enDashIndex = fracao.indexOf(" – ");
-  const idx = sepIndex !== -1 ? sepIndex : enDashIndex;
-  if (idx !== -1) {
-    const sep = sepIndex !== -1 ? " - " : " – ";
-    return { code: fracao.substring(0, idx), desc: fracao.substring(idx + sep.length).trim() };
+  if (!fracao) return { code: "", desc: "" };
+  const spaced = fracao.indexOf(" - ");
+  if (spaced !== -1) {
+    return { code: fracao.substring(0, spaced).trim(), desc: fracao.substring(spaced + 3).trim() };
   }
-  return { code: fracao, desc: fracao };
+  const enDash = fracao.indexOf(" – ");
+  if (enDash !== -1) {
+    return { code: fracao.substring(0, enDash).trim(), desc: fracao.substring(enDash + 3).trim() };
+  }
+  const dash = fracao.indexOf("-");
+  if (dash !== -1) {
+    return { code: fracao.substring(0, dash).trim(), desc: fracao.substring(dash + 1).trim() };
+  }
+  return { code: fracao.trim(), desc: fracao.trim() };
+}
+
+// ─── Helper: time "HH:MM" → "três horas e trinta e três minutos" ────────────
+
+function timeToWords(hhmm: string): string {
+  if (!hhmm) return "";
+  const parts = hhmm.split(":");
+  const h = parseInt(parts[0], 10);
+  const m = parseInt(parts[1] || "0", 10);
+  if (isNaN(h)) return hhmm;
+  const hWords = h === 0 ? "zero horas" : h === 1 ? "uma hora" : `${numberToWords(h)} horas`;
+  if (!m || isNaN(m)) return hWords;
+  const mWords = m === 1 ? "um minuto" : `${numberToWords(m)} minutos`;
+  return `${hWords} e ${mWords}`;
 }
 
 // ─── Company formatting types & defaults ────────────────────────────────────
