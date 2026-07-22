@@ -255,6 +255,7 @@ function buildDividas(
 interface BuildResult {
   fullText: string;
   customPoints: { index: number; titulo: string; notas: string }[];
+  debtWarnings: DebtWarning[];
 }
 
 function buildAtaDeterministic(
