@@ -565,9 +565,9 @@ serve(async (req) => {
     }
 
     // Step 1: Build ata deterministically
-    const { fullText, customPoints } = buildAtaDeterministic(formData, companyFormatting);
+    const { fullText, customPoints, debtWarnings } = buildAtaDeterministic(formData, companyFormatting);
 
-    // Step 2: Generate AI text ONLY for custom points (if any)
+    // Step 2: Generate AI text ONLY for custom points without user-authored notas
     let finalText = fullText;
     if (customPoints.length > 0) {
       const aiTexts = await generateCustomPointTexts(customPoints, formData, customInstructions);
@@ -575,9 +575,22 @@ serve(async (req) => {
         finalText = finalText.replace(`{{AI_PONTO_${idx}}}`, text);
       }
     }
-
-    // Clean up any unreplaced placeholders
     finalText = finalText.replace(/\{\{AI_PONTO_\d+\}\}/g, "Ponto deliberado conforme discussão em assembleia.");
+
+    // Prepend visible warning banner if debt sums didn't reconcile
+    if (debtWarnings.length > 0) {
+      const banner = [
+        "⚠️ AVISO — Verificação de dívidas",
+        ...debtWarnings.map(
+          (w) =>
+            `Fração ${w.fracao}: total lido € ${w.totalLido.toFixed(2).replace(".", ",")} · soma calculada € ${w.totalCalculado.toFixed(2).replace(".", ",")} · diferença € ${w.diferenca.toFixed(2).replace(".", ",")}`,
+        ),
+        "Reveja os valores antes de entregar a ata.",
+        "---",
+        "",
+      ].join("\n");
+      finalText = banner + finalText;
+    }
 
     // Step 3: Stream result back as SSE (frontend expects this format)
     const stream = textToSSEStream(finalText);
