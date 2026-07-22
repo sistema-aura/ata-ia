@@ -1,9 +1,31 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { groupDebts, GroupedSubitem, DebtWarning } from "./debtGrouping.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+// Helper: money formatting "1234.56" -> "1.234,56"
+function fmtMoney(n: number): string {
+  return n.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+// Portuguese extenso for a euro amount (integer euros + cêntimos), simplified but readable.
+function moneyToWords(n: number): string {
+  const euros = Math.floor(n);
+  const cents = Math.round((n - euros) * 100);
+  const parts: string[] = [];
+  if (euros > 0) {
+    parts.push(numberToWords(euros) + (euros === 1 ? " euro" : " euros"));
+  } else if (cents === 0) {
+    return "zero euros";
+  }
+  if (cents > 0) {
+    parts.push((euros > 0 ? " e " : "") + numberToWords(cents) + (cents === 1 ? " cêntimo" : " cêntimos"));
+  }
+  return parts.join("");
+}
 
 // ─── Helpers: Numbers & Dates to Portuguese words ───────────────────────────
 
@@ -183,57 +205,49 @@ function buildCondominoLine(c: any, template: string): string {
 
 // ─── Build debts section ────────────────────────────────────────────────────
 
-function buildDividas(dividasData: any, fmt: CompanyFormattingTexts): string {
-  if (!dividasData?.dividas?.length) return "";
+function buildDividas(
+  dividasData: any,
+  fmt: CompanyFormattingTexts,
+): { text: string; warnings: DebtWarning[] } {
+  if (!dividasData?.dividas?.length) return { text: "", warnings: [] };
 
   const intro = getText(fmt, "debt_section_intro_text");
   const totalLabel = getText(fmt, "debt_total_label");
-  const quotaExtraLabel = getText(fmt, "debt_quota_extra_label");
-  const headerTpl = getText(fmt, "debt_header_template");
-  const detailTpl = getText(fmt, "debt_detail_template");
+  const { grouped, warnings } = groupDebts(dividasData.dividas);
 
   const lines: string[] = ["\n\n" + intro];
 
-  for (const d of dividasData.dividas) {
-    const header = headerTpl
-      .replaceAll("[X]", d.fracao || "")
-      .replaceAll("[Descrição]", d.descricao || d.fracao || "")
-      .replaceAll("[Valor por extenso]", `[VALOR POR EXTENSO de ${d.valorDivida}€]`)
-      .replaceAll("[valor numérico]", d.valorDivida || "");
+  for (const d of grouped) {
+    const extenso = moneyToWords(d.totalLido);
+    const capitalizado = extenso.charAt(0).toUpperCase() + extenso.slice(1);
+    lines.push(
+      `✓ Fração ${d.fracao} – ${d.descricao} – ${capitalizado} (€ ${fmtMoney(d.totalLido)}) correspondentes a:`,
+    );
 
-    lines.push(header);
-
-    if (d.detalhes?.length) {
-      for (const det of d.detalhes) {
-        if (det.quotaExtra) {
-          lines.push(`o  ${quotaExtraLabel} ${det.quotaExtra} (€ ${det.total || "____"});`);
-          continue;
-        }
-        const singleMonth = det.mesInicio === det.mesFim;
-        const fromText = singleMonth
-          ? `do mês de ${det.mesInicio} do ano ${det.ano}`
-          : `do mês de ${det.mesInicio} até ao mês de ${det.mesFim} do ano ${det.ano}`;
-
-        let detLine = detailTpl
-          .replaceAll("[mês]", det.mesInicio || "")
-          .replaceAll("[mês início]", det.mesInicio || "")
-          .replaceAll("[mês fim]", det.mesFim || det.mesInicio || "")
-          .replaceAll("[ano]", det.ano || "")
-          .replaceAll("[periodo]", fromText);
-
-        // Replace totals
-        detLine = detLine
-          .replace("(€ ____)", `(€ ${det.total || "____"})`)
-          .replace("quotização (€ ____)", `quotização (€ ${det.quotizacao || "____"})`)
-          .replace("fundo de reserva (€ ____)", `fundo de reserva (€ ${det.fundoReserva && det.fundoReserva !== "__" ? det.fundoReserva : "____"})`);
-
-        lines.push(detLine);
+    for (const s of d.subitens) {
+      if (s.kind === "quota_extra") {
+        lines.push(`o  quota extra relativa a ${s.descricao} (€ ${fmtMoney(s.total)});`);
+        continue;
       }
+      if (s.kind === "outro") {
+        lines.push(`o  ${s.descricao} (€ ${fmtMoney(s.total)});`);
+        continue;
+      }
+      // quotizacao_fundo
+      const singleMonth = s.mesInicio === s.mesFim;
+      const periodo = singleMonth
+        ? `do mês de ${s.mesInicio} do ano ${s.ano}`
+        : `do mês de ${s.mesInicio} até ao mês de ${s.mesFim} do ano ${s.ano}`;
+      const quotStr = s.quotizacao !== undefined ? fmtMoney(s.quotizacao) : "____";
+      const frStr = s.fundoReserva !== undefined ? fmtMoney(s.fundoReserva) : "____";
+      lines.push(
+        `o  a quotização (€ ${quotStr}) fundo de reserva (€ ${frStr}) ${periodo} (€ ${fmtMoney(s.total)});`,
+      );
     }
   }
 
-  lines.push(`${totalLabel} ${dividasData.totalDivida}€`);
-  return lines.join("\n");
+  lines.push(`\n${totalLabel} € ${fmtMoney(parseFloat(String(dividasData.totalDivida || "0").replace(",", ".")) || grouped.reduce((s, d) => s + d.totalLido, 0))}`);
+  return { text: lines.join("\n"), warnings };
 }
 
 // ─── Main: Build the ata deterministically ──────────────────────────────────
@@ -241,6 +255,7 @@ function buildDividas(dividasData: any, fmt: CompanyFormattingTexts): string {
 interface BuildResult {
   fullText: string;
   customPoints: { index: number; titulo: string; notas: string }[];
+  debtWarnings: DebtWarning[];
 }
 
 function buildAtaDeterministic(
@@ -272,8 +287,10 @@ function buildAtaDeterministic(
     .replace("[convocatória]", convLabel)
     .replace("[Ordinária/Extraordinária]", tipoLabel)
     .replace("[morada]", morada || "")
+    .replace("[freguesia]", freguesia || "")
     .replace("[concelho]", concelho || "")
-    .replace("[NIF]", nifCondominio || "");
+    .replace("[NIF]", nifCondominio || "")
+    .replace("[NIPC]", nifCondominio || "");
 
   sections.push(opening);
 
@@ -330,33 +347,37 @@ function buildAtaDeterministic(
 
   sections.push(legalText);
 
-  // ── Points (deliberations)
+  // ── Points (deliberations) — presets and manual custom text are always verbatim.
+  //     Only when a personalizado point has NO notas do we ask the AI to draft a paragraph.
   if (pontosOrdemDia?.length) {
     for (let i = 0; i < pontosOrdemDia.length; i++) {
       const p = pontosOrdemDia[i];
       const rotulo = getRotuloPonto(i);
 
       if (p.tipo === "padrao" && p.descricaoPadrao) {
-        // Preset text: insert verbatim
         let pointText = `${rotulo} ${p.titulo}\n${p.descricaoPadrao}`;
-        if (p.notas) {
-          pointText += `\n${p.notas}`;
-        }
+        if (p.notas) pointText += `\n${p.notas}`;
         sections.push(pointText);
+      } else if (p.notas && p.notas.trim().length > 0) {
+        // Custom point WITH user-authored text: use verbatim, never call AI
+        sections.push(`${rotulo} ${p.titulo}\n${p.notas}`);
       } else {
-        // Custom point: placeholder for AI
-        customPoints.push({ index: i, titulo: p.titulo || "", notas: p.notas || "" });
+        // Custom point without notas: fall back to AI draft
+        customPoints.push({ index: i, titulo: p.titulo || "", notas: "" });
         sections.push(`${rotulo} ${p.titulo}\n{{AI_PONTO_${i}}}`);
       }
     }
   }
 
   // ── Debts
-  const dividasText = buildDividas(dividasData, fmt);
+  const { text: dividasText, warnings: debtWarnings } = buildDividas(dividasData, fmt);
   if (dividasText) sections.push(dividasText);
 
   // ── Closing
-  const closingText = getText(fmt, "closing_text");
+  const closingText = getText(fmt, "closing_text")
+    .replace("[hora]", formData.horaFim || "")
+    .replace("[minutos]", "")
+    .replace("[data por extenso]", dataExtenso);
   sections.push(closingText);
 
   // ── Signatures
@@ -375,6 +396,7 @@ function buildAtaDeterministic(
   return {
     fullText: sections.join("\n\n"),
     customPoints,
+    debtWarnings,
   };
 }
 
@@ -543,9 +565,9 @@ serve(async (req) => {
     }
 
     // Step 1: Build ata deterministically
-    const { fullText, customPoints } = buildAtaDeterministic(formData, companyFormatting);
+    const { fullText, customPoints, debtWarnings } = buildAtaDeterministic(formData, companyFormatting);
 
-    // Step 2: Generate AI text ONLY for custom points (if any)
+    // Step 2: Generate AI text ONLY for custom points without user-authored notas
     let finalText = fullText;
     if (customPoints.length > 0) {
       const aiTexts = await generateCustomPointTexts(customPoints, formData, customInstructions);
@@ -553,9 +575,22 @@ serve(async (req) => {
         finalText = finalText.replace(`{{AI_PONTO_${idx}}}`, text);
       }
     }
-
-    // Clean up any unreplaced placeholders
     finalText = finalText.replace(/\{\{AI_PONTO_\d+\}\}/g, "Ponto deliberado conforme discussão em assembleia.");
+
+    // Prepend visible warning banner if debt sums didn't reconcile
+    if (debtWarnings.length > 0) {
+      const banner = [
+        "⚠️ AVISO — Verificação de dívidas",
+        ...debtWarnings.map(
+          (w) =>
+            `Fração ${w.fracao}: total lido € ${w.totalLido.toFixed(2).replace(".", ",")} · soma calculada € ${w.totalCalculado.toFixed(2).replace(".", ",")} · diferença € ${w.diferenca.toFixed(2).replace(".", ",")}`,
+        ),
+        "Reveja os valores antes de entregar a ata.",
+        "---",
+        "",
+      ].join("\n");
+      finalText = banner + finalText;
+    }
 
     // Step 3: Stream result back as SSE (frontend expects this format)
     const stream = textToSSEStream(finalText);
