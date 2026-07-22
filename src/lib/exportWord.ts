@@ -1,4 +1,13 @@
-import { AlignmentType, Document, Footer, Packer, Paragraph, SimpleField, TextRun } from "docx";
+import {
+  AlignmentType,
+  Document,
+  Footer,
+  LevelFormat,
+  Packer,
+  Paragraph,
+  SimpleField,
+  TextRun,
+} from "docx";
 import { saveAs } from "file-saver";
 
 export interface WordFormattingConfig {
@@ -114,37 +123,39 @@ export async function exportAtaToWord(
     }
 
     if (clean.startsWith("✓")) {
+      // Native Word level-0 bullet ✓
+      const text = clean.replace(/^✓\s*/, "");
       paragraphs.push(
         new Paragraph({
-          alignment: bodyAlignment,
-          indent: { left: 360, hanging: 220 },
+          numbering: { reference: "debtList", level: 0 },
           spacing: { line: lineSpacing, before: 180, after: Math.round(paragraphSpacingAfter * 0.45) },
-          children: [new TextRun({ text: clean, size, font, bold: true })],
-        })
+          children: [new TextRun({ text, size, font, bold: true })],
+        }),
       );
       continue;
     }
 
     if (clean.startsWith("o ") || clean.startsWith("o\t")) {
+      // Native Word level-1 sub-bullet
+      const text = clean.replace(/^o[\s\t]+/, "");
       paragraphs.push(
         new Paragraph({
-          alignment: bodyAlignment,
-          indent: { left: 720, hanging: 180 },
+          numbering: { reference: "debtList", level: 1 },
           spacing: { line: lineSpacing, after: Math.round(paragraphSpacingAfter * 0.4) },
-          children: [new TextRun({ text: clean, size, font })],
-        })
+          children: [new TextRun({ text, size, font })],
+        }),
       );
       continue;
     }
 
     if (clean.startsWith("•") || clean.startsWith("ü") || clean.startsWith("-")) {
+      const text = clean.replace(/^[•ü\-]\s*/, "");
       paragraphs.push(
         new Paragraph({
-          alignment: AlignmentType.LEFT,
-          indent: { left: 360, hanging: 180 },
+          numbering: { reference: "genericBullets", level: 0 },
           spacing: { line: lineSpacing, after: Math.round(paragraphSpacingAfter * 0.67) },
-          children: [new TextRun({ text: clean, size, font })],
-        })
+          children: [new TextRun({ text, size, font })],
+        }),
       );
       continue;
     }
@@ -220,6 +231,41 @@ export async function exportAtaToWord(
   );
 
   const doc = new Document({
+    numbering: {
+      config: [
+        {
+          reference: "debtList",
+          levels: [
+            {
+              level: 0,
+              format: LevelFormat.BULLET,
+              text: "\u2713", // ✓
+              alignment: AlignmentType.LEFT,
+              style: { paragraph: { indent: { left: 360, hanging: 260 } } },
+            },
+            {
+              level: 1,
+              format: LevelFormat.BULLET,
+              text: "o",
+              alignment: AlignmentType.LEFT,
+              style: { paragraph: { indent: { left: 900, hanging: 260 } } },
+            },
+          ],
+        },
+        {
+          reference: "genericBullets",
+          levels: [
+            {
+              level: 0,
+              format: LevelFormat.BULLET,
+              text: "\u2022",
+              alignment: AlignmentType.LEFT,
+              style: { paragraph: { indent: { left: 360, hanging: 260 } } },
+            },
+          ],
+        },
+      ],
+    },
     sections: [
       {
         properties: {
