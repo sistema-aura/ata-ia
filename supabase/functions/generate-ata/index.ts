@@ -405,9 +405,13 @@ function buildAtaDeterministic(
 
 
   // ── Closing
+  const horaFimExtenso = timeToWords(formData.horaFim || "");
   const closingText = getText(fmt, "closing_text")
-    .replace("[hora]", formData.horaFim || "")
-    .replace("[minutos]", "")
+    .replace(/\[hora\]\s*horas\s*e\s*\[minutos\]\s*minutos/gi, horaFimExtenso)
+    .replace(/\[hora\]\s*horas/gi, horaFimExtenso)
+    .replace(/\[hora\]/g, horaFimExtenso)
+    .replace(/\s*e\s*\[minutos\]\s*minutos/gi, "")
+    .replace(/\[minutos\]/g, "")
     .replace("[data por extenso]", dataExtenso);
   sections.push(closingText);
 
