@@ -347,8 +347,9 @@ function buildAtaDeterministic(
 
   sections.push(legalText);
 
-  // ── Points (deliberations) — presets and manual custom text are always verbatim.
-  //     Only when a personalizado point has NO notas do we ask the AI to draft a paragraph.
+  // ── Points (deliberations) — SEMPRE literais. Nunca chamamos IA.
+  //     Se o ponto personalizado não tiver notas, deixamos um marcador visível
+  //     para o utilizador preencher manualmente antes de entregar a ata.
   if (pontosOrdemDia?.length) {
     for (let i = 0; i < pontosOrdemDia.length; i++) {
       const p = pontosOrdemDia[i];
@@ -359,19 +360,20 @@ function buildAtaDeterministic(
         if (p.notas) pointText += `\n${p.notas}`;
         sections.push(pointText);
       } else if (p.notas && p.notas.trim().length > 0) {
-        // Custom point WITH user-authored text: use verbatim, never call AI
         sections.push(`${rotulo} ${p.titulo}\n${p.notas}`);
       } else {
-        // Custom point without notas: fall back to AI draft
-        customPoints.push({ index: i, titulo: p.titulo || "", notas: "" });
-        sections.push(`${rotulo} ${p.titulo}\n{{AI_PONTO_${i}}}`);
+        sections.push(`${rotulo} ${p.titulo}\n[POR PREENCHER — adicione aqui a deliberação deste ponto]`);
       }
     }
   }
 
-  // ── Debts
+  // ── Debts (with inline warning marker placed IMMEDIATELY before the section)
   const { text: dividasText, warnings: debtWarnings } = buildDividas(dividasData, fmt);
-  if (dividasText) sections.push(dividasText);
+  if (dividasText) {
+    if (debtWarnings.length > 0) sections.push("{{DEBT_WARNING_BANNER}}");
+    sections.push(dividasText);
+  }
+
 
   // ── Closing
   const closingText = getText(fmt, "closing_text")
