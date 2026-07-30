@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { groupDebts, GroupedSubitem, DebtWarning } from "./debtGrouping.ts";
+import { groupDebts, parseMoney, GroupedSubitem, DebtWarning } from "./debtGrouping.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -270,7 +270,7 @@ function buildDividas(
     }
   }
 
-  lines.push(`\n${totalLabel} € ${fmtMoney(parseFloat(String(dividasData.totalDivida || "0").replace(",", ".")) || grouped.reduce((s, d) => s + d.totalLido, 0))}`);
+  lines.push(`\n${totalLabel} € ${fmtMoney(parseMoney(dividasData.totalDivida) || grouped.reduce((s, d) => s + d.totalLido, 0))}`);
   return { text: lines.join("\n"), warnings };
 }
 
