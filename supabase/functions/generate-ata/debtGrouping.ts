@@ -43,13 +43,39 @@ export interface DebtWarning {
   diferenca: number;
 }
 
-const parseMoney = (v?: string | number | null): number => {
+export const parseMoney = (v?: string | number | null): number => {
   if (v === null || v === undefined) return 0;
-  if (typeof v === "number") return v;
-  const s = String(v).replace(/[€\s]/g, "").replace(/\./g, "").replace(",", ".");
+  if (typeof v === "number") return isNaN(v) ? 0 : v;
+  let s = String(v).replace(/[^\d.,-]/g, "").trim();
+  if (!s) return 0;
+
+  const lastDot = s.lastIndexOf(".");
+  const lastComma = s.lastIndexOf(",");
+
+  if (lastDot >= 0 && lastComma >= 0) {
+    // Both present: the right-most one is the decimal separator
+    if (lastComma > lastDot) {
+      s = s.replace(/\./g, "").replace(",", ".");
+    } else {
+      s = s.replace(/,/g, "");
+    }
+  } else if (lastComma >= 0) {
+    const decimals = s.length - lastComma - 1;
+    // "1,234" with exactly 3 digits and more than one group => thousands sep
+    s = decimals === 3 && /^\d{1,3}(,\d{3})+$/.test(s)
+      ? s.replace(/,/g, "")
+      : s.replace(",", ".");
+  } else if (lastDot >= 0) {
+    const decimals = s.length - lastDot - 1;
+    s = decimals === 3 && /^\d{1,3}(\.\d{3})+$/.test(s)
+      ? s.replace(/\./g, "")
+      : s;
+  }
+
   const n = parseFloat(s);
   return isNaN(n) ? 0 : n;
 };
+
 
 const normalizeMonth = (m?: string): string => {
   if (!m) return "";
