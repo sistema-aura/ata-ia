@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Eye, FileText, Plus, Search, Sparkles, Trash2, Loader2 } from "lucide-react";
+import { Eye, FileText, Pencil, Plus, Search, Sparkles, Trash2, Loader2, X } from "lucide-react";
 
 type Assembleia = {
   id: string;
@@ -41,6 +41,8 @@ const Assembleias = () => {
   const [showForm, setShowForm] = useState(false);
   const [viewUrl, setViewUrl] = useState<string | null>(null);
   const [pesquisa, setPesquisa] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formKey, setFormKey] = useState(0);
 
   const filtro = pesquisa.trim().toLowerCase();
   const listaFiltrada = lista.filter((a) => {
@@ -59,23 +61,54 @@ const Assembleias = () => {
 
   const set = (k: keyof typeof vazio, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
+  const editar = (a: Assembleia) => {
+    setEditingId(a.id);
+    setForm({
+      nome_condominio: a.nome_condominio || "",
+      nif: a.nif || "",
+      data_assembleia: a.data_assembleia || "",
+      hora: a.hora || "",
+      tipo: a.tipo || "ordinaria",
+      convocatoria: a.convocatoria || "primeira",
+      local_reuniao: a.local_reuniao || "",
+      notas: a.notas || "",
+    });
+    setFile(null);
+    setShowForm(true);
+    setFormKey((k) => k + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const cancelarEdicao = () => {
+    setEditingId(null);
+    setForm(vazio);
+    setFile(null);
+    setShowForm(false);
+    setFormKey((k) => k + 1);
+  };
+
   const guardar = async () => {
     if (!form.nome_condominio) return toast.error("Indique o prédio.");
     setSaving(true);
     try {
-      let ficheiro_path = null, ficheiro_nome = null;
+      let ficheiro_path = editingId ? (lista.find((a) => a.id === editingId)?.ficheiro_path ?? null) : null;
+      let ficheiro_nome = editingId ? (lista.find((a) => a.id === editingId)?.ficheiro_nome ?? null) : null;
       if (file) {
         const path = `${crypto.randomUUID()}-${file.name.replace(/[^\w.-]/g, "_")}`;
         const { error } = await supabase.storage.from("assembleias").upload(path, file);
         if (error) throw error;
+        if (ficheiro_path) await supabase.storage.from("assembleias").remove([ficheiro_path]);
         ficheiro_path = path; ficheiro_nome = file.name;
       }
-      const { error } = await db.from("assembleias").insert({
-        ...form, data_assembleia: form.data_assembleia || null, ficheiro_path, ficheiro_nome,
-      });
+      const payload = { ...form, data_assembleia: form.data_assembleia || null, ficheiro_path, ficheiro_nome };
+      const { error } = editingId
+        ? await db.from("assembleias").update(payload).eq("id", editingId)
+        : await db.from("assembleias").insert(payload);
       if (error) throw error;
-      toast.success("Assembleia guardada");
-      setForm(vazio); setFile(null); setShowForm(false); load();
+      toast.success(editingId ? "Assembleia atualizada" : "Assembleia guardada");
+      setForm(vazio); setFile(null); setShowForm(false); setEditingId(null);
+      setFormKey((k) => k + 1);
+      load();
     } catch (e: any) {
       toast.error(e.message || "Erro ao guardar");
     } finally { setSaving(false); }
@@ -101,7 +134,7 @@ const Assembleias = () => {
       <div className="mx-auto max-w-5xl space-y-6 p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="font-heading text-2xl font-bold text-foreground">Assembleias</h1>
-          <Button onClick={() => setShowForm((s) => !s)}><Plus className="mr-2 h-4 w-4" />Nova assembleia</Button>
+          <Button onClick={() => { setEditingId(null); setForm(vazio); setFile(null); setShowForm(true); setFormKey((k) => k + 1); }}><Plus className="mr-2 h-4 w-4" />Nova assembleia</Button>
         </div>
 
         <div className="relative">
@@ -115,7 +148,13 @@ const Assembleias = () => {
         </div>
 
         {showForm && (
-          <div className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-document">
+          <div key={formKey} className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-document">
+            <div className="flex items-center justify-between">
+              <h2 className="font-heading text-lg font-bold text-foreground">{editingId ? "Editar assembleia" : "Nova assembleia"}</h2>
+              {editingId && (
+                <Button variant="ghost" size="sm" onClick={cancelarEdicao}><X className="mr-1 h-4 w-4" />Cancelar</Button>
+              )}
+            </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2"><Label>Prédio / Condomínio</Label><Input value={form.nome_condominio} onChange={(e) => set("nome_condominio", e.target.value)} /></div>
               <div className="space-y-2"><Label>NIF do prédio</Label><Input value={form.nif} onChange={(e) => set("nif", e.target.value)} /></div>
@@ -132,10 +171,13 @@ const Assembleias = () => {
                   <SelectContent><SelectItem value="primeira">Primeira</SelectItem><SelectItem value="segunda">Segunda</SelectItem></SelectContent>
                 </Select></div>
               <div className="space-y-2"><Label>Local da reunião</Label><Input value={form.local_reuniao} onChange={(e) => set("local_reuniao", e.target.value)} /></div>
-              <div className="space-y-2"><Label>Documento digitalizado (PDF)</Label><Input type="file" accept=".pdf,image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} /></div>
+              <div className="space-y-2"><Label>Documento digitalizado (PDF)</Label><Input key={`f-${formKey}`} type="file" accept=".pdf,image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} /></div>
             </div>
             <div className="space-y-2"><Label>Notas</Label><Textarea value={form.notas} onChange={(e) => set("notas", e.target.value)} /></div>
-            <Button onClick={guardar} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Guardar</Button>
+            <div className="flex gap-2">
+              <Button onClick={guardar} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{editingId ? "Guardar alterações" : "Guardar"}</Button>
+              {!editingId && <Button variant="outline" onClick={cancelarEdicao}>Cancelar</Button>}
+            </div>
           </div>
         )}
 
@@ -157,6 +199,7 @@ const Assembleias = () => {
               </div>
               <div className="flex gap-2">
                 {a.ficheiro_path && <Button variant="outline" size="sm" onClick={() => ver(a)}><Eye className="mr-1 h-4 w-4" />Ver</Button>}
+                <Button variant="outline" size="sm" onClick={() => editar(a)}><Pencil className="mr-1 h-4 w-4" />Editar</Button>
                 <Button size="sm" onClick={() => fazerAta(a)}><Sparkles className="mr-1 h-4 w-4" />Fazer ata</Button>
                 <Button variant="ghost" size="sm" onClick={() => apagar(a)}><Trash2 className="h-4 w-4" /></Button>
               </div>
