@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Dashboard from "./pages/Dashboard";
 import NovaAta from "./pages/NovaAta";
+import Assembleias from "./pages/Assembleias";
 import Historico from "./pages/Historico";
 import AdminTemplates from "./pages/admin/AdminTemplates";
 import AdminFormatacao from "./pages/admin/AdminFormatacao";
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/signup" element={<Navigate to="/dashboard" replace />} />
             <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/assembleias" element={<Assembleias />} />
             <Route path="/nova-ata" element={<NovaAta />} />
             <Route path="/historico" element={<Historico />} />
             <Route path="/templates" element={<AdminTemplates />} />

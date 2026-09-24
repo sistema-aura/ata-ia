@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FileText, History, LayoutDashboard, Shield, Palette } from "lucide-react";
+import { FileText, History, LayoutDashboard, Shield, Palette, FolderOpen } from "lucide-react";
 
 export const AppSidebar = () => {
   const { company } = useAuth();
@@ -19,6 +19,7 @@ export const AppSidebar = () => {
 
   const menuItems = [
     { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+    { title: "Assembleias", icon: FolderOpen, path: "/assembleias" },
     { title: "Nova Ata", icon: FileText, path: "/nova-ata" },
     { title: "Histórico", icon: History, path: "/historico" },
     { title: "Templates", icon: FileText, path: "/templates" },
