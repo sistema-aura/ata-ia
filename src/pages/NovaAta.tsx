@@ -34,7 +34,7 @@ const NovaAta = () => {
     return {
       ...base,
       nomeCondominio: a.nome_condominio || base.nomeCondominio,
-      morada: a.morada || base.morada,
+      nifCondominio: a.nif || base.nifCondominio,
       dataAssembleia: a.data_assembleia || base.dataAssembleia,
       horaInicio: a.hora || base.horaInicio,
       tipoAssembleia: a.tipo || base.tipoAssembleia,
