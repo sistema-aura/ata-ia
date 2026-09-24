@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { AtaFormData, getDefaultFormData, PontoOrdemDia, PresencasData, DividasData, CompanyTemplate, PONTO_VAZIO } from "@/types/ata";
 import { WordFormattingConfig } from "@/lib/exportWord";
 import { AssemblyInfoForm } from "@/components/AssemblyInfoForm";
@@ -25,7 +26,22 @@ const formatPermilagem = (value?: string | number | null) => {
 
 const NovaAta = () => {
   const { company } = useAuth();
-  const [formData, setFormData] = useState<AtaFormData>(getDefaultFormData());
+  const location = useLocation();
+  const [formData, setFormData] = useState<AtaFormData>(() => {
+    const base = getDefaultFormData();
+    const a = (location.state as any)?.assembleia;
+    if (!a) return base;
+    return {
+      ...base,
+      nomeCondominio: a.nome_condominio || base.nomeCondominio,
+      morada: a.morada || base.morada,
+      dataAssembleia: a.data_assembleia || base.dataAssembleia,
+      horaInicio: a.hora || base.horaInicio,
+      tipoAssembleia: a.tipo || base.tipoAssembleia,
+      convocatoria: a.convocatoria || base.convocatoria,
+      localReuniao: a.local_reuniao || base.localReuniao,
+    };
+  });
   const [ataGerada, setAtaGerada] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeStep, setActiveStep] = useState<"form" | "preview">("form");
