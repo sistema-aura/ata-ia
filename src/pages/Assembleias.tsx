@@ -91,19 +91,24 @@ const Assembleias = () => {
     if (!form.nome_condominio) return toast.error("Indique o prédio.");
     setSaving(true);
     try {
-      let ficheiro_path = null, ficheiro_nome = null;
+      let ficheiro_path = editingId ? (lista.find((a) => a.id === editingId)?.ficheiro_path ?? null) : null;
+      let ficheiro_nome = editingId ? (lista.find((a) => a.id === editingId)?.ficheiro_nome ?? null) : null;
       if (file) {
         const path = `${crypto.randomUUID()}-${file.name.replace(/[^\w.-]/g, "_")}`;
         const { error } = await supabase.storage.from("assembleias").upload(path, file);
         if (error) throw error;
+        if (ficheiro_path) await supabase.storage.from("assembleias").remove([ficheiro_path]);
         ficheiro_path = path; ficheiro_nome = file.name;
       }
-      const { error } = await db.from("assembleias").insert({
-        ...form, data_assembleia: form.data_assembleia || null, ficheiro_path, ficheiro_nome,
-      });
+      const payload = { ...form, data_assembleia: form.data_assembleia || null, ficheiro_path, ficheiro_nome };
+      const { error } = editingId
+        ? await db.from("assembleias").update(payload).eq("id", editingId)
+        : await db.from("assembleias").insert(payload);
       if (error) throw error;
-      toast.success("Assembleia guardada");
-      setForm(vazio); setFile(null); setShowForm(false); load();
+      toast.success(editingId ? "Assembleia atualizada" : "Assembleia guardada");
+      setForm(vazio); setFile(null); setShowForm(false); setEditingId(null);
+      setFormKey((k) => k + 1);
+      load();
     } catch (e: any) {
       toast.error(e.message || "Erro ao guardar");
     } finally { setSaving(false); }
