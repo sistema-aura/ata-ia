@@ -134,7 +134,7 @@ const Assembleias = () => {
       <div className="mx-auto max-w-5xl space-y-6 p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="font-heading text-2xl font-bold text-foreground">Assembleias</h1>
-          <Button onClick={() => setShowForm((s) => !s)}><Plus className="mr-2 h-4 w-4" />Nova assembleia</Button>
+          <Button onClick={() => { setEditingId(null); setForm(vazio); setFile(null); setShowForm(true); setFormKey((k) => k + 1); }}><Plus className="mr-2 h-4 w-4" />Nova assembleia</Button>
         </div>
 
         <div className="relative">
