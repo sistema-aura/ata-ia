@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      assembleias: {
+        Row: {
+          convocatoria: string | null
+          created_at: string
+          data_assembleia: string | null
+          ficheiro_nome: string | null
+          ficheiro_path: string | null
+          hora: string | null
+          id: string
+          local_reuniao: string | null
+          morada: string | null
+          nome_condominio: string
+          notas: string | null
+          tipo: string | null
+        }
+        Insert: {
+          convocatoria?: string | null
+          created_at?: string
+          data_assembleia?: string | null
+          ficheiro_nome?: string | null
+          ficheiro_path?: string | null
+          hora?: string | null
+          id?: string
+          local_reuniao?: string | null
+          morada?: string | null
+          nome_condominio: string
+          notas?: string | null
+          tipo?: string | null
+        }
+        Update: {
+          convocatoria?: string | null
+          created_at?: string
+          data_assembleia?: string | null
+          ficheiro_nome?: string | null
+          ficheiro_path?: string | null
+          hora?: string | null
+          id?: string
+          local_reuniao?: string | null
+          morada?: string | null
+          nome_condominio?: string
+          notas?: string | null
+          tipo?: string | null
+        }
+        Relationships: []
+      }
       atas: {
         Row: {
           company_id: string | null
