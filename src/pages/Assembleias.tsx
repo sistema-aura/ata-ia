@@ -148,7 +148,13 @@ const Assembleias = () => {
         </div>
 
         {showForm && (
-          <div className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-document">
+          <div key={formKey} className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-document">
+            <div className="flex items-center justify-between">
+              <h2 className="font-heading text-lg font-bold text-foreground">{editingId ? "Editar assembleia" : "Nova assembleia"}</h2>
+              {editingId && (
+                <Button variant="ghost" size="sm" onClick={cancelarEdicao}><X className="mr-1 h-4 w-4" />Cancelar</Button>
+              )}
+            </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2"><Label>Prédio / Condomínio</Label><Input value={form.nome_condominio} onChange={(e) => set("nome_condominio", e.target.value)} /></div>
               <div className="space-y-2"><Label>NIF do prédio</Label><Input value={form.nif} onChange={(e) => set("nif", e.target.value)} /></div>
@@ -165,10 +171,13 @@ const Assembleias = () => {
                   <SelectContent><SelectItem value="primeira">Primeira</SelectItem><SelectItem value="segunda">Segunda</SelectItem></SelectContent>
                 </Select></div>
               <div className="space-y-2"><Label>Local da reunião</Label><Input value={form.local_reuniao} onChange={(e) => set("local_reuniao", e.target.value)} /></div>
-              <div className="space-y-2"><Label>Documento digitalizado (PDF)</Label><Input type="file" accept=".pdf,image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} /></div>
+              <div className="space-y-2"><Label>Documento digitalizado (PDF)</Label><Input key={`f-${formKey}`} type="file" accept=".pdf,image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} /></div>
             </div>
             <div className="space-y-2"><Label>Notas</Label><Textarea value={form.notas} onChange={(e) => set("notas", e.target.value)} /></div>
-            <Button onClick={guardar} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Guardar</Button>
+            <div className="flex gap-2">
+              <Button onClick={guardar} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{editingId ? "Guardar alterações" : "Guardar"}</Button>
+              {!editingId && <Button variant="outline" onClick={cancelarEdicao}>Cancelar</Button>}
+            </div>
           </div>
         )}
 
@@ -190,6 +199,7 @@ const Assembleias = () => {
               </div>
               <div className="flex gap-2">
                 {a.ficheiro_path && <Button variant="outline" size="sm" onClick={() => ver(a)}><Eye className="mr-1 h-4 w-4" />Ver</Button>}
+                <Button variant="outline" size="sm" onClick={() => editar(a)}><Pencil className="mr-1 h-4 w-4" />Editar</Button>
                 <Button size="sm" onClick={() => fazerAta(a)}><Sparkles className="mr-1 h-4 w-4" />Fazer ata</Button>
                 <Button variant="ghost" size="sm" onClick={() => apagar(a)}><Trash2 className="h-4 w-4" /></Button>
               </div>
