@@ -14,7 +14,7 @@ import { Eye, FileText, Plus, Sparkles, Trash2, Loader2 } from "lucide-react";
 type Assembleia = {
   id: string;
   nome_condominio: string;
-  morada: string | null;
+  nif: string | null;
   data_assembleia: string | null;
   hora: string | null;
   tipo: string | null;
@@ -26,7 +26,7 @@ type Assembleia = {
 };
 
 const vazio = {
-  nome_condominio: "", morada: "", data_assembleia: "", hora: "",
+  nome_condominio: "", nif: "", data_assembleia: "", hora: "",
   tipo: "ordinaria", convocatoria: "primeira", local_reuniao: "", notas: "",
 };
 
@@ -98,7 +98,7 @@ const Assembleias = () => {
           <div className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-document">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2"><Label>Prédio / Condomínio</Label><Input value={form.nome_condominio} onChange={(e) => set("nome_condominio", e.target.value)} /></div>
-              <div className="space-y-2"><Label>Morada</Label><Input value={form.morada} onChange={(e) => set("morada", e.target.value)} /></div>
+              <div className="space-y-2"><Label>NIF do prédio</Label><Input value={form.nif} onChange={(e) => set("nif", e.target.value)} /></div>
               <div className="space-y-2"><Label>Data</Label><Input type="date" value={form.data_assembleia} onChange={(e) => set("data_assembleia", e.target.value)} /></div>
               <div className="space-y-2"><Label>Hora</Label><Input type="time" value={form.hora} onChange={(e) => set("hora", e.target.value)} /></div>
               <div className="space-y-2"><Label>Tipo</Label>
