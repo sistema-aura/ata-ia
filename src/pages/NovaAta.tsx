@@ -27,21 +27,25 @@ const formatPermilagem = (value?: string | number | null) => {
 const NovaAta = () => {
   const { company } = useAuth();
   const location = useLocation();
-  const [formData, setFormData] = useState<AtaFormData>(() => {
-    const base = getDefaultFormData();
-    const a = (location.state as any)?.assembleia;
-    if (!a) return base;
+  const assembleia = (location.state as any)?.assembleia as any | null;
+
+  const aplicarPrefill = (base: AtaFormData): AtaFormData => {
+    if (!assembleia) return base;
     return {
       ...base,
-      nomeCondominio: a.nome_condominio || base.nomeCondominio,
-      nifCondominio: a.nif || base.nifCondominio,
-      dataAssembleia: a.data_assembleia || base.dataAssembleia,
-      horaInicio: a.hora || base.horaInicio,
-      tipoAssembleia: a.tipo || base.tipoAssembleia,
-      convocatoria: a.convocatoria || base.convocatoria,
-      localReuniao: a.local_reuniao || base.localReuniao,
+      nomeCondominio: assembleia.nome_condominio || base.nomeCondominio,
+      nifCondominio: assembleia.nif || base.nifCondominio,
+      dataAssembleia: assembleia.data_assembleia || base.dataAssembleia,
+      horaInicio: assembleia.hora || base.horaInicio,
+      tipoAssembleia: assembleia.tipo || base.tipoAssembleia,
+      convocatoria: assembleia.convocatoria || base.convocatoria,
+      localReuniao: assembleia.local_reuniao || base.localReuniao,
     };
-  });
+  };
+
+  const [formData, setFormData] = useState<AtaFormData>(() =>
+    aplicarPrefill(getDefaultFormData())
+  );
   const [ataGerada, setAtaGerada] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeStep, setActiveStep] = useState<"form" | "preview">("form");
@@ -70,7 +74,12 @@ const NovaAta = () => {
           presidente_mesa_padrao: tData.presidente_mesa_padrao || "",
         };
         setTemplate(t);
-        setFormData(getDefaultFormData(t));
+        setFormData((prev) => ({
+          ...aplicarPrefill(getDefaultFormData(t)),
+          pontosOrdemDia: prev.pontosOrdemDia.some((p) => p.titulo)
+            ? prev.pontosOrdemDia
+            : getDefaultFormData(t).pontosOrdemDia,
+        }));
       }
 
       // Load formatting
