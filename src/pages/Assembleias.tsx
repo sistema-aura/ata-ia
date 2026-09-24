@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Eye, FileText, Plus, Search, Sparkles, Trash2, Loader2 } from "lucide-react";
+import { Eye, FileText, Pencil, Plus, Search, Sparkles, Trash2, Loader2, X } from "lucide-react";
 
 type Assembleia = {
   id: string;
@@ -41,6 +41,8 @@ const Assembleias = () => {
   const [showForm, setShowForm] = useState(false);
   const [viewUrl, setViewUrl] = useState<string | null>(null);
   const [pesquisa, setPesquisa] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formKey, setFormKey] = useState(0);
 
   const filtro = pesquisa.trim().toLowerCase();
   const listaFiltrada = lista.filter((a) => {
@@ -58,6 +60,32 @@ const Assembleias = () => {
   useEffect(() => { load(); }, []);
 
   const set = (k: keyof typeof vazio, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  const editar = (a: Assembleia) => {
+    setEditingId(a.id);
+    setForm({
+      nome_condominio: a.nome_condominio || "",
+      nif: a.nif || "",
+      data_assembleia: a.data_assembleia || "",
+      hora: a.hora || "",
+      tipo: a.tipo || "ordinaria",
+      convocatoria: a.convocatoria || "primeira",
+      local_reuniao: a.local_reuniao || "",
+      notas: a.notas || "",
+    });
+    setFile(null);
+    setShowForm(true);
+    setFormKey((k) => k + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const cancelarEdicao = () => {
+    setEditingId(null);
+    setForm(vazio);
+    setFile(null);
+    setShowForm(false);
+    setFormKey((k) => k + 1);
+  };
 
   const guardar = async () => {
     if (!form.nome_condominio) return toast.error("Indique o prédio.");
