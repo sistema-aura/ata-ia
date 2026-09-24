@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Eye, FileText, Plus, Sparkles, Trash2, Loader2 } from "lucide-react";
+import { Eye, FileText, Plus, Search, Sparkles, Trash2, Loader2 } from "lucide-react";
 
 type Assembleia = {
   id: string;
@@ -40,6 +40,16 @@ const Assembleias = () => {
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [viewUrl, setViewUrl] = useState<string | null>(null);
+  const [pesquisa, setPesquisa] = useState("");
+
+  const filtro = pesquisa.trim().toLowerCase();
+  const listaFiltrada = lista.filter((a) => {
+    if (!filtro) return true;
+    const nome = (a.nome_condominio || "").toLowerCase();
+    const dataPt = a.data_assembleia ? new Date(a.data_assembleia).toLocaleDateString("pt-PT") : "";
+    const dataIso = a.data_assembleia || "";
+    return nome.includes(filtro) || dataPt.includes(filtro) || dataIso.includes(filtro);
+  });
 
   const load = async () => {
     const { data } = await db.from("assembleias").select("*").order("data_assembleia", { ascending: false });
@@ -89,9 +99,19 @@ const Assembleias = () => {
   return (
     <AppLayout>
       <div className="mx-auto max-w-5xl space-y-6 p-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="font-heading text-2xl font-bold text-foreground">Assembleias</h1>
           <Button onClick={() => setShowForm((s) => !s)}><Plus className="mr-2 h-4 w-4" />Nova assembleia</Button>
+        </div>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Pesquisar por condomínio ou data (ex.: 24/09/2026)"
+            value={pesquisa}
+            onChange={(e) => setPesquisa(e.target.value)}
+            className="pl-9"
+          />
         </div>
 
         {showForm && (
@@ -120,8 +140,12 @@ const Assembleias = () => {
         )}
 
         <div className="space-y-3">
-          {lista.length === 0 && <p className="text-muted-foreground">Ainda não há assembleias guardadas.</p>}
-          {lista.map((a) => (
+          {listaFiltrada.length === 0 && (
+            <p className="text-muted-foreground">
+              {lista.length === 0 ? "Ainda não há assembleias guardadas." : "Nenhuma assembleia corresponde à pesquisa."}
+            </p>
+          )}
+          {listaFiltrada.map((a) => (
             <div key={a.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4">
               <div>
                 <p className="font-medium text-foreground">{a.nome_condominio}</p>

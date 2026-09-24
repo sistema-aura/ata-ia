@@ -25,6 +25,7 @@ export type Database = {
           id: string
           local_reuniao: string | null
           morada: string | null
+          nif: string | null
           nome_condominio: string
           notas: string | null
           tipo: string | null
@@ -39,6 +40,7 @@ export type Database = {
           id?: string
           local_reuniao?: string | null
           morada?: string | null
+          nif?: string | null
           nome_condominio: string
           notas?: string | null
           tipo?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           id?: string
           local_reuniao?: string | null
           morada?: string | null
+          nif?: string | null
           nome_condominio?: string
           notas?: string | null
           tipo?: string | null
