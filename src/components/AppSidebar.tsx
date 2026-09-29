@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { FileText, History, LayoutDashboard, Shield, Palette, FolderOpen } from "lucide-react";
+import logoAsset from "@/assets/atasia-logo.png.asset.json";
 
 export const AppSidebar = () => {
   const { company } = useAuth();
@@ -30,9 +31,11 @@ export const AppSidebar = () => {
     <Sidebar>
       <SidebarHeader className="border-b border-border p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-            <FileText className="h-4 w-4 text-primary-foreground" />
-          </div>
+          <img
+            src={logoAsset.url}
+            alt="Logótipo AtasIA"
+            className="h-10 w-10 shrink-0 object-contain"
+          />
           <div className="min-w-0">
             <h2 className="font-heading text-lg font-bold text-foreground leading-tight">
               Atas<span className="text-gradient-gold">IA</span>
