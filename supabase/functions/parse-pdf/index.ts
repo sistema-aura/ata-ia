@@ -120,6 +120,12 @@ REGRAS DE EXTRAÇÃO:
     if (!response.ok) {
       const t = await response.text();
       console.error("AI parse error:", response.status, t);
+      if (response.status === 402) {
+        throw new Error("Créditos de IA esgotados. É preciso carregar créditos para voltar a processar documentos.");
+      }
+      if (response.status === 429) {
+        throw new Error("Demasiados pedidos de seguida. Aguarda um minuto e tenta novamente.");
+      }
       throw new Error("Erro ao analisar o documento");
     }
 
