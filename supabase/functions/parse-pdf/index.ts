@@ -9,8 +9,8 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY não está configurada");
 
     const { fileBase64, fileType, parseType } = await req.json();
     // parseType: "ordem_dia" | "presencas"
@@ -94,22 +94,23 @@ REGRAS DE EXTRAÇÃO:
       throw new Error("parseType inválido");
     }
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-6-astra",
-        reasoning_effort: "low",
+        model: "gpt-4.1",
+        temperature: 0,
         messages: [
           {
             role: "user",
             content: [
               {
-                type: "image_url",
-                image_url: { url: `data:${mimeType};base64,${fileBase64}` },
+                ...(mimeType === "application/pdf"
+                  ? [{ type: "file", file: { filename: "documento.pdf", file_data: `data:application/pdf;base64,${fileBase64}` } }]
+                  : [{ type: "image_url", image_url: { url: `data:${mimeType};base64,${fileBase64}` } }]),
               },
               { type: "text", text: prompt },
             ],
@@ -122,7 +123,7 @@ REGRAS DE EXTRAÇÃO:
       const t = await response.text();
       console.error("AI parse error:", response.status, t);
       if (response.status === 402) {
-        throw new Error("Créditos de IA esgotados. É preciso carregar créditos para voltar a processar documentos.");
+        throw new Error("Saldo da API OpenAI insuficiente. Verifica a faturação da conta OpenAI.");
       }
       if (response.status === 429) {
         throw new Error("Demasiados pedidos de seguida. Aguarda um minuto e tenta novamente.");
