@@ -13,7 +13,7 @@ serve(async (req) => {
     if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY não está configurada");
 
     const { fileBase64, fileType, parseType } = await req.json();
-    // parseType: "ordem_dia" | "presencas"
+    // parseType: "ordem_dia" | "presencas" | "dividas"
 
     if (!fileBase64) throw new Error("Nenhum ficheiro enviado");
 
@@ -107,11 +107,9 @@ REGRAS DE EXTRAÇÃO:
           {
             role: "user",
             content: [
-              {
-                ...(mimeType === "application/pdf"
-                  ? [{ type: "file", file: { filename: "documento.pdf", file_data: `data:application/pdf;base64,${fileBase64}` } }]
-                  : [{ type: "image_url", image_url: { url: `data:${mimeType};base64,${fileBase64}` } }]),
-              },
+              ...(mimeType === "application/pdf"
+                ? [{ type: "file", file: { filename: "documento.pdf", file_data: `data:application/pdf;base64,${fileBase64}` } }]
+                : [{ type: "image_url", image_url: { url: `data:${mimeType};base64,${fileBase64}` } }]),
               { type: "text", text: prompt },
             ],
           },
