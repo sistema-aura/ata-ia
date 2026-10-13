@@ -94,31 +94,34 @@ REGRAS DE EXTRAÇÃO:
       throw new Error("parseType inválido");
     }
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // PDFs must be sent as input_file; only real images go as input_image
+    const isImage = mimeType.startsWith("image/");
+    const filePart = isImage
+      ? { type: "input_image", image_url: `data:${mimeType};base64,${fileBase64}` }
+      : { type: "input_file", filename: "documento.pdf", file_data: `data:application/pdf;base64,${fileBase64}` };
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
+        "X-Lovable-AIG-SDK": "fetch",
       },
       body: JSON.stringify({
         model: "openai/gpt-6-astra",
-        reasoning_effort: "low",
-        messages: [
+        stream: true,
+        store: false,
+        reasoning: { effort: "low" },
+        input: [
           {
             role: "user",
-            content: [
-              {
-                type: "image_url",
-                image_url: { url: `data:${mimeType};base64,${fileBase64}` },
-              },
-              { type: "text", text: prompt },
-            ],
+            content: [filePart, { type: "input_text", text: prompt }],
           },
         ],
       }),
     });
 
-    if (!response.ok) {
+    if (!response.ok || !response.body) {
       const t = await response.text();
       console.error("AI parse error:", response.status, t);
       if (response.status === 402) {
@@ -130,8 +133,37 @@ REGRAS DE EXTRAÇÃO:
       throw new Error("Erro ao analisar o documento");
     }
 
-    const result = await response.json();
-    const content = result.choices?.[0]?.message?.content || "";
+    // Consume SSE stream and collect output text
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let content = "";
+    let finalText = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let idx;
+      while ((idx = buffer.indexOf("\n")) !== -1) {
+        const line = buffer.slice(0, idx).trim();
+        buffer = buffer.slice(idx + 1);
+        if (!line.startsWith("data:")) continue;
+        const data = line.slice(5).trim();
+        if (!data || data === "[DONE]") continue;
+        try {
+          const evt = JSON.parse(data);
+          if (evt.type === "response.output_text.delta" && evt.delta) content += evt.delta;
+          else if (evt.type === "response.output_text.done" && evt.text) finalText = evt.text;
+          else if (evt.type === "response.failed" || evt.type === "error") {
+            console.error("AI stream error:", data);
+            throw new Error("Erro ao analisar o documento");
+          }
+        } catch (err) {
+          if (err instanceof Error && err.message === "Erro ao analisar o documento") throw err;
+        }
+      }
+    }
+    if (!content && finalText) content = finalText;
 
     // Extract JSON from response (handle potential markdown wrapping)
     let jsonStr = content.trim();
