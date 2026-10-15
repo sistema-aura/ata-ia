@@ -38,7 +38,7 @@ export const AppSidebar = () => {
             alt="Logótipo AtasIA"
             className="h-10 w-10 shrink-0 object-contain"
           />
-          <div className="min-w-0">
+          <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <h2 className="font-heading text-lg font-bold text-foreground leading-tight">
               Atas<span className="text-gradient-gold">IA</span>
             </h2>
