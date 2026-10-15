@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
-import { FileText, Trash2, Edit3, Loader2, Eye } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { FileText, Trash2, Edit3, Loader2, Eye, Search } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -28,6 +29,12 @@ const Historico = () => {
   const [editingAta, setEditingAta] = useState<Ata | null>(null);
   const [editContent, setEditContent] = useState("");
   const [viewingAta, setViewingAta] = useState<Ata | null>(null);
+  const [pesquisa, setPesquisa] = useState("");
+
+  const filtro = pesquisa.trim().toLowerCase();
+  const atasFiltradas = atas.filter((a) =>
+    !filtro || a.nome_condominio.toLowerCase().includes(filtro) || a.data_assembleia.includes(filtro)
+  );
 
   const fetchAtas = async () => {
     if (!company) return;
@@ -64,7 +71,17 @@ const Historico = () => {
   return (
     <AppLayout>
       <div className="container max-w-5xl py-8">
-        <h1 className="font-heading text-2xl font-bold text-foreground mb-8">Histórico de Atas</h1>
+        <h1 className="font-heading text-2xl font-bold text-foreground mb-4">Histórico de Atas</h1>
+
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Filtrar por condomínio ou data"
+            value={pesquisa}
+            onChange={(e) => setPesquisa(e.target.value)}
+            className="pl-9"
+          />
+        </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-accent" /></div>
@@ -76,7 +93,10 @@ const Historico = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {atas.map((ata) => (
+            {atasFiltradas.length === 0 && (
+              <p className="text-muted-foreground">Nenhuma ata corresponde à pesquisa.</p>
+            )}
+            {atasFiltradas.map((ata) => (
               <div key={ata.id} className="flex items-center justify-between rounded-lg border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-document">
                 <div className="min-w-0 flex-1">
                   <h3 className="font-heading font-semibold text-foreground truncate">{ata.nome_condominio}</h3>
