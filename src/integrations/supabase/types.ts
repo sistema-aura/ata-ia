@@ -28,6 +28,7 @@ export type Database = {
           nif: string | null
           nome_condominio: string
           notas: string | null
+          resumo_reuniao: string | null
           tipo: string | null
         }
         Insert: {
@@ -43,6 +44,7 @@ export type Database = {
           nif?: string | null
           nome_condominio: string
           notas?: string | null
+          resumo_reuniao?: string | null
           tipo?: string | null
         }
         Update: {
@@ -58,6 +60,7 @@ export type Database = {
           nif?: string | null
           nome_condominio?: string
           notas?: string | null
+          resumo_reuniao?: string | null
           tipo?: string | null
         }
         Relationships: []
@@ -310,6 +313,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      condominios: {
+        Row: {
+          ativo: boolean
+          codigo: string | null
+          created_at: string
+          fraccoes: number | null
+          id: string
+          morada: string | null
+          nif: string | null
+          nome: string
+          zonas: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          codigo?: string | null
+          created_at?: string
+          fraccoes?: number | null
+          id?: string
+          morada?: string | null
+          nif?: string | null
+          nome: string
+          zonas?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          codigo?: string | null
+          created_at?: string
+          fraccoes?: number | null
+          id?: string
+          morada?: string | null
+          nif?: string | null
+          nome?: string
+          zonas?: string | null
+        }
+        Relationships: []
       }
       payments: {
         Row: {
