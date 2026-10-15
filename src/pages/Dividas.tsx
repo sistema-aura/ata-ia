@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { CondominioCombobox, Condominio } from "@/components/CondominioCombobox";
 import { PdfUpload } from "@/components/PdfUpload";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { buildDebtText, DebtWarning, fmtMoney } from "@/lib/debtText";
+import { buildDebtText, DebtFormatting, DebtWarning, fmtMoney } from "@/lib/debtText";
 import { DividasData } from "@/types/ata";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Copy, Download, AlertTriangle, Wallet } from "lucide-react";
 
@@ -16,10 +17,22 @@ const Dividas = () => {
   const [texto, setTexto] = useState("");
   const [warnings, setWarnings] = useState<DebtWarning[]>([]);
   const [parsed, setParsed] = useState(false);
+  const [fmt, setFmt] = useState<DebtFormatting>({});
+
+  useEffect(() => {
+    supabase
+      .from("company_formatting")
+      .select("debt_section_intro_text, debt_total_label")
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setFmt(data as DebtFormatting);
+      });
+  }, []);
 
   const handleParsed = (data: DividasData) => {
     setDividasData(data);
-    const { text, warnings } = buildDebtText(data);
+    const { text, warnings } = buildDebtText(data, fmt);
     setTexto(text);
     setWarnings(warnings);
     setParsed(true);
