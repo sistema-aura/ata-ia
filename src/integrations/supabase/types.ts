@@ -28,6 +28,8 @@ export type Database = {
           nif: string | null
           nome_condominio: string
           notas: string | null
+          resumo_nome: string | null
+          resumo_path: string | null
           resumo_reuniao: string | null
           tipo: string | null
         }
@@ -44,6 +46,8 @@ export type Database = {
           nif?: string | null
           nome_condominio: string
           notas?: string | null
+          resumo_nome?: string | null
+          resumo_path?: string | null
           resumo_reuniao?: string | null
           tipo?: string | null
         }
@@ -60,6 +64,8 @@ export type Database = {
           nif?: string | null
           nome_condominio?: string
           notas?: string | null
+          resumo_nome?: string | null
+          resumo_path?: string | null
           resumo_reuniao?: string | null
           tipo?: string | null
         }
