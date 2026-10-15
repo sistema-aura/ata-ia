@@ -80,6 +80,7 @@ const Condominios = () => {
                   </div>
                   <div className="min-w-0">
                     <p className="truncate font-medium text-foreground group-hover:text-accent">
+                      <span className="mr-2 text-xs font-semibold text-muted-foreground">{c.codigo}</span>
                       {c.nome}
                     </p>
                     <p className="truncate text-xs text-muted-foreground">{c.morada}</p>
