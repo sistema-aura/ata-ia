@@ -88,6 +88,7 @@ const Assembleias = () => {
     setEditingId(null);
     setForm(vazio);
     setFile(null);
+    setResumoFile(null);
     setShowForm(false);
     setFormKey((k) => k + 1);
   };
@@ -105,13 +106,22 @@ const Assembleias = () => {
         if (ficheiro_path) await supabase.storage.from("assembleias").remove([ficheiro_path]);
         ficheiro_path = path; ficheiro_nome = file.name;
       }
-      const payload = { ...form, data_assembleia: form.data_assembleia || null, ficheiro_path, ficheiro_nome };
+      let resumo_path = editingId ? (lista.find((a) => a.id === editingId)?.resumo_path ?? null) : null;
+      let resumo_nome = editingId ? (lista.find((a) => a.id === editingId)?.resumo_nome ?? null) : null;
+      if (resumoFile) {
+        const path = `resumo-${crypto.randomUUID()}-${resumoFile.name.replace(/[^\w.-]/g, "_")}`;
+        const { error } = await supabase.storage.from("assembleias").upload(path, resumoFile);
+        if (error) throw error;
+        if (resumo_path) await supabase.storage.from("assembleias").remove([resumo_path]);
+        resumo_path = path; resumo_nome = resumoFile.name;
+      }
+      const payload = { ...form, data_assembleia: form.data_assembleia || null, ficheiro_path, ficheiro_nome, resumo_path, resumo_nome };
       const { error } = editingId
         ? await db.from("assembleias").update(payload).eq("id", editingId)
         : await db.from("assembleias").insert(payload);
       if (error) throw error;
       toast.success(editingId ? "Assembleia atualizada" : "Assembleia guardada");
-      setForm(vazio); setFile(null); setShowForm(false); setEditingId(null);
+      setForm(vazio); setFile(null); setResumoFile(null); setShowForm(false); setEditingId(null);
       setFormKey((k) => k + 1);
       load();
     } catch (e: any) {
@@ -125,9 +135,16 @@ const Assembleias = () => {
     if (data?.signedUrl) setViewUrl(data.signedUrl);
   };
 
+  const verResumo = async (a: Assembleia) => {
+    if (!a.resumo_path) return;
+    const { data } = await supabase.storage.from("assembleias").createSignedUrl(a.resumo_path, 3600);
+    if (data?.signedUrl) setViewUrl(data.signedUrl);
+  };
+
   const apagar = async (a: Assembleia) => {
     if (!confirm("Eliminar esta assembleia?")) return;
     if (a.ficheiro_path) await supabase.storage.from("assembleias").remove([a.ficheiro_path]);
+    if (a.resumo_path) await supabase.storage.from("assembleias").remove([a.resumo_path]);
     await db.from("assembleias").delete().eq("id", a.id);
     load();
   };
