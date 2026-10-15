@@ -29,6 +29,13 @@
       "when": 1792066426845,
       "tag": "0003_assembleias_documentos_multiplos",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792067095429,
+      "tag": "0004_assembleias_ata_feita",
+      "breakpoints": true
     }
   ]
 }

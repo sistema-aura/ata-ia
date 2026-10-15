@@ -1,0 +1,1 @@
+ALTER TABLE public.assembleias ADD COLUMN IF NOT EXISTS ata_feita boolean NOT NULL DEFAULT false;
