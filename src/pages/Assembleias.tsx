@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
-  ArrowLeft, CalendarDays, Download, Eye, FileText, FolderOpen, Folder,
+  ArrowLeft, CalendarDays, CheckCheck, Download, Eye, FileText, FolderOpen, Folder,
   Pencil, Plus, Search, Sparkles, Trash2, Loader2, X,
 } from "lucide-react";
 import { CondominioCombobox } from "@/components/CondominioCombobox";
