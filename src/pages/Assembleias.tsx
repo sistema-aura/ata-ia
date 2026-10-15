@@ -253,6 +253,13 @@ const Assembleias = () => {
 
   const fazerAta = (a: Assembleia) => navigate("/nova-ata", { state: { assembleia: a } });
 
+  const marcarAtaFeita = async (a: Assembleia) => {
+    const novo = !a.ata_feita;
+    await db.from("assembleias").update({ ata_feita: novo }).eq("id", a.id);
+    setLista((l) => l.map((x) => (x.id === a.id ? { ...x, ata_feita: novo } : x)));
+    toast.success(novo ? "Marcada como ata feita" : "Marcação removida");
+  };
+
   const docCount = (a: Assembleia) =>
     DOCS.filter((d) => a[`${d.key}_path` as keyof Assembleia]).length;
 
