@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { AtaFormData, getDefaultFormData, PontoOrdemDia, PresencasData, DividasData, CompanyTemplate, PONTO_VAZIO } from "@/types/ata";
 import { WordFormattingConfig } from "@/lib/exportWord";
@@ -223,6 +223,55 @@ const NovaAta = () => {
     setFormData((prev) => ({ ...prev, dividasData: data }));
     setDividasParsed(true);
   };
+
+  // Importa automaticamente os PDFs guardados na assembleia (ordem, presenças, dívidas)
+  const importouRef = useRef(false);
+  useEffect(() => {
+    if (!assembleia || importouRef.current || !template) return;
+    const docs = [
+      { path: assembleia.ordem_path, type: "ordem_dia" as const, handler: handleOrdemDiaParsed },
+      { path: assembleia.presencas_path, type: "presencas" as const, handler: handlePresencasParsed },
+      { path: assembleia.dividas_path, type: "dividas" as const, handler: handleDividasParsed },
+    ].filter((d) => d.path);
+    if (docs.length === 0) return;
+    importouRef.current = true;
+
+    (async () => {
+      let ok = 0;
+      for (const d of docs) {
+        try {
+          const { data: signed } = await supabase.storage.from("assembleias").createSignedUrl(d.path, 3600);
+          if (!signed?.signedUrl) continue;
+          const blob = await (await fetch(signed.signedUrl)).blob();
+          const base64 = await new Promise<string>((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res((r.result as string).split(",")[1]);
+            r.onerror = rej;
+            r.readAsDataURL(blob);
+          });
+          const resp = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parse-pdf`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              },
+              body: JSON.stringify({ fileBase64: base64, fileType: blob.type || "application/pdf", parseType: d.type }),
+            }
+          );
+          if (!resp.ok) continue;
+          const { data } = await resp.json();
+          d.handler(data);
+          ok++;
+        } catch {
+          // ignora falhas individuais
+        }
+      }
+      if (ok > 0) toast.success(`${ok} documento(s) da assembleia importado(s) automaticamente`);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [template]);
 
   const getResetPontos = () => {
     if (template?.pontos_padrao && template.pontos_padrao.length > 0) {

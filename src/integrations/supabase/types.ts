@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       assembleias: {
         Row: {
+          ata_feita: boolean
           convocatoria: string | null
           created_at: string
           data_assembleia: string | null
@@ -40,6 +41,7 @@ export type Database = {
           tipo: string | null
         }
         Insert: {
+          ata_feita?: boolean
           convocatoria?: string | null
           created_at?: string
           data_assembleia?: string | null
@@ -64,6 +66,7 @@ export type Database = {
           tipo?: string | null
         }
         Update: {
+          ata_feita?: boolean
           convocatoria?: string | null
           created_at?: string
           data_assembleia?: string | null

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
-  ArrowLeft, CalendarDays, Download, Eye, FileText, FolderOpen, Folder,
+  ArrowLeft, CalendarDays, CheckCheck, Download, Eye, FileText, FolderOpen, Folder,
   Pencil, Plus, Search, Sparkles, Trash2, Loader2, X,
 } from "lucide-react";
 import { CondominioCombobox } from "@/components/CondominioCombobox";
@@ -36,6 +36,7 @@ type Assembleia = {
   presencas_nome: string | null;
   dividas_path: string | null;
   dividas_nome: string | null;
+  ata_feita: boolean | null;
 };
 
 type CondominioInfo = { nome: string; codigo: string | null; morada: string | null };
@@ -252,6 +253,13 @@ const Assembleias = () => {
 
   const fazerAta = (a: Assembleia) => navigate("/nova-ata", { state: { assembleia: a } });
 
+  const marcarAtaFeita = async (a: Assembleia) => {
+    const novo = !a.ata_feita;
+    await db.from("assembleias").update({ ata_feita: novo }).eq("id", a.id);
+    setLista((l) => l.map((x) => (x.id === a.id ? { ...x, ata_feita: novo } : x)));
+    toast.success(novo ? "Marcada como ata feita" : "Marcação removida");
+  };
+
   const docCount = (a: Assembleia) =>
     DOCS.filter((d) => a[`${d.key}_path` as keyof Assembleia]).length;
 
@@ -412,8 +420,20 @@ const Assembleias = () => {
                       {a.convocatoria ? ` · ${a.convocatoria === "segunda" ? "2ª" : "1ª"} convocatória` : ""}
                       {a.local_reuniao ? ` · ${a.local_reuniao}` : ""}
                     </p>
+                    {a.ata_feita && (
+                      <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-950/40 dark:text-green-400">
+                        <CheckCheck className="h-3 w-3" />Ata feita
+                      </span>
+                    )}
                   </div>
                   <div className="flex gap-2">
+                    <Button
+                      variant={a.ata_feita ? "secondary" : "outline"}
+                      size="sm"
+                      onClick={() => marcarAtaFeita(a)}
+                    >
+                      <CheckCheck className="mr-1 h-4 w-4" />{a.ata_feita ? "Desmarcar" : "Ata feita"}
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => editar(a)}><Pencil className="mr-1 h-4 w-4" />Editar</Button>
                     <Button size="sm" onClick={() => fazerAta(a)}><Sparkles className="mr-1 h-4 w-4" />Fazer ata</Button>
                     <Button variant="ghost" size="sm" onClick={() => apagar(a)}><Trash2 className="h-4 w-4" /></Button>
