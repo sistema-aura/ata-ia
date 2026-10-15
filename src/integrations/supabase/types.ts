@@ -19,6 +19,8 @@ export type Database = {
           convocatoria: string | null
           created_at: string
           data_assembleia: string | null
+          dividas_nome: string | null
+          dividas_path: string | null
           ficheiro_nome: string | null
           ficheiro_path: string | null
           hora: string | null
@@ -28,6 +30,10 @@ export type Database = {
           nif: string | null
           nome_condominio: string
           notas: string | null
+          ordem_nome: string | null
+          ordem_path: string | null
+          presencas_nome: string | null
+          presencas_path: string | null
           resumo_nome: string | null
           resumo_path: string | null
           resumo_reuniao: string | null
@@ -37,6 +43,8 @@ export type Database = {
           convocatoria?: string | null
           created_at?: string
           data_assembleia?: string | null
+          dividas_nome?: string | null
+          dividas_path?: string | null
           ficheiro_nome?: string | null
           ficheiro_path?: string | null
           hora?: string | null
@@ -46,6 +54,10 @@ export type Database = {
           nif?: string | null
           nome_condominio: string
           notas?: string | null
+          ordem_nome?: string | null
+          ordem_path?: string | null
+          presencas_nome?: string | null
+          presencas_path?: string | null
           resumo_nome?: string | null
           resumo_path?: string | null
           resumo_reuniao?: string | null
@@ -55,6 +67,8 @@ export type Database = {
           convocatoria?: string | null
           created_at?: string
           data_assembleia?: string | null
+          dividas_nome?: string | null
+          dividas_path?: string | null
           ficheiro_nome?: string | null
           ficheiro_path?: string | null
           hora?: string | null
@@ -64,6 +78,10 @@ export type Database = {
           nif?: string | null
           nome_condominio?: string
           notas?: string | null
+          ordem_nome?: string | null
+          ordem_path?: string | null
+          presencas_nome?: string | null
+          presencas_path?: string | null
           resumo_nome?: string | null
           resumo_path?: string | null
           resumo_reuniao?: string | null
