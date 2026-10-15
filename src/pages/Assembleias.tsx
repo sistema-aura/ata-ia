@@ -24,13 +24,13 @@ type Assembleia = {
   notas: string | null;
   ficheiro_path: string | null;
   ficheiro_nome: string | null;
-  resumo_reuniao: string | null;
+  resumo_path: string | null;
+  resumo_nome: string | null;
 };
 
 const vazio = {
   nome_condominio: "", nif: "", data_assembleia: "", hora: "",
   tipo: "ordinaria", convocatoria: "primeira", local_reuniao: "", notas: "",
-  resumo_reuniao: "",
 };
 
 const db = supabase as any;
@@ -40,6 +40,7 @@ const Assembleias = () => {
   const [lista, setLista] = useState<Assembleia[]>([]);
   const [form, setForm] = useState(vazio);
   const [file, setFile] = useState<File | null>(null);
+  const [resumoFile, setResumoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [viewUrl, setViewUrl] = useState<string | null>(null);
@@ -75,9 +76,9 @@ const Assembleias = () => {
       convocatoria: a.convocatoria || "primeira",
       local_reuniao: a.local_reuniao || "",
       notas: a.notas || "",
-      resumo_reuniao: a.resumo_reuniao || "",
     });
     setFile(null);
+    setResumoFile(null);
     setShowForm(true);
     setFormKey((k) => k + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
