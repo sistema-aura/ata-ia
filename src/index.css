@@ -82,12 +82,36 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background: hsl(var(--accent) / 0.25);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.25);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.4);
+    border: 2px solid transparent;
+    background-clip: content-box;
   }
 }
 
@@ -109,6 +133,7 @@
 
   .shadow-document {
     box-shadow: 0 4px 24px -4px hsl(220 30% 15% / 0.08), 0 1px 4px hsl(220 30% 15% / 0.04);
+    transition: box-shadow 200ms ease, transform 200ms ease;
   }
 
   .ata-document {

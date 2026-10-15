@@ -7,6 +7,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Dashboard from "./pages/Dashboard";
 import NovaAta from "./pages/NovaAta";
 import Assembleias from "./pages/Assembleias";
+import Condominios from "./pages/Condominios";
+import Dividas from "./pages/Dividas";
 import Historico from "./pages/Historico";
 import AdminTemplates from "./pages/admin/AdminTemplates";
 import AdminFormatacao from "./pages/admin/AdminFormatacao";
@@ -28,6 +30,8 @@ const App = () => (
             <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/assembleias" element={<Assembleias />} />
+            <Route path="/condominios" element={<Condominios />} />
+            <Route path="/dividas" element={<Dividas />} />
             <Route path="/nova-ata" element={<NovaAta />} />
             <Route path="/historico" element={<Historico />} />
             <Route path="/templates" element={<AdminTemplates />} />
