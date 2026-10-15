@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { AtaFormData, getDefaultFormData, PontoOrdemDia, PresencasData, DividasData, CompanyTemplate, PONTO_VAZIO } from "@/types/ata";
 import { WordFormattingConfig } from "@/lib/exportWord";

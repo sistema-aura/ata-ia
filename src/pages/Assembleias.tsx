@@ -36,6 +36,7 @@ type Assembleia = {
   presencas_nome: string | null;
   dividas_path: string | null;
   dividas_nome: string | null;
+  ata_feita: boolean | null;
 };
 
 type CondominioInfo = { nome: string; codigo: string | null; morada: string | null };
