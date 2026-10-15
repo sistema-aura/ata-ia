@@ -254,6 +254,14 @@ export interface DebtTextResult {
   warnings: DebtWarning[];
 }
 
+export interface DebtFormatting {
+  debt_section_intro_text?: string;
+  debt_total_label?: string;
+}
+
+const DEFAULT_INTRO = "DÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):";
+const DEFAULT_TOTAL_LABEL = "Total geral em dívida ao condomínio:";
+
 export function buildDebtText(dividasData: {
   dividas: Array<{
     fracao: string; nome: string; descricao?: string;
@@ -264,18 +272,20 @@ export function buildDebtText(dividasData: {
     }>;
   }>;
   totalDivida: string;
-}): DebtTextResult {
+}, fmt?: DebtFormatting): DebtTextResult {
   if (!dividasData?.dividas?.length) return { text: "", warnings: [] };
 
+  const intro = fmt?.debt_section_intro_text?.trim() || DEFAULT_INTRO;
+  const totalLabel = fmt?.debt_total_label?.trim() || DEFAULT_TOTAL_LABEL;
   const { grouped, warnings } = groupDebts(dividasData.dividas);
 
-  const lines: string[] = ["DÍVIDAS AO CONDOMÍNIO (COPIAR TAL QUAL PARA A ATA):"];
+  const lines: string[] = [intro];
 
   for (const d of grouped) {
     const extenso = moneyToWords(d.totalLido);
     const capitalizado = extenso.charAt(0).toUpperCase() + extenso.slice(1);
     lines.push(
-      `✓ Fração ${d.fracao} – ${d.descricao} – ${capitalizado} (€ ${fmtMoney(d.totalLido)}) correspondentes a:`,
+      `✓ Fração ${d.fracao} – ${d.descricao} – ${capitalizado} (€ ${fmtMoney(d.totalLido)}) correspondentes:`,
     );
 
     for (const s of d.subitens) {
@@ -294,13 +304,13 @@ export function buildDebtText(dividasData: {
       const quotStr = s.quotizacao !== undefined ? fmtMoney(s.quotizacao) : "____";
       const frStr = s.fundoReserva !== undefined ? fmtMoney(s.fundoReserva) : "____";
       lines.push(
-        `o  a quotização (€ ${quotStr}) fundo de reserva (€ ${frStr}) ${periodo} (€ ${fmtMoney(s.total)});`,
+        `o  a quotização (€ ${quotStr}) e fundo de reserva (€ ${frStr}) ${periodo} (€ ${fmtMoney(s.total)});`,
       );
     }
   }
 
   lines.push(
-    `\nTotal geral em dívida ao condomínio: € ${fmtMoney(parseMoney(dividasData.totalDivida) || grouped.reduce((s, d) => s + d.totalLido, 0))}`,
+    `\n${totalLabel} € ${fmtMoney(parseMoney(dividasData.totalDivida) || grouped.reduce((s, d) => s + d.totalLido, 0))}`,
   );
   return { text: lines.join("\n"), warnings };
 }
