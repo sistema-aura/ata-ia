@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FileText, History, LayoutDashboard, Shield, Palette, FolderOpen } from "lucide-react";
+import { FileText, History, LayoutDashboard, Shield, Palette, FolderOpen, Building2, Wallet } from "lucide-react";
 import logoAsset from "@/assets/atasia-logo.png.asset.json";
 
 export const AppSidebar = () => {
@@ -20,8 +20,10 @@ export const AppSidebar = () => {
 
   const menuItems = [
     { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+    { title: "Condomínios", icon: Building2, path: "/condominios" },
     { title: "Assembleias", icon: FolderOpen, path: "/assembleias" },
     { title: "Nova Ata", icon: FileText, path: "/nova-ata" },
+    { title: "Dívidas", icon: Wallet, path: "/dividas" },
     { title: "Histórico", icon: History, path: "/historico" },
     { title: "Templates", icon: FileText, path: "/templates" },
     { title: "Formatação", icon: Palette, path: "/formatacao" },
