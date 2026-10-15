@@ -31,7 +31,7 @@ export const loadCondominios = async (): Promise<Condominio[]> => {
     cachePromise = (supabase as any)
       .from("condominios")
       .select("id,codigo,nome,nif,morada,fraccoes,ativo")
-      .order("nome")
+      .order("codigo")
       .then(({ data }: any) => {
         cache = (data || []) as Condominio[];
         return cache;
@@ -114,6 +114,7 @@ export const CondominioCombobox = ({ value, onChange, onSelect, placeholder, id 
               }`}
             >
               <Building2 className="h-3.5 w-3.5 shrink-0 text-accent" />
+              <span className="shrink-0 text-xs font-medium text-muted-foreground">{c.codigo}</span>
               <span className="truncate text-foreground">{c.nome}</span>
               {c.nif && <span className="ml-auto shrink-0 text-xs text-muted-foreground">NIF {c.nif}</span>}
             </button>

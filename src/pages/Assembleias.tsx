@@ -24,13 +24,13 @@ type Assembleia = {
   notas: string | null;
   ficheiro_path: string | null;
   ficheiro_nome: string | null;
-  resumo_reuniao: string | null;
+  resumo_path: string | null;
+  resumo_nome: string | null;
 };
 
 const vazio = {
   nome_condominio: "", nif: "", data_assembleia: "", hora: "",
   tipo: "ordinaria", convocatoria: "primeira", local_reuniao: "", notas: "",
-  resumo_reuniao: "",
 };
 
 const db = supabase as any;
@@ -40,6 +40,7 @@ const Assembleias = () => {
   const [lista, setLista] = useState<Assembleia[]>([]);
   const [form, setForm] = useState(vazio);
   const [file, setFile] = useState<File | null>(null);
+  const [resumoFile, setResumoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [viewUrl, setViewUrl] = useState<string | null>(null);
@@ -75,9 +76,9 @@ const Assembleias = () => {
       convocatoria: a.convocatoria || "primeira",
       local_reuniao: a.local_reuniao || "",
       notas: a.notas || "",
-      resumo_reuniao: a.resumo_reuniao || "",
     });
     setFile(null);
+    setResumoFile(null);
     setShowForm(true);
     setFormKey((k) => k + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -87,6 +88,7 @@ const Assembleias = () => {
     setEditingId(null);
     setForm(vazio);
     setFile(null);
+    setResumoFile(null);
     setShowForm(false);
     setFormKey((k) => k + 1);
   };
@@ -104,13 +106,22 @@ const Assembleias = () => {
         if (ficheiro_path) await supabase.storage.from("assembleias").remove([ficheiro_path]);
         ficheiro_path = path; ficheiro_nome = file.name;
       }
-      const payload = { ...form, data_assembleia: form.data_assembleia || null, ficheiro_path, ficheiro_nome };
+      let resumo_path = editingId ? (lista.find((a) => a.id === editingId)?.resumo_path ?? null) : null;
+      let resumo_nome = editingId ? (lista.find((a) => a.id === editingId)?.resumo_nome ?? null) : null;
+      if (resumoFile) {
+        const path = `resumo-${crypto.randomUUID()}-${resumoFile.name.replace(/[^\w.-]/g, "_")}`;
+        const { error } = await supabase.storage.from("assembleias").upload(path, resumoFile);
+        if (error) throw error;
+        if (resumo_path) await supabase.storage.from("assembleias").remove([resumo_path]);
+        resumo_path = path; resumo_nome = resumoFile.name;
+      }
+      const payload = { ...form, data_assembleia: form.data_assembleia || null, ficheiro_path, ficheiro_nome, resumo_path, resumo_nome };
       const { error } = editingId
         ? await db.from("assembleias").update(payload).eq("id", editingId)
         : await db.from("assembleias").insert(payload);
       if (error) throw error;
       toast.success(editingId ? "Assembleia atualizada" : "Assembleia guardada");
-      setForm(vazio); setFile(null); setShowForm(false); setEditingId(null);
+      setForm(vazio); setFile(null); setResumoFile(null); setShowForm(false); setEditingId(null);
       setFormKey((k) => k + 1);
       load();
     } catch (e: any) {
@@ -124,9 +135,16 @@ const Assembleias = () => {
     if (data?.signedUrl) setViewUrl(data.signedUrl);
   };
 
+  const verResumo = async (a: Assembleia) => {
+    if (!a.resumo_path) return;
+    const { data } = await supabase.storage.from("assembleias").createSignedUrl(a.resumo_path, 3600);
+    if (data?.signedUrl) setViewUrl(data.signedUrl);
+  };
+
   const apagar = async (a: Assembleia) => {
     if (!confirm("Eliminar esta assembleia?")) return;
     if (a.ficheiro_path) await supabase.storage.from("assembleias").remove([a.ficheiro_path]);
+    if (a.resumo_path) await supabase.storage.from("assembleias").remove([a.resumo_path]);
     await db.from("assembleias").delete().eq("id", a.id);
     load();
   };
@@ -138,7 +156,7 @@ const Assembleias = () => {
       <div className="mx-auto max-w-5xl space-y-6 p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="font-heading text-2xl font-bold text-foreground">Assembleias</h1>
-          <Button onClick={() => { setEditingId(null); setForm(vazio); setFile(null); setShowForm(true); setFormKey((k) => k + 1); }}><Plus className="mr-2 h-4 w-4" />Nova assembleia</Button>
+          <Button onClick={() => { setEditingId(null); setForm(vazio); setFile(null); setResumoFile(null); setShowForm(true); setFormKey((k) => k + 1); }}><Plus className="mr-2 h-4 w-4" />Nova assembleia</Button>
         </div>
 
         <div className="relative">
@@ -184,13 +202,13 @@ const Assembleias = () => {
             </div>
             <div className="space-y-2"><Label>Notas</Label><Textarea value={form.notas} onChange={(e) => set("notas", e.target.value)} /></div>
             <div className="space-y-2">
-              <Label>Resumo da reunião (tablet)</Label>
-              <Textarea
-                rows={6}
-                placeholder="Cole aqui o resumo da reunião escrito no tablet, para ficar guardado com a assembleia."
-                value={form.resumo_reuniao}
-                onChange={(e) => set("resumo_reuniao", e.target.value)}
-              />
+              <Label>Resumo da reunião (tablet) — PDF</Label>
+              <Input key={`r-${formKey}`} type="file" accept=".pdf,image/*" onChange={(e) => setResumoFile(e.target.files?.[0] || null)} />
+              {editingId && !resumoFile && lista.find((a) => a.id === editingId)?.resumo_nome && (
+                <p className="text-xs text-muted-foreground">
+                  Resumo atual: {lista.find((a) => a.id === editingId)?.resumo_nome} (escolha um ficheiro para substituir)
+                </p>
+              )}
             </div>
             <div className="flex gap-2">
               <Button onClick={guardar} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{editingId ? "Guardar alterações" : "Guardar"}</Button>
@@ -217,6 +235,7 @@ const Assembleias = () => {
               </div>
               <div className="flex gap-2">
                 {a.ficheiro_path && <Button variant="outline" size="sm" onClick={() => ver(a)}><Eye className="mr-1 h-4 w-4" />Ver</Button>}
+                {a.resumo_path && <Button variant="outline" size="sm" onClick={() => verResumo(a)}><FileText className="mr-1 h-4 w-4" />Resumo</Button>}
                 <Button variant="outline" size="sm" onClick={() => editar(a)}><Pencil className="mr-1 h-4 w-4" />Editar</Button>
                 <Button size="sm" onClick={() => fazerAta(a)}><Sparkles className="mr-1 h-4 w-4" />Fazer ata</Button>
                 <Button variant="ghost" size="sm" onClick={() => apagar(a)}><Trash2 className="h-4 w-4" /></Button>

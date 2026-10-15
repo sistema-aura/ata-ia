@@ -15,6 +15,13 @@
       "when": 1792065363001,
       "tag": "0001_create_condominios_and_resumo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792066022961,
+      "tag": "0002_assembleias_resumo_pdf",
+      "breakpoints": true
     }
   ]
 }
