@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Building2, Calendar, Users, Info } from "lucide-react";
+import { CondominioCombobox } from "@/components/CondominioCombobox";
 
 interface Props {
   formData: AtaFormData;
@@ -40,11 +41,16 @@ export const AssemblyInfoForm = ({ formData, updateField }: Props) => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="nomeCondominio">Nome / Morada do Condomínio</Label>
-            <Input
+            <CondominioCombobox
               id="nomeCondominio"
               placeholder="Ex: Edifício Sol Nascente"
               value={formData.nomeCondominio}
-              onChange={(e) => updateField("nomeCondominio", e.target.value)}
+              onChange={(v) => updateField("nomeCondominio", v)}
+              onSelect={(c) => {
+                updateField("nomeCondominio", c.nome);
+                if (c.nif) updateField("nifCondominio", c.nif);
+                if (c.morada) updateField("morada", c.morada);
+              }}
             />
           </div>
           <div className="space-y-2">

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Eye, FileText, Pencil, Plus, Search, Sparkles, Trash2, Loader2, X } from "lucide-react";
+import { CondominioCombobox } from "@/components/CondominioCombobox";
 
 type Assembleia = {
   id: string;
@@ -23,11 +24,13 @@ type Assembleia = {
   notas: string | null;
   ficheiro_path: string | null;
   ficheiro_nome: string | null;
+  resumo_reuniao: string | null;
 };
 
 const vazio = {
   nome_condominio: "", nif: "", data_assembleia: "", hora: "",
   tipo: "ordinaria", convocatoria: "primeira", local_reuniao: "", notas: "",
+  resumo_reuniao: "",
 };
 
 const db = supabase as any;
@@ -72,6 +75,7 @@ const Assembleias = () => {
       convocatoria: a.convocatoria || "primeira",
       local_reuniao: a.local_reuniao || "",
       notas: a.notas || "",
+      resumo_reuniao: a.resumo_reuniao || "",
     });
     setFile(null);
     setShowForm(true);
@@ -156,7 +160,12 @@ const Assembleias = () => {
               )}
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2"><Label>Prédio / Condomínio</Label><Input value={form.nome_condominio} onChange={(e) => set("nome_condominio", e.target.value)} /></div>
+              <div className="space-y-2"><Label>Prédio / Condomínio</Label>
+                <CondominioCombobox
+                  value={form.nome_condominio}
+                  onChange={(v) => set("nome_condominio", v)}
+                  onSelect={(c) => setForm((f) => ({ ...f, nome_condominio: c.nome, nif: c.nif || f.nif }))}
+                /></div>
               <div className="space-y-2"><Label>NIF do prédio</Label><Input value={form.nif} onChange={(e) => set("nif", e.target.value)} /></div>
               <div className="space-y-2"><Label>Data</Label><Input type="date" value={form.data_assembleia} onChange={(e) => set("data_assembleia", e.target.value)} /></div>
               <div className="space-y-2"><Label>Hora</Label><Input type="time" value={form.hora} onChange={(e) => set("hora", e.target.value)} /></div>
@@ -174,6 +183,15 @@ const Assembleias = () => {
               <div className="space-y-2"><Label>Documento digitalizado (PDF)</Label><Input key={`f-${formKey}`} type="file" accept=".pdf,image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} /></div>
             </div>
             <div className="space-y-2"><Label>Notas</Label><Textarea value={form.notas} onChange={(e) => set("notas", e.target.value)} /></div>
+            <div className="space-y-2">
+              <Label>Resumo da reunião (tablet)</Label>
+              <Textarea
+                rows={6}
+                placeholder="Cole aqui o resumo da reunião escrito no tablet, para ficar guardado com a assembleia."
+                value={form.resumo_reuniao}
+                onChange={(e) => set("resumo_reuniao", e.target.value)}
+              />
+            </div>
             <div className="flex gap-2">
               <Button onClick={guardar} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{editingId ? "Guardar alterações" : "Guardar"}</Button>
               {!editingId && <Button variant="outline" onClick={cancelarEdicao}>Cancelar</Button>}
