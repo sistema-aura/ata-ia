@@ -36,6 +36,13 @@
       "when": 1792067095429,
       "tag": "0004_assembleias_ata_feita",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792149901016,
+      "tag": "0005_add_assembleias_numero_ata",
+      "breakpoints": true
     }
   ]
 }
