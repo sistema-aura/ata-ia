@@ -31,6 +31,7 @@ export type Database = {
           nif: string | null
           nome_condominio: string
           notas: string | null
+          numero_ata: string
           ordem_nome: string | null
           ordem_path: string | null
           presencas_nome: string | null
@@ -56,6 +57,7 @@ export type Database = {
           nif?: string | null
           nome_condominio: string
           notas?: string | null
+          numero_ata?: string
           ordem_nome?: string | null
           ordem_path?: string | null
           presencas_nome?: string | null
@@ -81,6 +83,7 @@ export type Database = {
           nif?: string | null
           nome_condominio?: string
           notas?: string | null
+          numero_ata?: string
           ordem_nome?: string | null
           ordem_path?: string | null
           presencas_nome?: string | null

@@ -1,0 +1,1 @@
+ALTER TABLE public.assembleias ADD COLUMN IF NOT EXISTS numero_ata text NOT NULL DEFAULT '';
