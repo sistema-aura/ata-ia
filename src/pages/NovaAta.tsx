@@ -34,6 +34,7 @@ const NovaAta = () => {
     return {
       ...base,
       nomeCondominio: assembleia.nome_condominio || base.nomeCondominio,
+      numeroAta: assembleia.numero_ata || base.numeroAta,
       nifCondominio: assembleia.nif || base.nifCondominio,
       dataAssembleia: assembleia.data_assembleia || base.dataAssembleia,
       horaInicio: assembleia.hora || base.horaInicio,

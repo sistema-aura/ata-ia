@@ -19,6 +19,7 @@ import { PDFDocument } from "pdf-lib";
 type Assembleia = {
   id: string;
   nome_condominio: string;
+  numero_ata: string;
   nif: string | null;
   data_assembleia: string | null;
   hora: string | null;
@@ -52,7 +53,7 @@ const DOCS = [
 type DocKey = (typeof DOCS)[number]["key"];
 
 const vazio = {
-  nome_condominio: "", nif: "", data_assembleia: "", hora: "",
+  nome_condominio: "", numero_ata: "", nif: "", data_assembleia: "", hora: "",
   tipo: "ordinaria", convocatoria: "primeira", local_reuniao: "", notas: "",
 };
 
@@ -144,6 +145,7 @@ const Assembleias = () => {
     setEditingId(a.id);
     setForm({
       nome_condominio: a.nome_condominio || "",
+      numero_ata: a.numero_ata || "",
       nif: a.nif || "",
       data_assembleia: a.data_assembleia || "",
       hora: a.hora || "",
@@ -315,6 +317,7 @@ const Assembleias = () => {
                   onSelect={(c) => setForm((f) => ({ ...f, nome_condominio: c.nome, nif: c.nif || f.nif }))}
                 /></div>
               <div className="space-y-2"><Label>NIF do prédio</Label><Input value={form.nif} onChange={(e) => set("nif", e.target.value)} /></div>
+              <div className="space-y-2"><Label htmlFor="assembleia-numero-ata">Número da ata (opcional)</Label><Input id="assembleia-numero-ata" placeholder="Ex.: CINCO" value={form.numero_ata} onChange={(e) => set("numero_ata", e.target.value)} /></div>
               <div className="space-y-2"><Label>Data</Label><Input type="date" value={form.data_assembleia} onChange={(e) => set("data_assembleia", e.target.value)} /></div>
               <div className="space-y-2"><Label>Hora</Label><Input type="time" value={form.hora} onChange={(e) => set("hora", e.target.value)} /></div>
               <div className="space-y-2"><Label>Tipo</Label>
@@ -372,6 +375,7 @@ const Assembleias = () => {
               {pastas.map(([nome, arr]) => {
                 const info = condominios[nome];
                 const totalDocs = arr.reduce((s, a) => s + docCount(a), 0);
+                const atasFeitas = arr.filter((a) => a.ata_feita).length;
                 return (
                   <button
                     key={nome}
@@ -380,9 +384,17 @@ const Assembleias = () => {
                   >
                     <div className="mb-3 flex items-start justify-between">
                       <Folder className="h-8 w-8 text-accent" />
-                      <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                        {arr.length} {arr.length === 1 ? "assembleia" : "assembleias"}
-                      </span>
+                      <div className="flex flex-col items-end gap-1 text-xs font-medium text-muted-foreground">
+                        <span className="rounded-full bg-muted px-2.5 py-0.5">
+                          {arr.length} {arr.length === 1 ? "assembleia" : "assembleias"}
+                        </span>
+                        {atasFeitas > 0 && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5">
+                            <CheckCheck className="h-3 w-3" />
+                            {atasFeitas} {atasFeitas === 1 ? "ata feita" : "atas feitas"}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     {info?.codigo && (
                       <p className="font-heading text-xl font-bold text-foreground">{info.codigo}</p>
@@ -416,6 +428,7 @@ const Assembleias = () => {
                       {a.hora ? ` · ${a.hora}` : ""}
                     </p>
                     <p className="text-sm text-muted-foreground">
+                      {a.numero_ata ? `Ata n.º ${a.numero_ata} · ` : ""}
                       {a.tipo === "extraordinaria" ? "Extraordinária" : "Ordinária"}
                       {a.convocatoria ? ` · ${a.convocatoria === "segunda" ? "2ª" : "1ª"} convocatória` : ""}
                       {a.local_reuniao ? ` · ${a.local_reuniao}` : ""}
