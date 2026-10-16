@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
   ArrowLeft, CalendarDays, CheckCheck, Download, Eye, FileText, FolderOpen, Folder,
@@ -91,6 +92,7 @@ const Assembleias = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formKey, setFormKey] = useState(0);
   const [pastaAberta, setPastaAberta] = useState<string | null>(null);
+  const [estadoPastas, setEstadoPastas] = useState("pendentes");
 
   const load = async () => {
     const [{ data: asm }, { data: cond }] = await Promise.all([
@@ -138,6 +140,11 @@ const Assembleias = () => {
     });
     return entries;
   }, [lista, condominios, filtro]);
+
+  const pastasPendentes = new Set(lista.filter((a) => !a.ata_feita).map((a) => a.nome_condominio));
+  const pendentes = pastas.filter(([nome]) => pastasPendentes.has(nome));
+  const concluidas = pastas.filter(([nome]) => !pastasPendentes.has(nome));
+  const pastasVisiveis = estadoPastas === "pendentes" ? pendentes : concluidas;
 
   const set = (k: keyof typeof vazio, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -366,13 +373,29 @@ const Assembleias = () => {
 
         {!pastaAberta && (
           <>
-            {pastas.length === 0 && (
+            <Tabs value={estadoPastas} onValueChange={setEstadoPastas}>
+              <TabsList>
+                <TabsTrigger value="pendentes" className="gap-2">
+                  <FolderOpen className="h-4 w-4" />Por fazer ({pendentes.length})
+                </TabsTrigger>
+                <TabsTrigger value="concluidas" className="gap-2">
+                  <CheckCheck className="h-4 w-4" />Concluídas ({concluidas.length})
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {pastasVisiveis.length === 0 && (
               <p className="text-muted-foreground">
-                {lista.length === 0 ? "Ainda não há assembleias guardadas." : "Nenhuma pasta corresponde à pesquisa."}
+                {lista.length === 0
+                  ? "Ainda não há assembleias guardadas."
+                  : filtro
+                    ? "Nenhuma pasta corresponde à pesquisa neste separador."
+                    : estadoPastas === "pendentes"
+                      ? "Não há assembleias por fazer."
+                      : "Ainda não há pastas com todas as atas feitas."}
               </p>
             )}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {pastas.map(([nome, arr]) => {
+              {pastasVisiveis.map(([nome, arr]) => {
                 const info = condominios[nome];
                 const totalDocs = arr.reduce((s, a) => s + docCount(a), 0);
                 const atasFeitas = arr.filter((a) => a.ata_feita).length;
