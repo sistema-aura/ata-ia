@@ -9,6 +9,7 @@ import {
   TextRun,
 } from "docx";
 import { saveAs } from "file-saver";
+import { numberToWords } from "@/lib/debtText";
 
 export interface WordFormattingConfig {
   font_family?: string;
@@ -99,12 +100,18 @@ export async function exportAtaToWord(
       .replace(/^\*\s+/, "• ");
 
     if (clean.match(/^ATA\s+(NÚMERO|N[ÚU]MERO)/i)) {
+      const title = clean.replace(/^(ATA\s+N[ÚU]MERO\s+)(\d+)\s*$/i, (original, prefix: string, digits: string) => {
+        const number = Number(digits);
+        return Number.isSafeInteger(number)
+          ? `${prefix}${numberToWords(number).toLocaleUpperCase("pt-PT")}`
+          : original;
+      });
       paragraphs.push(
         new Paragraph({
           alignment: titleAlignment,
           spacing: { line: lineSpacing, after: 300 },
           children: [
-            new TextRun({ text: clean, bold: true, size: size + 6, font }),
+            new TextRun({ text: title, bold: true, size: size + 6, font }),
           ],
         })
       );
