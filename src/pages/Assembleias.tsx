@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { CondominioCombobox } from "@/components/CondominioCombobox";
 import { PDFDocument } from "pdf-lib";
+import teamsIcon from "@/assets/teams-icon.png.asset.json";
 import { setAssemblyTeams } from "@/lib/assemblyTeams";
 
 type Assembleia = {
@@ -418,6 +419,7 @@ const Assembleias = () => {
                 const info = condominios[nome];
                 const totalDocs = arr.reduce((s, a) => s + docCount(a), 0);
                 const atasFeitas = arr.filter((a) => a.ata_feita).length;
+                const atasNoTeams = arr.filter((a) => a.no_teams).length;
                 return (
                   <button
                     key={nome}
@@ -434,6 +436,15 @@ const Assembleias = () => {
                           <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5">
                             <CheckCheck className="h-3 w-3" />
                             {atasFeitas} {atasFeitas === 1 ? "ata feita" : "atas feitas"}
+                          </span>
+                        )}
+                        {atasNoTeams > 0 && (
+                          <span
+                            className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-0.5"
+                            title={`${atasNoTeams} de ${arr.length} ${arr.length === 1 ? "ata no Teams" : "atas no Teams"}`}
+                          >
+                            <img src={teamsIcon.url} alt="" className="h-5 w-5 shrink-0 rounded object-contain" />
+                            {atasNoTeams} no Teams
                           </span>
                         )}
                       </div>
