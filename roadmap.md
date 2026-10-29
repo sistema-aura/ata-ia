@@ -1,0 +1,3 @@
+- [ ] Prefixar os ficheiros Word com o código do prédio.
+- [ ] Guardar e mostrar a marcação «Já está no Teams» nas assembleias.
+- [ ] Verificar exportação e marcação guardada.
