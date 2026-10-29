@@ -10,6 +10,7 @@ import {
 } from "docx";
 import { saveAs } from "file-saver";
 import { numberToWords } from "@/lib/debtText";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface WordFormattingConfig {
   font_family?: string;
@@ -296,10 +297,16 @@ export async function exportAtaToWord(
   });
 
   const blob = await Packer.toBlob(doc);
+  let codigo = "";
+  if (nomeCondominio) {
+    const { data, error } = await supabase.from("condominios")
+      .select("codigo").eq("nome", nomeCondominio).maybeSingle();
+    if (!error) codigo = data?.codigo?.trim() || "";
+  }
   const filename = numeroAta
     ? `Ata nº ${numeroAta}.docx`
     : nomeCondominio
       ? `Ata_${nomeCondominio.replace(/\s+/g, "_")}.docx`
       : "Ata_Assembleia.docx";
-  saveAs(blob, filename);
+  saveAs(blob, codigo ? `${codigo}_${filename}` : filename);
 }
