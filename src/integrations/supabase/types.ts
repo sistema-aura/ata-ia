@@ -29,6 +29,7 @@ export type Database = {
           local_reuniao: string | null
           morada: string | null
           nif: string | null
+          no_teams: boolean
           nome_condominio: string
           notas: string | null
           numero_ata: string
@@ -55,6 +56,7 @@ export type Database = {
           local_reuniao?: string | null
           morada?: string | null
           nif?: string | null
+          no_teams?: boolean
           nome_condominio: string
           notas?: string | null
           numero_ata?: string
@@ -81,6 +83,7 @@ export type Database = {
           local_reuniao?: string | null
           morada?: string | null
           nif?: string | null
+          no_teams?: boolean
           nome_condominio?: string
           notas?: string | null
           numero_ata?: string

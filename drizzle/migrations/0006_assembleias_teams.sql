@@ -1,0 +1,1 @@
+ALTER TABLE public.assembleias ADD COLUMN IF NOT EXISTS no_teams boolean NOT NULL DEFAULT false;

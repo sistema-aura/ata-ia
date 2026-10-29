@@ -12,10 +12,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
   ArrowLeft, CalendarDays, CheckCheck, Download, Eye, FileText, FolderOpen, Folder,
-  Pencil, Plus, Search, Sparkles, Trash2, Loader2, X,
+  Pencil, Plus, Search, Sparkles, Trash2, Loader2, X, Send,
 } from "lucide-react";
 import { CondominioCombobox } from "@/components/CondominioCombobox";
 import { PDFDocument } from "pdf-lib";
+import { setAssemblyTeams } from "@/lib/assemblyTeams";
 
 type Assembleia = {
   id: string;
@@ -39,6 +40,7 @@ type Assembleia = {
   dividas_path: string | null;
   dividas_nome: string | null;
   ata_feita: boolean | null;
+  no_teams: boolean;
 };
 
 type CondominioInfo = { nome: string; codigo: string | null; morada: string | null };
@@ -93,6 +95,7 @@ const Assembleias = () => {
   const [formKey, setFormKey] = useState(0);
   const [pastaAberta, setPastaAberta] = useState<string | null>(null);
   const [estadoPastas, setEstadoPastas] = useState("pendentes");
+  const [teamsSaving, setTeamsSaving] = useState<string | null>(null);
 
   const load = async () => {
     const [{ data: asm }, { data: cond }] = await Promise.all([
@@ -260,7 +263,23 @@ const Assembleias = () => {
     load();
   };
 
-  const fazerAta = (a: Assembleia) => navigate("/nova-ata", { state: { assembleia: a } });
+  const fazerAta = (a: Assembleia) => {
+    if (a.no_teams && !confirm("Esta ata já está no Teams. Quer fazer uma nova ata na mesma?")) return;
+    navigate("/nova-ata", { state: { assembleia: a } });
+  };
+
+  const marcarTeams = async (a: Assembleia) => {
+    setTeamsSaving(a.id);
+    try {
+      const novo = await setAssemblyTeams(a.id, !a.no_teams);
+      setLista((l) => l.map((x) => x.id === a.id ? { ...x, no_teams: novo } : x));
+      toast.success(novo ? "Marcada como já está no Teams" : "Marcação do Teams removida");
+    } catch {
+      toast.error("Não foi possível guardar a marcação do Teams.");
+    } finally {
+      setTeamsSaving(null);
+    }
+  };
 
   const marcarAtaFeita = async (a: Assembleia) => {
     const novo = !a.ata_feita;
@@ -462,13 +481,23 @@ const Assembleias = () => {
                       </span>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       variant={a.ata_feita ? "secondary" : "outline"}
                       size="sm"
                       onClick={() => marcarAtaFeita(a)}
                     >
                       <CheckCheck className="mr-1 h-4 w-4" />{a.ata_feita ? "Desmarcar" : "Ata feita"}
+                    </Button>
+                    <Button
+                      variant={a.no_teams ? "secondary" : "outline"}
+                      size="sm"
+                      aria-pressed={!!a.no_teams}
+                      disabled={teamsSaving === a.id}
+                      onClick={() => marcarTeams(a)}
+                    >
+                      {teamsSaving === a.id ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Send className="mr-1 h-4 w-4" />}
+                      {a.no_teams && <CheckCheck className="mr-1 h-4 w-4" />}Já está no Teams
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => editar(a)}><Pencil className="mr-1 h-4 w-4" />Editar</Button>
                     <Button size="sm" onClick={() => fazerAta(a)}><Sparkles className="mr-1 h-4 w-4" />Fazer ata</Button>

@@ -43,6 +43,13 @@
       "when": 1792149901016,
       "tag": "0005_add_assembleias_numero_ata",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793287894379,
+      "tag": "0006_assembleias_teams",
+      "breakpoints": true
     }
   ]
 }
